@@ -6,7 +6,6 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
-import numpy as np
 import pandas as pd
 
 from enterprise_synth.cdc.generator import generate_cdc as _generate_cdc
@@ -16,9 +15,12 @@ from enterprise_synth.exporters.csv_exporter import export_csv
 from enterprise_synth.exporters.delta_exporter import export_delta
 from enterprise_synth.exporters.json_exporter import export_json
 from enterprise_synth.exporters.parquet_exporter import export_parquet
-from enterprise_synth.relationships.graph import topological_sort
-from enterprise_synth.schemas.models import DomainSchema
-from enterprise_synth.utils.random import get_rng
+from enterprise_synth.schemas.generation import (
+    generate_domain_schema_pandas,
+    generate_single_table_pandas,
+    generate_single_table_spark,
+)
+from enterprise_synth.schemas.models import DomainSchema, TableSchema
 from enterprise_synth.utils.validation import validate_engine, validate_output_format
 
 
@@ -174,44 +176,46 @@ def generate_cdc(
 
 
 def generate_from_schema(
-    schema: DomainSchema,
-    rows: Mapping[str, int],
+    schema: DomainSchema | TableSchema | pd.DataFrame | str | Any,
+    rows: Mapping[str, int] | int = 100,
     seed: int | None = None,
-) -> dict[str, pd.DataFrame]:
-    """Generate a simple pandas dataset from schema metadata.
+    engine: str = "pandas",
+    spark: Any | None = None,
+    table_name: str = "sample",
+) -> dict[str, pd.DataFrame] | pd.DataFrame | Any:
+    """Generate sample data from domain metadata, DataFrames, DDL strings, or Spark schemas.
 
-    This utility is intentionally generic: it is useful for lightweight custom test
-    fixtures, while richer business realism belongs in domain packs.
+    Supported inputs:
+    - ``DomainSchema``: returns a dictionary of pandas tables, preserving relationships.
+    - ``TableSchema``: returns a single pandas or Spark DataFrame.
+    - empty pandas ``DataFrame`` with dtypes: returns a pandas or Spark DataFrame.
+    - DDL-like string such as ``"id int, name string"``: returns a pandas or Spark DataFrame.
+    - PySpark ``StructType``: returns pandas by default, or Spark when ``engine="spark"``.
     """
 
-    order = topological_sort(schema.dependencies())
-    rng = get_rng(seed, "schema")
-    generated: dict[str, pd.DataFrame] = {}
+    validate_engine(engine)
+    if isinstance(schema, DomainSchema):
+        if engine != "pandas":
+            raise ValueError("DomainSchema generation currently supports engine='pandas'.")
+        return generate_domain_schema_pandas(schema, rows=rows, seed=seed)
 
-    for table_name in order:
-        table = schema.tables[table_name]
-        count = int(rows.get(table_name, 0))
-        frame: dict[str, Any] = {}
-        for column in table.columns:
-            if column.name == table.primary_key:
-                frame[column.name] = np.arange(1, count + 1, dtype=np.int64)
-            elif any(fk.column == column.name for fk in table.foreign_keys):
-                fk = next(fk for fk in table.foreign_keys if fk.column == column.name)
-                parent_values = generated[fk.parent_table][fk.parent_column].to_numpy()
-                frame[column.name] = (
-                    rng.choice(parent_values, size=count, replace=True)
-                    if len(parent_values)
-                    else []
-                )
-            elif "int" in column.dtype.lower():
-                frame[column.name] = rng.integers(0, 1000, size=count)
-            elif "float" in column.dtype.lower():
-                frame[column.name] = np.round(rng.normal(100, 15, size=count), 2)
-            elif "date" in column.dtype.lower():
-                frame[column.name] = pd.date_range("2025-01-01", periods=count, freq="D").date
-            elif "bool" in column.dtype.lower():
-                frame[column.name] = rng.random(count) < 0.5
-            else:
-                frame[column.name] = [f"{column.name}_{index}" for index in range(1, count + 1)]
-        generated[table_name] = pd.DataFrame(frame)
-    return generated
+    if isinstance(rows, Mapping):
+        raise ValueError("Single-table schema generation expects rows to be an integer.")
+    row_count = int(rows)
+    if row_count < 0:
+        raise ValueError("rows must be greater than or equal to zero.")
+
+    if engine == "spark":
+        return generate_single_table_spark(
+            schema,
+            rows=row_count,
+            spark=spark,
+            seed=seed,
+            table_name=table_name,
+        )
+    return generate_single_table_pandas(
+        schema,
+        rows=row_count,
+        seed=seed,
+        table_name=table_name,
+    )

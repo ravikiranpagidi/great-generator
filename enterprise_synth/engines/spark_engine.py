@@ -48,7 +48,9 @@ def _generate_ecommerce(
         )
         .withColumn(
             "signup_date",
-            F.date_add(F.lit("2023-01-01"), F.pmod(F.xxhash64("customer_id"), F.lit(1095))),
+            F.date_add(
+                F.lit("2023-01-01"), F.pmod(F.xxhash64("customer_id"), F.lit(1095)).cast("int")
+            ),
         )
         .withColumn(
             "country",
@@ -112,7 +114,9 @@ def _generate_ecommerce(
         .withColumn(
             "order_ts",
             F.to_timestamp(
-                F.date_add(F.lit("2025-01-01"), F.pmod(F.xxhash64("order_id"), F.lit(365)))
+                F.date_add(
+                    F.lit("2025-01-01"), F.pmod(F.xxhash64("order_id"), F.lit(365)).cast("int")
+                )
             ),
         )
         .withColumn("event_date", F.to_date("order_ts"))
@@ -265,7 +269,9 @@ def _generate_banking(
         )
         .withColumn(
             "opened_date",
-            F.date_add(F.lit("2020-01-01"), F.pmod(F.xxhash64("customer_id"), F.lit(2190))),
+            F.date_add(
+                F.lit("2020-01-01"), F.pmod(F.xxhash64("customer_id"), F.lit(2190)).cast("int")
+            ),
         )
         .withColumn(
             "status",
@@ -302,7 +308,9 @@ def _generate_banking(
         )
         .withColumn(
             "opened_date",
-            F.date_add(F.lit("2020-01-01"), F.pmod(F.xxhash64("account_id"), F.lit(2190))),
+            F.date_add(
+                F.lit("2020-01-01"), F.pmod(F.xxhash64("account_id"), F.lit(2190)).cast("int")
+            ),
         )
         .withColumn("balance", F.round(F.rand(_rand(seed, 48)) * 50_000 + 100, 2))
         .withColumn(
@@ -324,7 +332,7 @@ def _generate_banking(
         )
         .withColumn(
             "issued_date",
-            F.date_add(F.lit("2021-01-01"), F.pmod(F.xxhash64("card_id"), F.lit(1825))),
+            F.date_add(F.lit("2021-01-01"), F.pmod(F.xxhash64("card_id"), F.lit(1825)).cast("int")),
         )
         .withColumn(
             "status",
@@ -371,7 +379,10 @@ def _generate_banking(
         .withColumn(
             "transaction_ts",
             F.to_timestamp(
-                F.date_add(F.lit("2025-01-01"), F.pmod(F.xxhash64("transaction_id"), F.lit(365)))
+                F.date_add(
+                    F.lit("2025-01-01"),
+                    F.pmod(F.xxhash64("transaction_id"), F.lit(365)).cast("int"),
+                )
             ),
         )
         .withColumn("event_date", F.to_date("transaction_ts"))

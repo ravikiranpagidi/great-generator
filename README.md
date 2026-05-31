@@ -443,6 +443,61 @@ Supported anomalies:
 - negative amounts
 - invalid status codes
 
+## Schema-first sample generation
+
+Domain packs are the main value, but Data Genie also supports quick sample generation from schemas you already have.
+
+### From a compact schema string
+
+```python
+from enterprise_synth import generate_from_schema
+
+sample = generate_from_schema(
+    "id int, customer_name string, amount decimal(10,2), active boolean, created_at timestamp",
+    rows=100,
+    seed=42,
+)
+```
+
+### From an empty pandas DataFrame with dtypes
+
+```python
+import pandas as pd
+from enterprise_synth import generate_from_schema
+
+empty = pd.DataFrame({
+    "customer_id": pd.Series(dtype="int64"),
+    "customer_name": pd.Series(dtype="string"),
+    "score": pd.Series(dtype="float64"),
+    "created_at": pd.Series(dtype="datetime64[ns]"),
+})
+
+sample = generate_from_schema(empty, rows=1_000, seed=42)
+```
+
+### From a PySpark StructType
+
+```python
+from pyspark.sql import types as T
+from enterprise_synth import generate_from_schema
+
+schema = T.StructType([
+    T.StructField("id", T.IntegerType(), False),
+    T.StructField("name", T.StringType(), True),
+    T.StructField("amount", T.DoubleType(), True),
+])
+
+spark_df = generate_from_schema(
+    schema,
+    rows=10_000,
+    engine="spark",
+    spark=spark,
+    seed=42,
+)
+```
+
+This path is intentionally lightweight: it creates type-aware sample rows for custom schemas. Use domain packs when you need realistic multi-table enterprise behavior, CDC, anomalies, and referential integrity.
+
 ## CDC simulation
 
 ```python
@@ -550,12 +605,12 @@ from enterprise_synth import (
 - Delta export depends on runtime support: Databricks Runtime or a Spark session configured for Delta Lake.
 - Legacy DBFS root and mounts are not the recommended long-term Databricks storage pattern.
 - Spark export helpers do not configure cloud credentials, attach storage, or register catalog tables for you.
-- Generic `generate_from_schema(...)` is intentionally lightweight; domain packs provide the richer realism.
+- Generic `generate_from_schema(...)` supports DDL strings, empty pandas DataFrames, TableSchema, DomainSchema, and PySpark StructType inputs, but domain packs provide the richer realism.
 
 ## Roadmap
 
 - more domain packs: SaaS, telecom, logistics, healthcare
-- SQL DDL support
+- richer schema-driven sample generation
 - schema introspection
 - richer streaming / Kafka simulation
 - more export formats

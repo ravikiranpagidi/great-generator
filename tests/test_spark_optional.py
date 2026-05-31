@@ -1,10 +1,15 @@
+import os
+import sys
+
 import pytest
 
-from enterprise_synth import generate_domain
+from enterprise_synth import generate_domain, generate_from_schema
 
 
 @pytest.fixture(scope="module")
 def spark():
+    os.environ.setdefault("PYSPARK_PYTHON", sys.executable)
+    os.environ.setdefault("PYSPARK_DRIVER_PYTHON", sys.executable)
     pyspark = pytest.importorskip("pyspark")
     return (
         pyspark.sql.SparkSession.builder.master("local[1]")
@@ -25,3 +30,21 @@ def test_spark_relationships_are_valid(spark):
         data["transactions"].join(data["accounts"], on="account_id", how="left_anti").count()
     )
     assert orphan_accounts == 0
+
+
+def test_spark_generate_from_schema_accepts_structtype(spark):
+    from pyspark.sql import types as T
+
+    schema = T.StructType(
+        [
+            T.StructField("id", T.IntegerType(), False),
+            T.StructField("name", T.StringType(), True),
+            T.StructField("amount", T.DoubleType(), True),
+        ]
+    )
+
+    frame = generate_from_schema(schema, rows=5, engine="spark", spark=spark, seed=42)
+
+    assert frame.count() == 5
+    assert frame.schema == schema
+    assert frame.select("id").orderBy("id").first()[0] == 1
