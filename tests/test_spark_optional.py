@@ -48,3 +48,27 @@ def test_spark_generate_from_schema_accepts_structtype(spark):
     assert frame.count() == 5
     assert frame.schema == schema
     assert frame.select("id").orderBy("id").first()[0] == 1
+
+
+def test_spark_generate_from_schema_accepts_dataframe_input_and_can_write(spark):
+    from pyspark.sql import types as T
+
+    schema = T.StructType(
+        [
+            T.StructField("id", T.IntegerType(), False),
+            T.StructField("name", T.StringType(), True),
+            T.StructField("amount", T.DoubleType(), True),
+        ]
+    )
+    input_df = spark.createDataFrame([], schema=schema)
+
+    df = generate_from_schema(input_df, rows=5, seed=42)
+
+    assert df.count() == 5
+    assert df.schema == schema
+    assert df.select("id").orderBy("id").first()[0] == 1
+
+    writer = df.write.mode("overwrite")
+    assert hasattr(writer, "csv")
+    assert hasattr(writer, "parquet")
+    assert hasattr(writer, "format")

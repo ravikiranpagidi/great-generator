@@ -496,6 +496,23 @@ spark_df = generate_from_schema(
 )
 ```
 
+### From a PySpark DataFrame
+
+If you already have an empty or sample Spark DataFrame, pass it directly. Data Genie infers the schema and SparkSession, then returns a generated Spark DataFrame.
+
+```python
+from enterprise_synth import generate_from_schema
+
+source_df = spark.createDataFrame([], schema)
+
+df = generate_from_schema(source_df, rows=10_000, seed=42)
+
+# Use normal Spark writers.
+df.write.mode("overwrite").csv("s3a://my-bucket/demo/customers_csv")
+df.write.mode("overwrite").parquet("s3a://my-bucket/demo/customers_parquet")
+df.write.format("delta").mode("overwrite").save("dbfs:/Volumes/catalog/schema/volume/customers_delta")
+```
+
 This path is intentionally lightweight: it creates type-aware sample rows for custom schemas. Use domain packs when you need realistic multi-table enterprise behavior, CDC, anomalies, and referential integrity.
 
 ## CDC simulation
@@ -605,7 +622,7 @@ from enterprise_synth import (
 - Delta export depends on runtime support: Databricks Runtime or a Spark session configured for Delta Lake.
 - Legacy DBFS root and mounts are not the recommended long-term Databricks storage pattern.
 - Spark export helpers do not configure cloud credentials, attach storage, or register catalog tables for you.
-- Generic `generate_from_schema(...)` supports DDL strings, empty pandas DataFrames, TableSchema, DomainSchema, and PySpark StructType inputs, but domain packs provide the richer realism.
+- Generic `generate_from_schema(...)` supports DDL strings, empty pandas DataFrames, TableSchema, DomainSchema, PySpark StructType inputs, and PySpark DataFrame inputs, but domain packs provide the richer realism.
 
 ## Roadmap
 

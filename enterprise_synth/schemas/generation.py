@@ -71,20 +71,22 @@ def generate_single_table_pandas(
 def generate_single_table_spark(
     schema: TableSchema | pd.DataFrame | str | Any,
     rows: int,
-    spark: Any,
+    spark: Any | None,
     seed: int | None = None,
     table_name: str = "sample",
 ) -> Any:
     """Generate a Spark DataFrame from a single-table schema input."""
 
+    spark = spark or spark_session_from_dataframe(schema)
     if spark is None:
         raise ValueError("Spark schema generation requires a SparkSession via spark=...")
     table, source = normalize_single_table_schema(schema, table_name=table_name)
     frame = generate_single_table_pandas(table, rows=rows, seed=seed, table_name=table.name)
+    source_schema = source.schema if is_pyspark_dataframe(source) else source
 
-    if is_pyspark_struct_type(source):
-        records = _records_for_spark_schema(frame, source)
-        return spark.createDataFrame(records, schema=source)
+    if is_pyspark_struct_type(source_schema):
+        records = _records_for_spark_schema(frame, source_schema)
+        return spark.createDataFrame(records, schema=source_schema)
     return spark.createDataFrame(frame)
 
 
@@ -100,11 +102,13 @@ def normalize_single_table_schema(
         return table_schema_from_pandas(schema, table_name=table_name), schema
     if isinstance(schema, str):
         return table_schema_from_ddl(schema, table_name=table_name), schema
+    if is_pyspark_dataframe(schema):
+        return table_schema_from_pyspark(schema.schema, table_name=table_name), schema
     if is_pyspark_struct_type(schema):
         return table_schema_from_pyspark(schema, table_name=table_name), schema
     raise TypeError(
-        "schema must be a DomainSchema, TableSchema, pandas DataFrame, DDL string, "
-        "or PySpark StructType."
+        "schema must be a DomainSchema, TableSchema, pandas DataFrame, PySpark DataFrame, "
+        "DDL string, or PySpark StructType."
     )
 
 
@@ -211,6 +215,34 @@ def is_pyspark_struct_type(schema: Any) -> bool:
     """Return true for PySpark StructType objects without importing PySpark eagerly."""
 
     return schema.__class__.__name__ == "StructType" and hasattr(schema, "fields")
+
+
+def is_pyspark_dataframe(frame: Any) -> bool:
+    """Return true for PySpark DataFrame objects without importing PySpark eagerly."""
+
+    return (
+        frame.__class__.__name__ == "DataFrame"
+        and hasattr(frame, "schema")
+        and hasattr(frame, "columns")
+        and (
+            hasattr(frame, "sparkSession")
+            or hasattr(frame, "sql_ctx")
+            or frame.__class__.__module__.startswith("pyspark.")
+        )
+        and is_pyspark_struct_type(frame.schema)
+    )
+
+
+def spark_session_from_dataframe(frame: Any) -> Any | None:
+    """Infer a SparkSession from a PySpark DataFrame when possible."""
+
+    if not is_pyspark_dataframe(frame):
+        return None
+    if hasattr(frame, "sparkSession"):
+        return frame.sparkSession
+    if hasattr(frame, "sql_ctx") and hasattr(frame.sql_ctx, "sparkSession"):
+        return frame.sql_ctx.sparkSession
+    return None
 
 
 def _domain_row_counts(schema: DomainSchema, rows: Mapping[str, int] | int) -> Mapping[str, int]:

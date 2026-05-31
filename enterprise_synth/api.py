@@ -19,6 +19,7 @@ from enterprise_synth.schemas.generation import (
     generate_domain_schema_pandas,
     generate_single_table_pandas,
     generate_single_table_spark,
+    is_pyspark_dataframe,
 )
 from enterprise_synth.schemas.models import DomainSchema, TableSchema
 from enterprise_synth.utils.validation import validate_engine, validate_output_format
@@ -179,7 +180,7 @@ def generate_from_schema(
     schema: DomainSchema | TableSchema | pd.DataFrame | str | Any,
     rows: Mapping[str, int] | int = 100,
     seed: int | None = None,
-    engine: str = "pandas",
+    engine: str = "auto",
     spark: Any | None = None,
     table_name: str = "sample",
 ) -> dict[str, pd.DataFrame] | pd.DataFrame | Any:
@@ -191,11 +192,17 @@ def generate_from_schema(
     - empty pandas ``DataFrame`` with dtypes: returns a pandas or Spark DataFrame.
     - DDL-like string such as ``"id int, name string"``: returns a pandas or Spark DataFrame.
     - PySpark ``StructType``: returns pandas by default, or Spark when ``engine="spark"``.
+    - PySpark ``DataFrame``: returns a Spark DataFrame and infers its SparkSession.
     """
 
-    validate_engine(engine)
+    if engine == "auto":
+        resolved_engine = "spark" if is_pyspark_dataframe(schema) else "pandas"
+    else:
+        validate_engine(engine)
+        resolved_engine = engine
+
     if isinstance(schema, DomainSchema):
-        if engine != "pandas":
+        if resolved_engine != "pandas":
             raise ValueError("DomainSchema generation currently supports engine='pandas'.")
         return generate_domain_schema_pandas(schema, rows=rows, seed=seed)
 
@@ -205,7 +212,7 @@ def generate_from_schema(
     if row_count < 0:
         raise ValueError("rows must be greater than or equal to zero.")
 
-    if engine == "spark":
+    if resolved_engine == "spark":
         return generate_single_table_spark(
             schema,
             rows=row_count,
