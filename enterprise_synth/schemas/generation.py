@@ -77,7 +77,7 @@ def generate_single_table_spark(
 ) -> Any:
     """Generate a Spark DataFrame from a single-table schema input."""
 
-    spark = spark or spark_session_from_dataframe(schema)
+    spark = spark or spark_session_from_dataframe(schema) or active_spark_session()
     if spark is None:
         raise ValueError("Spark schema generation requires a SparkSession via spark=...")
     table, source = normalize_single_table_schema(schema, table_name=table_name)
@@ -243,6 +243,23 @@ def spark_session_from_dataframe(frame: Any) -> Any | None:
     if hasattr(frame, "sql_ctx") and hasattr(frame.sql_ctx, "sparkSession"):
         return frame.sql_ctx.sparkSession
     return None
+
+
+def active_spark_session() -> Any | None:
+    """Return the active PySpark session in notebooks/clusters, if one exists."""
+
+    try:
+        from pyspark.sql import SparkSession
+    except ImportError:
+        return None
+
+    try:
+        get_active_session = getattr(SparkSession, "getActiveSession", None)
+        if get_active_session is None:
+            return None
+        return get_active_session()
+    except Exception:
+        return None
 
 
 def _domain_row_counts(schema: DomainSchema, rows: Mapping[str, int] | int) -> Mapping[str, int]:

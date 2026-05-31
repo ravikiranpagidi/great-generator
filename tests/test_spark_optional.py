@@ -3,7 +3,7 @@ import sys
 
 import pytest
 
-from enterprise_synth import generate_domain, generate_from_schema
+from enterprise_synth import generate_domain, generate_from_schema, get_domain_schema
 
 
 @pytest.fixture(scope="module")
@@ -43,11 +43,27 @@ def test_spark_generate_from_schema_accepts_structtype(spark):
         ]
     )
 
-    frame = generate_from_schema(schema, rows=5, engine="spark", spark=spark, seed=42)
+    frame = generate_from_schema(schema, rows=5, spark=spark, seed=42)
 
     assert frame.count() == 5
     assert frame.schema == schema
     assert frame.select("id").orderBy("id").first()[0] == 1
+
+
+def test_spark_generate_from_schema_accepts_ddl_with_spark_context(spark):
+    frame = generate_from_schema("id int, name string", rows=3, spark=spark, seed=42)
+
+    assert frame.count() == 3
+    assert frame.columns == ["id", "name"]
+    assert frame.select("id").orderBy("id").first()[0] == 1
+    assert hasattr(frame.write.mode("overwrite"), "parquet")
+
+
+def test_spark_generate_from_schema_accepts_domain_schema_with_spark_context(spark):
+    data = generate_from_schema(get_domain_schema("ecommerce"), rows=2, spark=spark, seed=42)
+
+    assert data["customers"].count() == 2
+    assert data["orders"].count() == 2
 
 
 def test_spark_generate_from_schema_accepts_dataframe_input_and_can_write(spark):

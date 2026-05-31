@@ -447,6 +447,12 @@ Supported anomalies:
 
 Domain packs are the main value, but Data Genie also supports quick sample generation from schemas you already have.
 
+Return type follows the execution context:
+
+- Python, schema strings, and pandas inputs return pandas DataFrames by default.
+- Passing `spark=...`, `engine="spark"`, a PySpark DataFrame, or a PySpark `StructType` with an active SparkSession returns Spark DataFrames.
+- In Python Spark notebooks this is a PySpark DataFrame backed by Spark's JVM engine, so you can use normal Spark writers for CSV, Parquet, Delta, S3, ADLS, GCS, DBFS, and catalog workflows.
+
 ### From a compact schema string
 
 ```python
@@ -490,7 +496,6 @@ schema = T.StructType([
 spark_df = generate_from_schema(
     schema,
     rows=10_000,
-    engine="spark",
     spark=spark,
     seed=42,
 )
@@ -622,7 +627,7 @@ from enterprise_synth import (
 - Delta export depends on runtime support: Databricks Runtime or a Spark session configured for Delta Lake.
 - Legacy DBFS root and mounts are not the recommended long-term Databricks storage pattern.
 - Spark export helpers do not configure cloud credentials, attach storage, or register catalog tables for you.
-- Generic `generate_from_schema(...)` supports DDL strings, empty pandas DataFrames, TableSchema, DomainSchema, PySpark StructType inputs, and PySpark DataFrame inputs, but domain packs provide the richer realism.
+- Generic `generate_from_schema(...)` supports DDL strings, empty pandas DataFrames, TableSchema, DomainSchema, PySpark StructType inputs, and PySpark DataFrame inputs. It returns pandas by default and Spark DataFrames when a Spark context is provided or inferred, but domain packs provide the richer realism.
 
 ## Roadmap
 

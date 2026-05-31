@@ -79,7 +79,7 @@ def test_generate_from_schema_accepts_pyspark_structtype_as_pandas_when_availabl
         ]
     )
 
-    frame = generate_from_schema(schema, rows=4, seed=42)
+    frame = generate_from_schema(schema, rows=4, engine="pandas", seed=42)
 
     assert list(frame.columns) == ["id", "name", "created_at"]
     assert frame["id"].tolist() == [1, 2, 3, 4]

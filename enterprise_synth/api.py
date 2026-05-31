@@ -16,10 +16,12 @@ from enterprise_synth.exporters.delta_exporter import export_delta
 from enterprise_synth.exporters.json_exporter import export_json
 from enterprise_synth.exporters.parquet_exporter import export_parquet
 from enterprise_synth.schemas.generation import (
+    active_spark_session,
     generate_domain_schema_pandas,
     generate_single_table_pandas,
     generate_single_table_spark,
     is_pyspark_dataframe,
+    is_pyspark_struct_type,
 )
 from enterprise_synth.schemas.models import DomainSchema, TableSchema
 from enterprise_synth.utils.validation import validate_engine, validate_output_format
@@ -187,24 +189,28 @@ def generate_from_schema(
     """Generate sample data from domain metadata, DataFrames, DDL strings, or Spark schemas.
 
     Supported inputs:
-    - ``DomainSchema``: returns a dictionary of pandas tables, preserving relationships.
-    - ``TableSchema``: returns a single pandas or Spark DataFrame.
+    - ``DomainSchema``: returns pandas tables, or Spark tables when ``spark=...``/``engine="spark"``.
+    - ``TableSchema``: returns a pandas or Spark DataFrame.
     - empty pandas ``DataFrame`` with dtypes: returns a pandas or Spark DataFrame.
     - DDL-like string such as ``"id int, name string"``: returns a pandas or Spark DataFrame.
-    - PySpark ``StructType``: returns pandas by default, or Spark when ``engine="spark"``.
+    - PySpark ``StructType``: returns Spark when a SparkSession is provided or active.
     - PySpark ``DataFrame``: returns a Spark DataFrame and infers its SparkSession.
     """
 
     if engine == "auto":
-        resolved_engine = "spark" if is_pyspark_dataframe(schema) else "pandas"
+        resolved_engine = "spark" if _has_spark_context(schema, spark) else "pandas"
     else:
         validate_engine(engine)
         resolved_engine = engine
 
     if isinstance(schema, DomainSchema):
-        if resolved_engine != "pandas":
-            raise ValueError("DomainSchema generation currently supports engine='pandas'.")
-        return generate_domain_schema_pandas(schema, rows=rows, seed=seed)
+        generated = generate_domain_schema_pandas(schema, rows=rows, seed=seed)
+        if resolved_engine == "spark":
+            spark_session = spark or active_spark_session()
+            if spark_session is None:
+                raise ValueError("Spark schema generation requires a SparkSession via spark=...")
+            return {name: spark_session.createDataFrame(frame) for name, frame in generated.items()}
+        return generated
 
     if isinstance(rows, Mapping):
         raise ValueError("Single-table schema generation expects rows to be an integer.")
@@ -226,3 +232,13 @@ def generate_from_schema(
         seed=seed,
         table_name=table_name,
     )
+
+
+def _has_spark_context(schema: Any, spark: Any | None) -> bool:
+    """Return true when auto mode should produce Spark DataFrames."""
+
+    if spark is not None:
+        return True
+    if is_pyspark_dataframe(schema):
+        return True
+    return is_pyspark_struct_type(schema) and active_spark_session() is not None
