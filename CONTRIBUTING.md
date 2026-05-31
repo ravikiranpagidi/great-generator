@@ -20,6 +20,8 @@ pip install -e ".[dev]"
 ruff check .
 black --check .
 pytest
+python -m build
+python -m twine check dist/*
 ```
 
 4. Keep domain packs realistic, deterministic, and dependency-light.
@@ -32,6 +34,15 @@ pytest
 - Spark generation improvements that preserve deterministic behavior
 - Exporters, schema utilities, and documentation examples
 - Bug fixes with regression tests
+
+## Releases
+
+Release work should follow [docs/PYPI_RELEASE.md](docs/PYPI_RELEASE.md).
+
+## Community and security
+
+- Code of conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Security policy: [SECURITY.md](SECURITY.md)
 
 ## Design principles
 

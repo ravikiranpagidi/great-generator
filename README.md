@@ -37,6 +37,24 @@ Enterprise Synth is built for that middle ground.
 | SDV | statistical synthetic modeling | stays lightweight, template-driven, developer-first, and Spark/export friendly |
 | Enterprise Synth | relational synthetic enterprise systems | focuses on parent-child tables, CDC, anomalies, scale profiles, and lakehouse-ready outputs |
 
+## What this is / is not
+
+Enterprise Synth is for developers who need credible synthetic data quickly.
+
+It is:
+
+- a lightweight Python library
+- deterministic when seeded
+- useful for pandas, Spark, notebooks, demos, tests, and benchmarks
+- built around domain packs, schema generation, exports, CDC, and anomalies
+
+It is not:
+
+- a privacy transformation tool for production data
+- a heavyweight ML/statistical synthetic data platform
+- a cloud credential manager
+- a database, web server, or orchestration framework
+
 ## Installation
 
 ```bash
@@ -69,6 +87,24 @@ Returned value:
     "shipments": shipments_df,
     "returns": returns_df,
 }
+```
+
+## First 5 minutes
+
+```python
+from enterprise_synth import generate_domain, generate_from_schema, list_domains
+
+print(list_domains())
+
+ecommerce = generate_domain("ecommerce", scale="tiny", seed=42)
+print(ecommerce["orders"].head())
+
+sample = generate_from_schema(
+    "id int, customer_name string, amount double, created_at timestamp",
+    rows=10,
+    seed=42,
+)
+print(sample)
 ```
 
 ## One-line examples worth stealing
@@ -317,12 +353,12 @@ Enterprise Synth is useful for:
 **Relationships**
 
 ```text
-customers.customer_id ─▶ orders.customer_id
-orders.order_id       ─▶ order_items.order_id
-products.product_id   ─▶ order_items.product_id
-orders.order_id       ─▶ payments.order_id
-orders.order_id       ─▶ shipments.order_id
-orders.order_id       ─▶ returns.order_id
+customers.customer_id -> orders.customer_id
+orders.order_id       -> order_items.order_id
+products.product_id   -> order_items.product_id
+orders.order_id       -> payments.order_id
+orders.order_id       -> shipments.order_id
+orders.order_id       -> returns.order_id
 ```
 
 **Behavior**
@@ -361,13 +397,13 @@ orders.order_id       ─▶ returns.order_id
 **Relationships**
 
 ```text
-customers.customer_id       ─▶ accounts.customer_id
-customers.customer_id       ─▶ cards.customer_id
-accounts.account_id         ─▶ transactions.account_id
-cards.card_id               ─▶ transactions.card_id
-merchants.merchant_id       ─▶ transactions.merchant_id
-transactions.transaction_id ─▶ fraud_events.transaction_id
-customers.customer_id       ─▶ cdc_customer_changes.customer_id
+customers.customer_id       -> accounts.customer_id
+customers.customer_id       -> cards.customer_id
+accounts.account_id         -> transactions.account_id
+cards.card_id               -> transactions.card_id
+merchants.merchant_id       -> transactions.merchant_id
+transactions.transaction_id -> fraud_events.transaction_id
+customers.customer_id       -> cdc_customer_changes.customer_id
 ```
 
 **Behavior**
@@ -410,6 +446,8 @@ synthetic_data/
     order_items/
     payments/
 ```
+
+For Spark/cloud export details, see [docs/CLOUD_DEPLOYMENT.md](docs/CLOUD_DEPLOYMENT.md).
 
 ## Anomaly injection
 
@@ -632,6 +670,8 @@ from enterprise_synth import (
 ## Roadmap
 
 - more domain packs: SaaS, telecom, logistics, healthcare
+- JSON-native generation with `generate_json_from_schema(...)`
+- simple, nested, file-based, pandas, and Spark schema inputs for JSON payloads
 - richer schema-driven sample generation
 - schema introspection
 - richer streaming / Kafka simulation
@@ -644,6 +684,12 @@ from enterprise_synth import (
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Release and security
+
+- Changelog: [CHANGELOG.md](CHANGELOG.md)
+- Security policy: [SECURITY.md](SECURITY.md)
+- PyPI release checklist: [docs/PYPI_RELEASE.md](docs/PYPI_RELEASE.md)
 
 ## Project philosophy
 
