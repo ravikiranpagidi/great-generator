@@ -12,6 +12,11 @@ Initial public release candidate.
 
 - Ecommerce domain pack with customers, products, orders, order items, payments, shipments, and returns.
 - Banking domain pack with customers, accounts, transactions, cards, merchants, fraud events, and CDC-style customer changes.
+- Healthcare domain pack with patients, providers, facilities, encounters, claims, prescriptions, and lab results.
+- Telecom domain pack with customers, plans, devices, subscriptions, usage events, invoices, and support tickets.
+- Logistics domain pack with shippers, warehouses, carriers, products, shipments, shipment events, and inventory movements.
+- SaaS domain pack with organizations, users, plans, subscriptions, features, usage events, invoices, and support tickets.
+- Schema-driven Spark fallback for newer domain packs, preserving primary-key and foreign-key consistency.
 - Deterministic generation with seeds.
 - Pandas generation engine.
 - Optional Spark generation engine.

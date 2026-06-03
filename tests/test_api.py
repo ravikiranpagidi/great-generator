@@ -4,7 +4,14 @@ from enterprise_synth import generate_domain, get_domain_schema, list_domains
 
 
 def test_list_domains_returns_expected_domains():
-    assert list_domains() == ["banking", "ecommerce"]
+    assert list_domains() == [
+        "banking",
+        "ecommerce",
+        "healthcare",
+        "logistics",
+        "saas",
+        "telecom",
+    ]
 
 
 def test_get_domain_schema_returns_metadata():

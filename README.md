@@ -117,6 +117,12 @@ data = generate_domain("ecommerce")
 from enterprise_synth import generate_cdc
 cdc = generate_cdc("banking", table="customers", rows=10_000, seed=42)
 
+# Healthcare demo data
+healthcare = generate_domain("healthcare", scale="small", seed=42)
+
+# Telecom usage data
+telecom = generate_domain("telecom", scale="small", seed=42)
+
 # Research reproducibility
 banking = generate_domain("banking", scale="medium", seed=2026)
 
@@ -338,6 +344,15 @@ Enterprise Synth is useful for:
 
 ## Domain packs
 
+Available domain packs:
+
+- `ecommerce` - retail customers, products, orders, payments, shipments, and returns
+- `banking` - customers, accounts, transactions, cards, merchants, fraud, and CDC
+- `healthcare` - patients, providers, facilities, encounters, claims, prescriptions, and labs
+- `telecom` - customers, plans, devices, subscriptions, usage, invoices, and support
+- `logistics` - shippers, warehouses, carriers, products, shipments, tracking, and inventory
+- `saas` - organizations, users, plans, subscriptions, features, product usage, invoices, and support
+
 ### Ecommerce
 
 **Tables**
@@ -427,6 +442,134 @@ customers.customer_id       -> cdc_customer_changes.customer_id
 | fraud_events | `fraud_event_id`, `transaction_id`, `risk_score` |
 | cdc_customer_changes | `operation`, `before`, `after`, `event_timestamp`, `ingestion_timestamp` |
 
+### Healthcare
+
+**Tables**
+
+- `patients`
+- `providers`
+- `facilities`
+- `encounters`
+- `claims`
+- `prescriptions`
+- `lab_results`
+
+**Relationships**
+
+```text
+patients.patient_id       -> encounters.patient_id
+providers.provider_id     -> encounters.provider_id
+facilities.facility_id    -> encounters.facility_id
+encounters.encounter_id   -> claims.encounter_id
+encounters.encounter_id   -> lab_results.encounter_id
+patients.patient_id       -> prescriptions.patient_id
+providers.provider_id     -> prescriptions.provider_id
+```
+
+**Behavior**
+
+- chronic and high-risk patients generate more encounters
+- encounter type influences diagnosis group and billed amount
+- claims can be paid, pending, denied, or adjusted
+- lab abnormality is more common for high-risk and chronic patients
+
+### Telecom
+
+**Tables**
+
+- `customers`
+- `plans`
+- `devices`
+- `subscriptions`
+- `usage_events`
+- `invoices`
+- `support_tickets`
+
+**Relationships**
+
+```text
+customers.customer_id          -> subscriptions.customer_id
+plans.plan_id                  -> subscriptions.plan_id
+devices.device_id              -> subscriptions.device_id
+subscriptions.subscription_id  -> usage_events.subscription_id
+subscriptions.subscription_id  -> invoices.subscription_id
+subscriptions.subscription_id  -> support_tickets.subscription_id
+customers.customer_id          -> support_tickets.customer_id
+```
+
+**Behavior**
+
+- unlimited and premium plans generate more data usage
+- roaming and overage behavior influence invoices
+- high churn-risk customers create more support tickets
+- network and billing issues are useful for churn and service-quality demos
+
+### Logistics
+
+**Tables**
+
+- `shippers`
+- `warehouses`
+- `carriers`
+- `products`
+- `shipments`
+- `shipment_events`
+- `inventory_movements`
+
+**Relationships**
+
+```text
+shippers.shipper_id              -> shipments.shipper_id
+warehouses.warehouse_id          -> shipments.origin_warehouse_id
+warehouses.warehouse_id          -> shipments.destination_warehouse_id
+carriers.carrier_id              -> shipments.carrier_id
+products.product_id              -> shipments.product_id
+shipments.shipment_id            -> shipment_events.shipment_id
+warehouses.warehouse_id          -> inventory_movements.warehouse_id
+products.product_id              -> inventory_movements.product_id
+```
+
+**Behavior**
+
+- strategic shippers generate a large share of shipments
+- carrier service level influences delay probability
+- hazmat and heavy products cost more to ship
+- tracking events follow realistic shipment lifecycle states
+
+### SaaS
+
+**Tables**
+
+- `organizations`
+- `users`
+- `plans`
+- `subscriptions`
+- `features`
+- `usage_events`
+- `invoices`
+- `support_tickets`
+
+**Relationships**
+
+```text
+organizations.organization_id -> users.organization_id
+organizations.organization_id -> subscriptions.organization_id
+plans.plan_id                 -> subscriptions.plan_id
+organizations.organization_id -> usage_events.organization_id
+users.user_id                 -> usage_events.user_id
+features.feature_id           -> usage_events.feature_id
+subscriptions.subscription_id -> invoices.subscription_id
+organizations.organization_id -> support_tickets.organization_id
+users.user_id                 -> support_tickets.user_id
+```
+
+**Behavior**
+
+- enterprise organizations have more seats and usage
+- low health-score accounts create more support tickets
+- premium features are used more often by higher-tier customers
+- billing status and usage volume support churn and revenue analytics demos
+
 ## Export formats
 
 Supported formats:
@@ -483,7 +626,7 @@ Supported anomalies:
 
 ## Schema-first sample generation
 
-Domain packs are the main value, but Data Genie also supports quick sample generation from schemas you already have.
+Domain packs are the main value, but Enterprise Synth also supports quick sample generation from schemas you already have.
 
 Return type follows the execution context:
 
@@ -541,7 +684,7 @@ spark_df = generate_from_schema(
 
 ### From a PySpark DataFrame
 
-If you already have an empty or sample Spark DataFrame, pass it directly. Data Genie infers the schema and SparkSession, then returns a generated Spark DataFrame.
+If you already have an empty or sample Spark DataFrame, pass it directly. Enterprise Synth infers the schema and SparkSession, then returns a generated Spark DataFrame.
 
 ```python
 from enterprise_synth import generate_from_schema
@@ -669,7 +812,7 @@ from enterprise_synth import (
 
 ## Roadmap
 
-- more domain packs: SaaS, telecom, logistics, healthcare
+- more domain packs: insurance, energy, education, manufacturing
 - JSON-native generation with `generate_json_from_schema(...)`
 - simple, nested, file-based, pandas, and Spark schema inputs for JSON payloads
 - richer schema-driven sample generation
@@ -694,3 +837,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 ## Project philosophy
 
 The point is not merely to create fake rows. The point is to create synthetic systems that let engineers rehearse reality safely.
+

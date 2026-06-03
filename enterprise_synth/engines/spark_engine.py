@@ -6,7 +6,8 @@ from collections.abc import Mapping
 from typing import Any
 
 from enterprise_synth.anomalies.injector import inject_anomalies_spark
-from enterprise_synth.schemas.models import DomainSchema
+from enterprise_synth.relationships.graph import topological_sort
+from enterprise_synth.schemas.models import ColumnSpec, DomainSchema
 
 
 def _require_spark(spark: Any) -> None:
@@ -20,6 +21,79 @@ def _require_spark(spark: Any) -> None:
 
 def _rand(seed: int | None, salt: int) -> int:
     return int((seed or 0) + salt)
+
+
+def _generic_value(column: ColumnSpec, key_column: str, seed: int | None, salt: int) -> Any:
+    from pyspark.sql import functions as F
+
+    dtype = column.dtype.lower()
+    key = F.col(key_column)
+    if "bool" in dtype:
+        return F.rand(_rand(seed, salt)) < 0.5
+    if "timestamp" in dtype or "datetime" in dtype:
+        return F.to_timestamp(
+            F.date_add(F.lit("2025-01-01"), F.pmod(F.xxhash64(key), F.lit(365)).cast("int"))
+        )
+    if dtype == "date" or dtype.endswith("date"):
+        return F.date_add(F.lit("2025-01-01"), F.pmod(F.xxhash64(key), F.lit(365)).cast("int"))
+    if "decimal" in dtype or "double" in dtype or "float" in dtype or "real" in dtype:
+        if "score" in column.name:
+            return F.round(F.rand(_rand(seed, salt)), 3)
+        if any(token in column.name for token in ("amount", "cost", "price", "fee", "mrr")):
+            return F.round(F.rand(_rand(seed, salt)) * 900 + 10, 2)
+        return F.round(F.rand(_rand(seed, salt)) * 100, 2)
+    if "int" in dtype or "long" in dtype:
+        if "quantity" in column.name or "count" in column.name or "seats" in column.name:
+            return F.pmod(F.xxhash64(key, F.lit(salt)), F.lit(100)) + F.lit(1)
+        if "age" in column.name:
+            return F.pmod(F.xxhash64(key, F.lit(salt)), F.lit(80)) + F.lit(1)
+        return F.pmod(F.xxhash64(key, F.lit(salt)), F.lit(1000))
+    return F.concat(F.lit(f"{column.name}_"), F.format_string("%08d", key))
+
+
+def _generate_schema_driven(
+    schema: DomainSchema,
+    row_counts: Mapping[str, int],
+    spark: Any,
+    seed: int | None,
+) -> dict[str, Any]:
+    from pyspark.sql import functions as F
+
+    generated: dict[str, Any] = {}
+    order = topological_sort(schema.dependencies())
+    salt = 100
+
+    for table_name in order:
+        table = schema.tables[table_name]
+        count = int(row_counts[table_name])
+        key_column = table.primary_key or "_row_id"
+        frame = spark.range(1, count + 1).withColumnRenamed("id", key_column)
+
+        for column in table.columns:
+            if column.name == key_column:
+                continue
+            foreign_key = next((fk for fk in table.foreign_keys if fk.column == column.name), None)
+            if foreign_key is not None:
+                parent_count = int(row_counts[foreign_key.parent_table])
+                if parent_count <= 0:
+                    frame = frame.withColumn(column.name, F.lit(None))
+                else:
+                    frame = frame.withColumn(
+                        column.name,
+                        F.pmod(F.xxhash64(F.col(key_column), F.lit(salt)), F.lit(parent_count))
+                        + F.lit(1),
+                    )
+            else:
+                frame = frame.withColumn(
+                    column.name, _generic_value(column, key_column, seed, salt)
+                )
+            salt += 1
+
+        if table.primary_key is None and "_row_id" not in table.column_names():
+            frame = frame.drop("_row_id")
+        generated[table_name] = frame
+
+    return generated
 
 
 def _generate_ecommerce(
@@ -479,5 +553,5 @@ def generate_domain(
     elif domain == "banking":
         data = _generate_banking(row_counts, spark, seed)
     else:
-        raise ValueError(f"Unknown domain '{domain}'.")
+        data = _generate_schema_driven(schema, row_counts, spark, seed)
     return inject_anomalies_spark(data, schema, anomalies, seed=seed)

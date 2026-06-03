@@ -4,7 +4,9 @@ import pytest
 from enterprise_synth import generate_domain
 
 
-@pytest.mark.parametrize("domain", ["ecommerce", "banking"])
+@pytest.mark.parametrize(
+    "domain", ["ecommerce", "banking", "healthcare", "telecom", "logistics", "saas"]
+)
 def test_same_seed_produces_identical_data(domain):
     first = generate_domain(domain, scale="tiny", seed=123)
     second = generate_domain(domain, scale="tiny", seed=123)

@@ -32,6 +32,17 @@ def test_spark_relationships_are_valid(spark):
     assert orphan_accounts == 0
 
 
+def test_spark_schema_driven_generation_supports_new_domains(spark):
+    data = generate_domain("healthcare", engine="spark", scale="tiny", spark=spark, seed=42)
+
+    assert data["patients"].count() == 30
+    assert data["encounters"].count() == 90
+    orphan_encounters = (
+        data["encounters"].join(data["patients"], on="patient_id", how="left_anti").count()
+    )
+    assert orphan_encounters == 0
+
+
 def test_spark_generate_from_schema_accepts_structtype(spark):
     from pyspark.sql import types as T
 
