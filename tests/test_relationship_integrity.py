@@ -15,7 +15,19 @@ def test_banking_relationships_are_valid_by_default():
 
 
 def test_new_domain_relationships_are_valid_by_default():
-    for domain in ["healthcare", "telecom", "logistics", "saas"]:
+    for domain in [
+        "automotive",
+        "energy",
+        "healthcare",
+        "hospitality",
+        "insurance",
+        "logistics",
+        "manufacturing",
+        "media",
+        "public_sector",
+        "saas",
+        "telecom",
+    ]:
         data = generate_domain(domain, scale="tiny", seed=42)
         violations = validate_foreign_keys(data, get_domain_schema(domain))
         assert all(count == 0 for count in violations.values()), {domain: violations}

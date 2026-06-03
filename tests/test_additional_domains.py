@@ -8,6 +8,42 @@ from enterprise_synth import generate_domain
     ("domain", "expected_tables"),
     [
         (
+            "insurance",
+            {
+                "customers",
+                "agents",
+                "policies",
+                "claims",
+                "premium_payments",
+                "risk_assessments",
+                "reinsurance_contracts",
+            },
+        ),
+        (
+            "automotive",
+            {
+                "customers",
+                "dealers",
+                "vehicles",
+                "sales",
+                "service_appointments",
+                "warranty_claims",
+                "telematics_events",
+            },
+        ),
+        (
+            "energy",
+            {
+                "customers",
+                "sites",
+                "meters",
+                "rate_plans",
+                "usage_readings",
+                "outages",
+                "bills",
+            },
+        ),
+        (
             "healthcare",
             {
                 "patients",
@@ -44,6 +80,42 @@ from enterprise_synth import generate_domain
             },
         ),
         (
+            "manufacturing",
+            {
+                "suppliers",
+                "plants",
+                "products",
+                "work_orders",
+                "production_runs",
+                "quality_inspections",
+                "inventory_movements",
+            },
+        ),
+        (
+            "media",
+            {
+                "users",
+                "content_titles",
+                "subscriptions",
+                "viewing_events",
+                "ad_campaigns",
+                "ad_impressions",
+                "game_sessions",
+            },
+        ),
+        (
+            "public_sector",
+            {
+                "residents",
+                "agencies",
+                "programs",
+                "applications",
+                "cases",
+                "payments",
+                "service_requests",
+            },
+        ),
+        (
             "saas",
             {
                 "organizations",
@@ -54,6 +126,18 @@ from enterprise_synth import generate_domain
                 "usage_events",
                 "invoices",
                 "support_tickets",
+            },
+        ),
+        (
+            "hospitality",
+            {
+                "customers",
+                "properties",
+                "rooms",
+                "reservations",
+                "stays",
+                "payments",
+                "reviews",
             },
         ),
     ],

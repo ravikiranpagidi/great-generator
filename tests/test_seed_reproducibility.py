@@ -5,7 +5,22 @@ from enterprise_synth import generate_domain
 
 
 @pytest.mark.parametrize(
-    "domain", ["ecommerce", "banking", "healthcare", "telecom", "logistics", "saas"]
+    "domain",
+    [
+        "automotive",
+        "banking",
+        "ecommerce",
+        "energy",
+        "healthcare",
+        "hospitality",
+        "insurance",
+        "logistics",
+        "manufacturing",
+        "media",
+        "public_sector",
+        "saas",
+        "telecom",
+    ],
 )
 def test_same_seed_produces_identical_data(domain):
     first = generate_domain(domain, scale="tiny", seed=123)

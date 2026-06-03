@@ -123,6 +123,12 @@ healthcare = generate_domain("healthcare", scale="small", seed=42)
 # Telecom usage data
 telecom = generate_domain("telecom", scale="small", seed=42)
 
+# Insurance claims demo
+insurance = generate_domain("insurance", scale="small", seed=42)
+
+# Manufacturing quality data
+manufacturing = generate_domain("manufacturing", scale="small", seed=42)
+
 # Research reproducibility
 banking = generate_domain("banking", scale="medium", seed=2026)
 
@@ -346,11 +352,18 @@ Enterprise Synth is useful for:
 
 Available domain packs:
 
-- `ecommerce` - retail customers, products, orders, payments, shipments, and returns
-- `banking` - customers, accounts, transactions, cards, merchants, fraud, and CDC
-- `healthcare` - patients, providers, facilities, encounters, claims, prescriptions, and labs
+- `banking` - retail banking-style customers, accounts, cards, transactions, fraud, and CDC
+- `insurance` - policyholders, agents, policies, claims, payments, risk, and reinsurance
 - `telecom` - customers, plans, devices, subscriptions, usage, invoices, and support
+- `automotive` - customers, dealers, vehicles, sales, service, warranty, and telematics
+- `healthcare` - patients, providers, facilities, encounters, claims, prescriptions, and labs
+- `ecommerce` - retail customers, products, orders, payments, shipments, and returns
+- `energy` - customers, sites, meters, usage readings, outages, rates, and bills
+- `manufacturing` - suppliers, plants, products, work orders, production, quality, and inventory
 - `logistics` - shippers, warehouses, carriers, products, shipments, tracking, and inventory
+- `media` - users, content, subscriptions, viewing events, ads, and game sessions
+- `public_sector` - residents, agencies, programs, applications, cases, payments, and services
+- `hospitality` - customers, properties, rooms, reservations, stays, payments, and reviews
 - `saas` - organizations, users, plans, subscriptions, features, product usage, invoices, and support
 
 ### Ecommerce
@@ -569,6 +582,32 @@ users.user_id                 -> support_tickets.user_id
 - low health-score accounts create more support tickets
 - premium features are used more often by higher-tier customers
 - billing status and usage volume support churn and revenue analytics demos
+
+### Additional industry verticals
+
+These packs are designed for broad enterprise demos, testing, lakehouse examples, and benchmark data. They preserve primary-key/foreign-key consistency and include realistic table shapes for each vertical.
+
+| Domain | Tables | Useful for |
+| --- | --- | --- |
+| `insurance` | `customers`, `agents`, `policies`, `claims`, `premium_payments`, `risk_assessments`, `reinsurance_contracts` | P&C/life/health insurance demos, claims analytics, underwriting, payment testing |
+| `automotive` | `customers`, `dealers`, `vehicles`, `sales`, `service_appointments`, `warranty_claims`, `telematics_events` | EV, dealership, warranty, connected vehicle, and service lifecycle demos |
+| `energy` | `customers`, `sites`, `meters`, `rate_plans`, `usage_readings`, `outages`, `bills` | utilities, smart meter, outage, renewable/grid, water, and billing examples |
+| `manufacturing` | `suppliers`, `plants`, `products`, `work_orders`, `production_runs`, `quality_inspections`, `inventory_movements` | industrial IoT, quality, factory automation, inventory, and production analytics |
+| `media` | `users`, `content_titles`, `subscriptions`, `viewing_events`, `ad_campaigns`, `ad_impressions`, `game_sessions` | streaming, ads, gaming telemetry, sports/media engagement demos |
+| `public_sector` | `residents`, `agencies`, `programs`, `applications`, `cases`, `payments`, `service_requests` | government services, tax, benefits, public education, municipal operations |
+| `hospitality` | `customers`, `properties`, `rooms`, `reservations`, `stays`, `payments`, `reviews` | airlines/hotels/travel-style booking, payments, loyalty, and reviews |
+
+Example:
+
+```python
+from enterprise_synth import generate_domain
+
+insurance = generate_domain("insurance", scale="small", seed=42)
+claims = insurance["claims"]
+
+energy = generate_domain("energy", scale="tiny", seed=42)
+readings = energy["usage_readings"]
+```
 
 ## Export formats
 
@@ -812,7 +851,7 @@ from enterprise_synth import (
 
 ## Roadmap
 
-- more domain packs: insurance, energy, education, manufacturing
+- more domain packs: education, real estate, cybersecurity, agriculture
 - JSON-native generation with `generate_json_from_schema(...)`
 - simple, nested, file-based, pandas, and Spark schema inputs for JSON payloads
 - richer schema-driven sample generation

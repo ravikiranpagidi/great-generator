@@ -16,6 +16,14 @@ Initial public release candidate.
 - Telecom domain pack with customers, plans, devices, subscriptions, usage events, invoices, and support tickets.
 - Logistics domain pack with shippers, warehouses, carriers, products, shipments, shipment events, and inventory movements.
 - SaaS domain pack with organizations, users, plans, subscriptions, features, usage events, invoices, and support tickets.
+- Insurance domain pack with customers, agents, policies, claims, premium payments, risk assessments, and reinsurance contracts.
+- Automotive domain pack with customers, dealers, vehicles, sales, service appointments, warranty claims, and telematics events.
+- Energy domain pack with customers, sites, meters, rate plans, usage readings, outages, and bills.
+- Manufacturing domain pack with suppliers, plants, products, work orders, production runs, quality inspections, and inventory movements.
+- Media domain pack with users, content titles, subscriptions, viewing events, ad campaigns, ad impressions, and game sessions.
+- Public sector domain pack with residents, agencies, programs, applications, cases, payments, and service requests.
+- Hospitality domain pack with customers, properties, rooms, reservations, stays, payments, and reviews.
+- Shared industry-domain generator for compact domain packs with valid relationships and domain-looking values.
 - Schema-driven Spark fallback for newer domain packs, preserving primary-key and foreign-key consistency.
 - Deterministic generation with seeds.
 - Pandas generation engine.

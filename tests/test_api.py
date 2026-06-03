@@ -5,10 +5,17 @@ from enterprise_synth import generate_domain, get_domain_schema, list_domains
 
 def test_list_domains_returns_expected_domains():
     assert list_domains() == [
+        "automotive",
         "banking",
         "ecommerce",
+        "energy",
         "healthcare",
+        "hospitality",
+        "insurance",
         "logistics",
+        "manufacturing",
+        "media",
+        "public_sector",
         "saas",
         "telecom",
     ]
