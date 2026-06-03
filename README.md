@@ -9,7 +9,7 @@ Generate realistic enterprise datasets for Spark, Pandas, testing, demos, benchm
 ```python
 from enterprise_synth import generate_domain
 
-data = generate_domain("ecommerce", scale="small", seed=42)
+data = generate_domain("ecommerce", scale="small")
 
 customers = data["customers"]
 orders = data["orders"]
@@ -22,7 +22,7 @@ Creating useful synthetic data is strangely expensive. Teams need datasets that 
 - relationally consistent
 - large enough for pipelines and benchmarks
 - realistic enough for demos and teaching
-- deterministic enough for tests and research
+- reproducible enough for tests and research
 - messy on demand when validating data quality systems
 
 `Faker` is excellent at generating individual fake values, but production systems are made of tables, keys, events, and behavior over time. `SDV` is valuable when statistical modeling is the core problem, but many engineers need something lighter: domain templates, one-line ergonomics, Spark awareness, export formats, and fast iteration.
@@ -44,7 +44,7 @@ Enterprise Synth is for developers who need credible synthetic data quickly.
 It is:
 
 - a lightweight Python library
-- deterministic when seeded
+- can produce deterministic output when requested
 - useful for pandas, Spark, notebooks, demos, tests, and benchmarks
 - built around domain packs, schema generation, exports, CDC, and anomalies
 
@@ -68,7 +68,7 @@ pip install enterprise-synth[delta]
 ```python
 from enterprise_synth import generate_domain
 
-data = generate_domain("ecommerce", scale="small", seed=42)
+data = generate_domain("ecommerce", scale="small")
 
 customers = data["customers"]
 orders = data["orders"]
@@ -96,13 +96,12 @@ from enterprise_synth import generate_domain, generate_from_schema, list_domains
 
 print(list_domains())
 
-ecommerce = generate_domain("ecommerce", scale="tiny", seed=42)
+ecommerce = generate_domain("ecommerce", scale="tiny")
 print(ecommerce["orders"].head())
 
 sample = generate_from_schema(
     "id int, customer_name string, amount double, created_at timestamp",
     rows=10,
-    seed=42,
 )
 print(sample)
 ```
@@ -115,22 +114,22 @@ data = generate_domain("ecommerce")
 
 # Banking CDC
 from enterprise_synth import generate_cdc
-cdc = generate_cdc("banking", table="customers", rows=10_000, seed=42)
+cdc = generate_cdc("banking", table="customers", rows=10_000)
 
 # Healthcare demo data
-healthcare = generate_domain("healthcare", scale="small", seed=42)
+healthcare = generate_domain("healthcare", scale="small")
 
 # Telecom usage data
-telecom = generate_domain("telecom", scale="small", seed=42)
+telecom = generate_domain("telecom", scale="small")
 
 # Insurance claims demo
-insurance = generate_domain("insurance", scale="small", seed=42)
+insurance = generate_domain("insurance", scale="small")
 
 # Manufacturing quality data
-manufacturing = generate_domain("manufacturing", scale="small", seed=42)
+manufacturing = generate_domain("manufacturing", scale="small")
 
-# Research reproducibility
-banking = generate_domain("banking", scale="medium", seed=2026)
+# Medium banking dataset
+banking = generate_domain("banking", scale="medium")
 
 # Anomaly-rich test data
 dirty = generate_domain(
@@ -151,7 +150,7 @@ dirty = generate_domain(
 ```python
 from enterprise_synth import generate_domain
 
-data = generate_domain("ecommerce", engine="pandas", scale="small", seed=42)
+data = generate_domain("ecommerce", engine="pandas", scale="small")
 
 print(data["orders"].head())
 print(data["order_items"].head())
@@ -160,7 +159,7 @@ print(data["order_items"].head())
 ### Banking
 
 ```python
-banking = generate_domain("banking", engine="pandas", scale="small", seed=42)
+banking = generate_domain("banking", engine="pandas", scale="small")
 
 customers = banking["customers"]
 transactions = banking["transactions"]
@@ -214,7 +213,6 @@ data = generate_domain(
     engine="spark",
     scale="large",
     spark=spark,
-    seed=42,
 )
 ```
 
@@ -602,10 +600,10 @@ Example:
 ```python
 from enterprise_synth import generate_domain
 
-insurance = generate_domain("insurance", scale="small", seed=42)
+insurance = generate_domain("insurance", scale="small")
 claims = insurance["claims"]
 
-energy = generate_domain("energy", scale="tiny", seed=42)
+energy = generate_domain("energy", scale="tiny")
 readings = energy["usage_readings"]
 ```
 
@@ -681,7 +679,6 @@ from enterprise_synth import generate_from_schema
 sample = generate_from_schema(
     "id int, customer_name string, amount decimal(10,2), active boolean, created_at timestamp",
     rows=100,
-    seed=42,
 )
 ```
 
@@ -698,7 +695,7 @@ empty = pd.DataFrame({
     "created_at": pd.Series(dtype="datetime64[ns]"),
 })
 
-sample = generate_from_schema(empty, rows=1_000, seed=42)
+sample = generate_from_schema(empty, rows=1_000)
 ```
 
 ### From a PySpark StructType
@@ -717,7 +714,6 @@ spark_df = generate_from_schema(
     schema,
     rows=10_000,
     spark=spark,
-    seed=42,
 )
 ```
 
@@ -730,7 +726,7 @@ from enterprise_synth import generate_from_schema
 
 source_df = spark.createDataFrame([], schema)
 
-df = generate_from_schema(source_df, rows=10_000, seed=42)
+df = generate_from_schema(source_df, rows=10_000)
 
 # Use normal Spark writers.
 df.write.mode("overwrite").csv("s3a://my-bucket/demo/customers_csv")
@@ -752,7 +748,6 @@ cdc = generate_cdc(
     operations=["insert", "update", "delete"],
     late_arrival_rate=0.02,
     duplicate_rate=0.005,
-    seed=42,
 )
 ```
 
@@ -770,12 +765,7 @@ CDC output includes:
 
 ## Reproducibility
 
-```python
-data1 = generate_domain("ecommerce", seed=123)
-data2 = generate_domain("ecommerce", seed=123)
-```
-
-The same seed produces the same pandas outputs. That makes regression tests, examples, benchmarks, and papers easier to reproduce.
+The examples above omit reproducibility options so the first path stays simple. Stable outputs are still supported for tests, demos, benchmarks, and research through the optional reproducibility argument in the public API.
 
 ## Scale profiles
 
