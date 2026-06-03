@@ -9,6 +9,7 @@ import pandas as pd
 
 from enterprise_synth.distributions.time_patterns import (
     random_timestamps_on_dates,
+    sampled_month_starts,
     weighted_calendar_dates,
 )
 from enterprise_synth.distributions.weighted import normalize
@@ -350,7 +351,9 @@ def generate_pandas(
         {
             "invoice_id": invoice_ids,
             "subscription_id": invoice_subscription_ids,
-            "invoice_month": pd.date_range("2025-01-01", periods=invoice_count, freq="MS").date,
+            "invoice_month": sampled_month_starts(
+                invoice_rng, invoice_count, start="2024-01-01", periods=24
+            ),
             "invoice_amount": invoice_amount,
             "paid_amount": np.where(payment_status == "paid", invoice_amount, 0.0),
             "payment_status": payment_status,

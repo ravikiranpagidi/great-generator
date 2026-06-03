@@ -61,5 +61,27 @@ def random_timestamps_on_dates(
     return pd.Series(dates + offsets)
 
 
+def sampled_month_starts(
+    rng: np.random.Generator,
+    rows: int,
+    start: str = "2024-01-01",
+    periods: int = 24,
+) -> np.ndarray:
+    """Sample month-start dates from a bounded billing/reporting calendar.
+
+    This avoids creating one unique month per generated row, which can push Pandas
+    past its timestamp bounds at larger row counts. Enterprise invoices and monthly
+    facts usually reuse a recent reporting calendar, so sampling from a bounded set is
+    both more realistic and safer across Python/Pandas versions.
+    """
+
+    months = pd.date_range(start=start, periods=periods, freq="MS")
+    weights = np.linspace(0.75, 1.25, len(months), dtype=float)
+    weights[months.month.isin([11, 12])] *= 1.15
+    probabilities = weights / weights.sum()
+    chosen = rng.choice(months.to_numpy(), size=rows, replace=True, p=probabilities)
+    return pd.DatetimeIndex(chosen).date
+
+
 def as_date(value: pd.Timestamp | date) -> date:
     return value.date() if isinstance(value, pd.Timestamp) else value

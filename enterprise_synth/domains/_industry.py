@@ -10,6 +10,7 @@ import pandas as pd
 
 from enterprise_synth.distributions.time_patterns import (
     random_timestamps_on_dates,
+    sampled_month_starts,
     weighted_calendar_dates,
 )
 from enterprise_synth.schemas.generation import generate_domain_schema_pandas
@@ -104,7 +105,7 @@ def _values_for_column(
         or name.endswith("_month")
     ):
         if name.endswith("_month"):
-            return pd.date_range("2025-01-01", periods=rows, freq="MS").date
+            return sampled_month_starts(rng, rows, start="2024-01-01", periods=24)
         return weighted_calendar_dates(
             rng,
             rows,
