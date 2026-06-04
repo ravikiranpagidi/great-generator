@@ -2,15 +2,15 @@
 
 ## Name ideas
 
-- **Enterprise Synth** ? direct, memorable, accurately scoped
-- **Relata** ? evokes relationships and data lineage
-- **DataForge** ? strong builder energy, broader than the current focus
-- **DomainGen** ? practical and literal
-- **SynthLake** ? strong lakehouse association, narrower than the whole product
+- **Great Generator** - direct, memorable, accurately scoped
+- **Relata** - evokes relationships and data lineage
+- **DataForge** - strong builder energy, broader than the current focus
+- **DomainGen** - practical and literal
+- **SynthLake** - strong lakehouse association, narrower than the whole product
 
 ## Recommendation
 
-Use **Enterprise Synth** as the product name, publish as `enterprise-synth`, and import as `enterprise_synth`.
+Use **Great Generator** as the product name, publish as `great-generator`, and import as `great_generator`.
 It says what the library does without making users decode a metaphor.
 
 ## GitHub strategy
@@ -23,7 +23,7 @@ It says what the library does without making users decode a metaphor.
 
 ## PyPI strategy
 
-1. Reserve `enterprise-synth` early.
+1. Reserve `great-generator` early.
 2. Publish an alpha release once the public API, README, and examples are coherent.
 3. Tag releases semantically and maintain a concise changelog.
 4. Ship wheels and source distributions through trusted publishing.

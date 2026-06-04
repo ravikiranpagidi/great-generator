@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping make `enterprise-synth` more useful.
+Thanks for helping make `great-generator` more useful.
 
 ## Local setup
 

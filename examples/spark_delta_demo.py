@@ -1,4 +1,4 @@
-from enterprise_synth import generate_domain
+from great_generator import generate_domain
 
 # spark must already be a configured SparkSession
 generate_domain(

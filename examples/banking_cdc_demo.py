@@ -1,4 +1,4 @@
-from enterprise_synth import generate_cdc, generate_domain
+from great_generator import generate_cdc, generate_domain
 
 banking = generate_domain("banking", scale="small", seed=42)
 cdc = generate_cdc(

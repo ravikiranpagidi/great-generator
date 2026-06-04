@@ -1,5 +1,5 @@
-from enterprise_synth import generate_domain, get_domain_schema
-from enterprise_synth.utils.validation import validate_foreign_keys
+from great_generator import generate_domain, get_domain_schema
+from great_generator.utils.validation import validate_foreign_keys
 
 
 def test_ecommerce_relationships_are_valid_by_default():

@@ -13,7 +13,7 @@ Describe the bug clearly.
 ## Minimal reproduction
 
 ```python
-from enterprise_synth import generate_domain
+from great_generator import generate_domain
 
 data = generate_domain("ecommerce", scale="tiny", seed=42)
 ```

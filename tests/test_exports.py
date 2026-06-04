@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from enterprise_synth import generate_domain
+from great_generator import generate_domain
 
 
 def test_csv_export_writes_expected_files(tmp_path: Path):

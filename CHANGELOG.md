@@ -10,6 +10,8 @@ Initial public release candidate.
 
 ### Added
 
+- Great Generator package identity: publish as `great-generator` and import as `great_generator`.
+- Backward-compatible `enterprise_synth` import alias for pre-release users of the earlier repo name.
 - Ecommerce domain pack with customers, products, orders, order items, payments, shipments, and returns.
 - Banking domain pack with customers, accounts, transactions, cards, merchants, fraud events, and CDC-style customer changes.
 - Healthcare domain pack with patients, providers, facilities, encounters, claims, prescriptions, and lab results.

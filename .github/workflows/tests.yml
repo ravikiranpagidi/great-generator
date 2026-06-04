@@ -48,12 +48,12 @@ jobs:
       - name: Smoke test installed wheel
         shell: bash
         run: |
-          python -m venv /tmp/enterprise-synth-smoke
-          source /tmp/enterprise-synth-smoke/bin/activate
+          python -m venv /tmp/great-generator-smoke
+          source /tmp/great-generator-smoke/bin/activate
           python -m pip install --upgrade pip
           python -m pip install dist/*.whl
           python - <<'PY'
-          from enterprise_synth import generate_domain, list_domains
+          from great_generator import generate_domain, list_domains
 
           assert "ecommerce" in list_domains()
           data = generate_domain("ecommerce", scale="tiny", seed=42)

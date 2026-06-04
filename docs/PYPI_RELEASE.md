@@ -8,15 +8,15 @@ Configure trusted publishers in PyPI and TestPyPI.
 
 ### PyPI
 
-- Project name: `enterprise-synth`
-- Owner/repository: `ravikiranpagidi/data-genie`
+- Project name: `great-generator`
+- Owner/repository: `ravikiranpagidi/great-generator`
 - Workflow: `release-pypi.yml`
 - Environment: `pypi`
 
 ### TestPyPI
 
-- Project name: `enterprise-synth`
-- Owner/repository: `ravikiranpagidi/data-genie`
+- Project name: `great-generator`
+- Owner/repository: `ravikiranpagidi/great-generator`
 - Workflow: `release-testpypi.yml`
 - Environment: `testpypi`
 
@@ -26,7 +26,7 @@ GitHub environments named `pypi` and `testpypi` should exist before publishing. 
 
 1. Update the version in:
    - `pyproject.toml`
-   - `enterprise_synth/__init__.py`
+   - `great_generator/__init__.py`
 2. Update `CHANGELOG.md`.
 3. Run:
 
@@ -44,9 +44,9 @@ python -m twine check dist/*
 python -m venv .release-smoke
 .release-smoke\Scripts\activate
 python -m pip install --upgrade pip
-python -m pip install dist\enterprise_synth-*.whl
+python -m pip install dist\great_generator-*.whl
 python - <<'PY'
-from enterprise_synth import generate_domain
+from great_generator import generate_domain
 
 data = generate_domain("ecommerce", scale="tiny", seed=42)
 assert len(data["customers"]) == 25
@@ -70,9 +70,9 @@ After it succeeds, test install from TestPyPI:
 python -m venv .testpypi-smoke
 .testpypi-smoke\Scripts\activate
 python -m pip install --upgrade pip
-python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ enterprise-synth
+python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ great-generator
 python - <<'PY'
-from enterprise_synth import generate_domain
+from great_generator import generate_domain
 
 data = generate_domain("banking", scale="tiny", seed=42)
 assert len(data["customers"]) == 25

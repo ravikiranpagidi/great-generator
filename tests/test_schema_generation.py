@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from enterprise_synth import generate_from_schema, get_domain_schema
+from great_generator import generate_from_schema, get_domain_schema
 
 
 def test_generate_from_schema_accepts_ddl_string():

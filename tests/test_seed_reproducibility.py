@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from enterprise_synth import generate_domain
+from great_generator import generate_domain
 
 
 @pytest.mark.parametrize(

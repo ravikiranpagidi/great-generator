@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from enterprise_synth.exporters.csv_exporter import export_csv
-from enterprise_synth.exporters.delta_exporter import export_delta
-from enterprise_synth.exporters.parquet_exporter import export_parquet
+from great_generator.exporters.csv_exporter import export_csv
+from great_generator.exporters.delta_exporter import export_delta
+from great_generator.exporters.parquet_exporter import export_parquet
 
 
 class FakeWriter:

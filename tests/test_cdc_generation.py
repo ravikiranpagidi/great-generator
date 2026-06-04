@@ -1,4 +1,4 @@
-from enterprise_synth import generate_cdc
+from great_generator import generate_cdc
 
 
 def test_cdc_contains_required_columns():

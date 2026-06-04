@@ -1,6 +1,6 @@
 import pandas as pd
 
-from enterprise_synth import generate_domain
+from great_generator import generate_domain
 
 
 def test_ecommerce_domain_generates_expected_tables():

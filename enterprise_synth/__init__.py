@@ -1,21 +1,9 @@
-"""Developer-first enterprise synthetic data generation."""
+"""Backward-compatible import alias for the renamed great_generator package."""
 
-from .api import (
-    export_data,
-    generate_cdc,
-    generate_domain,
-    generate_from_schema,
-    get_domain_schema,
-    list_domains,
-)
+from __future__ import annotations
 
-__all__ = [
-    "export_data",
-    "generate_cdc",
-    "generate_domain",
-    "generate_from_schema",
-    "get_domain_schema",
-    "list_domains",
-]
+import importlib
+import sys
 
-__version__ = "0.1.0"
+_module = importlib.import_module("great_generator")
+sys.modules[__name__] = _module

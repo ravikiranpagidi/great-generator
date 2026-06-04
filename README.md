@@ -1,13 +1,13 @@
-# Enterprise Synth
+# Great Generator
 
 **Developer-first enterprise synthetic data generation for realistic relational, streaming-style, and Spark-scale datasets.**
 
-> Faker gives you fake values. Enterprise Synth gives you a believable enterprise data system.
+> Faker gives you fake values. Great Generator gives you a believable enterprise data system.
 
 Generate realistic enterprise datasets for Spark, Pandas, testing, demos, benchmarking, learning, and research.
 
 ```python
-from enterprise_synth import generate_domain
+from great_generator import generate_domain
 
 data = generate_domain("ecommerce", scale="small")
 
@@ -27,19 +27,19 @@ Creating useful synthetic data is strangely expensive. Teams need datasets that 
 
 `Faker` is excellent at generating individual fake values, but production systems are made of tables, keys, events, and behavior over time. `SDV` is valuable when statistical modeling is the core problem, but many engineers need something lighter: domain templates, one-line ergonomics, Spark awareness, export formats, and fast iteration.
 
-Enterprise Synth is built for that middle ground.
+Great Generator is built for that middle ground.
 
 ## What makes it different
 
-| Tool | Best at | Enterprise Synth difference |
+| Tool | Best at | Great Generator difference |
 | --- | --- | --- |
 | Faker | fake values like names, emails, addresses | generates complete domains with relationships and business behavior |
 | SDV | statistical synthetic modeling | stays lightweight, template-driven, developer-first, and Spark/export friendly |
-| Enterprise Synth | relational synthetic enterprise systems | focuses on parent-child tables, CDC, anomalies, scale profiles, and lakehouse-ready outputs |
+| Great Generator | relational synthetic enterprise systems | focuses on parent-child tables, CDC, anomalies, scale profiles, and lakehouse-ready outputs |
 
 ## What this is / is not
 
-Enterprise Synth is for developers who need credible synthetic data quickly.
+Great Generator is for developers who need credible synthetic data quickly.
 
 It is:
 
@@ -58,15 +58,21 @@ It is not:
 ## Installation
 
 ```bash
-pip install enterprise-synth
-pip install enterprise-synth[spark]
-pip install enterprise-synth[delta]
+pip install great-generator
+pip install great-generator[spark]
+pip install great-generator[delta]
+```
+
+Install with a hyphen, import with an underscore:
+
+```python
+import great_generator
 ```
 
 ## Quickstart
 
 ```python
-from enterprise_synth import generate_domain
+from great_generator import generate_domain
 
 data = generate_domain("ecommerce", scale="small")
 
@@ -92,7 +98,7 @@ Returned value:
 ## First 5 minutes
 
 ```python
-from enterprise_synth import generate_domain, generate_from_schema, list_domains
+from great_generator import generate_domain, generate_from_schema, list_domains
 
 print(list_domains())
 
@@ -113,7 +119,7 @@ print(sample)
 data = generate_domain("ecommerce")
 
 # Banking CDC
-from enterprise_synth import generate_cdc
+from great_generator import generate_cdc
 cdc = generate_cdc("banking", table="customers", rows=10_000)
 
 # Healthcare demo data
@@ -148,7 +154,7 @@ dirty = generate_domain(
 ### Ecommerce
 
 ```python
-from enterprise_synth import generate_domain
+from great_generator import generate_domain
 
 data = generate_domain("ecommerce", engine="pandas", scale="small")
 
@@ -206,7 +212,7 @@ generate_domain(
 ## Spark examples
 
 ```python
-from enterprise_synth import generate_domain
+from great_generator import generate_domain
 
 data = generate_domain(
     "banking",
@@ -332,7 +338,7 @@ Use:
 
 ## Use cases
 
-Enterprise Synth is useful for:
+Great Generator is useful for:
 
 - enterprise demos and architecture proof-of-concepts
 - lakehouse demos and Delta examples
@@ -598,7 +604,7 @@ These packs are designed for broad enterprise demos, testing, lakehouse examples
 Example:
 
 ```python
-from enterprise_synth import generate_domain
+from great_generator import generate_domain
 
 insurance = generate_domain("insurance", scale="small")
 claims = insurance["claims"]
@@ -663,7 +669,7 @@ Supported anomalies:
 
 ## Schema-first sample generation
 
-Domain packs are the main value, but Enterprise Synth also supports quick sample generation from schemas you already have.
+Domain packs are the main value, but Great Generator also supports quick sample generation from schemas you already have.
 
 Return type follows the execution context:
 
@@ -674,7 +680,7 @@ Return type follows the execution context:
 ### From a compact schema string
 
 ```python
-from enterprise_synth import generate_from_schema
+from great_generator import generate_from_schema
 
 sample = generate_from_schema(
     "id int, customer_name string, amount decimal(10,2), active boolean, created_at timestamp",
@@ -686,7 +692,7 @@ sample = generate_from_schema(
 
 ```python
 import pandas as pd
-from enterprise_synth import generate_from_schema
+from great_generator import generate_from_schema
 
 empty = pd.DataFrame({
     "customer_id": pd.Series(dtype="int64"),
@@ -702,7 +708,7 @@ sample = generate_from_schema(empty, rows=1_000)
 
 ```python
 from pyspark.sql import types as T
-from enterprise_synth import generate_from_schema
+from great_generator import generate_from_schema
 
 schema = T.StructType([
     T.StructField("id", T.IntegerType(), False),
@@ -719,10 +725,10 @@ spark_df = generate_from_schema(
 
 ### From a PySpark DataFrame
 
-If you already have an empty or sample Spark DataFrame, pass it directly. Enterprise Synth infers the schema and SparkSession, then returns a generated Spark DataFrame.
+If you already have an empty or sample Spark DataFrame, pass it directly. Great Generator infers the schema and SparkSession, then returns a generated Spark DataFrame.
 
 ```python
-from enterprise_synth import generate_from_schema
+from great_generator import generate_from_schema
 
 source_df = spark.createDataFrame([], schema)
 
@@ -739,7 +745,7 @@ This path is intentionally lightweight: it creates type-aware sample rows for cu
 ## CDC simulation
 
 ```python
-from enterprise_synth import generate_cdc
+from great_generator import generate_cdc
 
 cdc = generate_cdc(
     domain="banking",
@@ -817,7 +823,7 @@ flowchart LR
 ## Public API
 
 ```python
-from enterprise_synth import (
+from great_generator import (
     export_data,
     generate_cdc,
     generate_domain,

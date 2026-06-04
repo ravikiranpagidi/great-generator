@@ -3,7 +3,7 @@ requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
 [project]
-name = "enterprise-synth"
+name = "great-generator"
 version = "0.1.0"
 description = "Developer-first synthetic enterprise datasets for Pandas, Spark, testing, demos, and benchmarking."
 readme = "README.md"
@@ -81,15 +81,15 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ravikiranpagidi/data-genie"
-Repository = "https://github.com/ravikiranpagidi/data-genie"
-Issues = "https://github.com/ravikiranpagidi/data-genie/issues"
-Changelog = "https://github.com/ravikiranpagidi/data-genie/blob/main/CHANGELOG.md"
-Documentation = "https://github.com/ravikiranpagidi/data-genie#readme"
-Security = "https://github.com/ravikiranpagidi/data-genie/security/policy"
+Homepage = "https://github.com/ravikiranpagidi/great-generator"
+Repository = "https://github.com/ravikiranpagidi/great-generator"
+Issues = "https://github.com/ravikiranpagidi/great-generator/issues"
+Changelog = "https://github.com/ravikiranpagidi/great-generator/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/ravikiranpagidi/great-generator#readme"
+Security = "https://github.com/ravikiranpagidi/great-generator/security/policy"
 
 [tool.hatch.build.targets.wheel]
-packages = ["enterprise_synth"]
+packages = ["great_generator", "enterprise_synth"]
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -101,6 +101,7 @@ include = [
   "/SECURITY.md",
   "/docs",
   "/enterprise_synth",
+  "/great_generator",
   "/examples",
   "/pyproject.toml",
   "/tests",

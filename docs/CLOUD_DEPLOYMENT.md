@@ -1,6 +1,6 @@
 # Cloud deployment guide
 
-Enterprise Synth is intentionally **storage-agnostic at the Spark layer**:
+Great Generator is intentionally **storage-agnostic at the Spark layer**:
 
 - pandas writes to local filesystem paths
 - Spark writes preserve the URI you provide and let the cluster resolve it
@@ -20,7 +20,7 @@ That keeps the library portable across Databricks, EMR, Glue-style Spark runtime
 ## Recommended export pattern
 
 ```python
-from enterprise_synth import generate_domain
+from great_generator import generate_domain
 
 generate_domain(
     "banking",
@@ -111,7 +111,7 @@ Before blaming the library, verify the environment:
 
 ## Deliberately not hidden inside the library
 
-Enterprise Synth does **not**:
+Great Generator does **not**:
 
 - create cloud credentials
 - attach storage accounts or buckets

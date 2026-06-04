@@ -3,7 +3,7 @@ import sys
 
 import pytest
 
-from enterprise_synth import generate_domain, generate_from_schema, get_domain_schema
+from great_generator import generate_domain, generate_from_schema, get_domain_schema
 
 
 @pytest.fixture(scope="module")
@@ -13,7 +13,7 @@ def spark():
     pyspark = pytest.importorskip("pyspark")
     return (
         pyspark.sql.SparkSession.builder.master("local[1]")
-        .appName("enterprise-synth-tests")
+        .appName("great-generator-tests")
         .getOrCreate()
     )
 

@@ -1,4 +1,4 @@
-from enterprise_synth import generate_domain
+from great_generator import generate_domain
 
 
 def test_tiny_scale_profile_counts_are_exact():
