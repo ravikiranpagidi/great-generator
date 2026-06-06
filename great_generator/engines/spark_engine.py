@@ -7,16 +7,22 @@ from typing import Any
 
 from great_generator.anomalies.injector import inject_anomalies_spark
 from great_generator.relationships.graph import topological_sort
+from great_generator.schemas.generation import active_spark_session
 from great_generator.schemas.models import ColumnSpec, DomainSchema
 
 
-def _require_spark(spark: Any) -> None:
+def _require_spark(spark: Any) -> Any:
+    spark = spark or active_spark_session()
     if spark is None:
-        raise ValueError("Spark generation requires a SparkSession via spark=...")
+        raise ValueError(
+            "Spark engine requested, but no active SparkSession was found. "
+            "Pass spark=your_spark_session or run this inside an active Spark notebook."
+        )
     try:
         import pyspark  # noqa: F401
     except ImportError as exc:
         raise ImportError("Spark support requires: pip install great-generator[spark]") from exc
+    return spark
 
 
 def _rand(seed: int | None, salt: int) -> int:
@@ -547,7 +553,7 @@ def generate_domain(
     seed: int | None,
     anomalies: Mapping[str, float] | None,
 ) -> dict[str, Any]:
-    _require_spark(spark)
+    spark = _require_spark(spark)
     if domain == "ecommerce":
         data = _generate_ecommerce(row_counts, spark, seed)
     elif domain == "banking":

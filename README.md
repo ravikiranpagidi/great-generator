@@ -742,6 +742,121 @@ df.write.format("delta").mode("overwrite").save("dbfs:/Volumes/catalog/schema/vo
 
 This path is intentionally lightweight: it creates type-aware sample rows for custom schemas. Use domain packs when you need realistic multi-table enterprise behavior, CDC, anomalies, and referential integrity.
 
+## Custom relational schema generation
+
+Use `generate_relational(...)` when you already know your tables and want Great Generator to create referentially valid data for them.
+
+This is different from single-table schema generation. You provide table names, schemas, row counts, and relationships. Great Generator returns one DataFrame per table.
+
+```python
+from great_generator import generate_relational
+
+data = generate_relational(
+    tables={
+        "customers": {
+            "schema": "customer_id int primary key, name string, segment string",
+            "rows": 100000,
+        },
+        "orders": {
+            "schema": "order_id int primary key, customer_id int, order_date date, amount double",
+            "rows": 1000000,
+        },
+        "payments": {
+            "schema": "payment_id int primary key, order_id int, status string, paid_amount double",
+            "rows": 1000000,
+        },
+    },
+    relationships=[
+        "orders.customer_id -> customers.customer_id",
+        "payments.order_id -> orders.order_id",
+    ],
+)
+
+customers = data["customers"]
+orders = data["orders"]
+payments = data["payments"]
+```
+
+You can also define relationships inline:
+
+```python
+data = generate_relational(
+    tables={
+        "customers": "customer_id int primary key, name string, segment string",
+        "orders": (
+            "order_id int primary key, "
+            "customer_id int references customers.customer_id, "
+            "amount double"
+        ),
+    },
+    rows={
+        "customers": 100000,
+        "orders": 1000000,
+    },
+)
+```
+
+### DataFrame-first output
+
+Great Generator returns DataFrames first. Exporting is optional.
+
+That gives users full control over where the data goes:
+
+```python
+data = generate_relational(...)
+
+customers = data["customers"]
+orders = data["orders"]
+```
+
+For pandas:
+
+```python
+customers.to_csv("customers.csv", index=False)
+orders.to_parquet("orders.parquet")
+orders.to_json("orders.json", orient="records")
+```
+
+For Spark:
+
+```python
+data = generate_relational(
+    tables={
+        "customers": {
+            "schema": "customer_id int primary key, name string",
+            "rows": 100000,
+        },
+        "orders": {
+            "schema": "order_id int primary key, customer_id int references customers.customer_id",
+            "rows": 1000000,
+        },
+    },
+    engine="spark",
+)
+
+customers = data["customers"]
+orders = data["orders"]
+
+customers.write.mode("overwrite").parquet("s3a://bucket/demo/customers")
+orders.write.format("delta").mode("overwrite").save("dbfs:/Volumes/catalog/schema/volume/orders")
+orders.write.mode("overwrite").saveAsTable("demo.orders")
+```
+
+In Spark notebooks, `engine="spark"` tries to use the active SparkSession. In scripts or local PySpark applications, pass `spark=your_spark_session` if there is no active session.
+
+Optional export helpers still work:
+
+```python
+data = generate_relational(
+    tables={...},
+    relationships=[...],
+    output_path="./synthetic/custom",
+    output_format="parquet",
+)
+```
+
+The important design point: generation and writing are separate. Great Generator creates the DataFrames, then users can write to CSV, JSON, Parquet, Delta, database tables, catalog tables, cloud storage, or any destination their pandas or Spark runtime supports.
+
 ## CDC simulation
 
 ```python
@@ -800,11 +915,17 @@ generate_domain(
 ```mermaid
 flowchart LR
     A["Public API"] --> B["Domain packs"]
+    A --> K["Custom relational schemas"]
     B --> C["Relationship graph"]
+    K --> C
     B --> D["Distribution helpers"]
+    K --> D
     B --> E["Key registry"]
+    K --> E
     B --> F["Pandas engine"]
     B --> G["Spark engine"]
+    K --> F
+    K --> G
     F --> H["Anomaly injector"]
     G --> H
     H --> I["Exporters"]
@@ -812,6 +933,7 @@ flowchart LR
 ```
 
 - **Domain packs** encode tables, columns, relationships, and realistic behavior.
+- **Custom relational schemas** let users bring their own tables, row counts, primary keys, and foreign keys.
 - **Relationship graph** keeps parent tables ahead of children.
 - **Key registry** guarantees valid foreign-key sampling.
 - **Distribution helpers** provide skew, seasonality, payroll, and weighted behavior.
@@ -828,6 +950,7 @@ from great_generator import (
     generate_cdc,
     generate_domain,
     generate_from_schema,
+    generate_relational,
     get_domain_schema,
     list_domains,
 )

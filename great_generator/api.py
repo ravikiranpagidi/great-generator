@@ -24,6 +24,7 @@ from great_generator.schemas.generation import (
     is_pyspark_struct_type,
 )
 from great_generator.schemas.models import DomainSchema, TableSchema
+from great_generator.schemas.relational import relational_schema_from_specs
 from great_generator.utils.validation import validate_engine, validate_output_format
 
 
@@ -92,6 +93,79 @@ def generate_domain(
             num_partitions=num_partitions,
             partition_strategy=partition_strategy,
         )
+    return data
+
+
+def generate_relational(
+    tables: Mapping[str, Any],
+    relationships: list[str | Mapping[str, str]] | None = None,
+    rows: Mapping[str, int] | int | None = None,
+    engine: str = "pandas",
+    spark: Any | None = None,
+    seed: int | None = None,
+    anomalies: Mapping[str, float] | None = None,
+    output_path: str | Path | None = None,
+    output_format: str | None = None,
+    partition_by: list[str] | None = None,
+    mode: str = "overwrite",
+    writer_options: Mapping[str, str] | None = None,
+    num_partitions: int | None = None,
+    partition_strategy: str = "repartition",
+) -> dict[str, Any]:
+    """Generate a user-defined relational dataset and return table-name DataFrames.
+
+    The primary workflow is DataFrame-first: callers receive a dictionary such as
+    ``{"customers": customers_df, "orders": orders_df}`` and can use native pandas
+    or Spark write APIs for CSV, JSON, Parquet, Delta, databases, catalog tables, or
+    any destination supported by their runtime. ``output_path`` and ``output_format``
+    are optional convenience exports.
+    """
+
+    validate_engine(engine)
+    validate_output_format(output_format)
+    schema, row_counts = relational_schema_from_specs(
+        tables=tables,
+        rows=rows,
+        relationships=relationships,
+    )
+
+    if engine == "pandas":
+        from great_generator.engines.pandas_engine import generate_domain as generate_with_pandas
+
+        data = generate_with_pandas(
+            domain_module=None,
+            schema=schema,
+            row_counts=row_counts,
+            seed=seed,
+            anomalies=anomalies,
+        )
+    else:
+        from great_generator.engines.spark_engine import generate_domain as generate_with_spark
+
+        data = generate_with_spark(
+            "custom_relational",
+            schema,
+            row_counts,
+            spark=spark,
+            seed=seed,
+            anomalies=anomalies,
+        )
+
+    if output_path is not None:
+        if output_format is None:
+            raise ValueError("output_format is required when output_path is provided.")
+        export_data(
+            data,
+            output_path=output_path,
+            output_format=output_format,
+            engine=engine,
+            partition_by=partition_by,
+            mode=mode,
+            writer_options=writer_options,
+            num_partitions=num_partitions,
+            partition_strategy=partition_strategy,
+        )
+
     return data
 
 

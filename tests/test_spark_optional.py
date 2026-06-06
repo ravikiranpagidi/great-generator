@@ -3,7 +3,12 @@ import sys
 
 import pytest
 
-from great_generator import generate_domain, generate_from_schema, get_domain_schema
+from great_generator import (
+    generate_domain,
+    generate_from_schema,
+    generate_relational,
+    get_domain_schema,
+)
 
 
 @pytest.fixture(scope="module")
@@ -99,3 +104,23 @@ def test_spark_generate_from_schema_accepts_dataframe_input_and_can_write(spark)
     assert hasattr(writer, "csv")
     assert hasattr(writer, "parquet")
     assert hasattr(writer, "format")
+
+
+def test_generate_relational_spark_uses_active_session_without_explicit_spark_argument(spark):
+    data = generate_relational(
+        tables={
+            "customers": {
+                "schema": "customer_id int primary key, name string",
+                "rows": 3,
+            },
+            "orders": {
+                "schema": "order_id int primary key, customer_id int references customers.customer_id",
+                "rows": 9,
+            },
+        },
+        engine="spark",
+    )
+
+    assert data["customers"].count() == 3
+    assert data["orders"].count() == 9
+    assert data["orders"].join(data["customers"], on="customer_id", how="left_anti").count() == 0

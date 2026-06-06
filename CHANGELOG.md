@@ -36,6 +36,7 @@ Initial public release candidate.
 - CDC generation for banking customer changes.
 - Opt-in anomaly injection for nulls, duplicates, orphan keys, late records, out-of-order records, outliers, negative amounts, invalid statuses, and skew.
 - Schema-first generation from compact schema strings, pandas DataFrames, PySpark StructTypes, and PySpark DataFrames.
+- Custom relational schema generation with user-provided tables, row counts, primary keys, foreign keys, pandas/Spark output, and optional exports.
 - Tests for domain generation, relationship integrity, exports, CDC, anomalies, seed reproducibility, schema generation, and optional Spark behavior.
 
 ### Notes

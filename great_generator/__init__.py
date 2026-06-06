@@ -5,6 +5,7 @@ from .api import (
     generate_cdc,
     generate_domain,
     generate_from_schema,
+    generate_relational,
     get_domain_schema,
     list_domains,
 )
@@ -14,6 +15,7 @@ __all__ = [
     "generate_cdc",
     "generate_domain",
     "generate_from_schema",
+    "generate_relational",
     "get_domain_schema",
     "list_domains",
 ]
