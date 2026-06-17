@@ -1059,6 +1059,18 @@ Common parameters:
 
 ## Documentation
 
+For detailed guides, examples, design concepts, and contributor documentation, see the [GitHub Wiki](https://github.com/ravikiranpagidi/great-generator/wiki).
+
+Recommended Wiki starting points:
+
+- [Quickstart](https://github.com/ravikiranpagidi/great-generator/wiki/Quickstart)
+- [Realistic Value Generation](https://github.com/ravikiranpagidi/great-generator/wiki/Realistic-Value-Generation)
+- [Supported Domains](https://github.com/ravikiranpagidi/great-generator/wiki/Supported-Domains)
+- [Faker vs Great Generator](https://github.com/ravikiranpagidi/great-generator/wiki/Faker-vs-Great-Generator)
+- [Adding a New Domain Pack](https://github.com/ravikiranpagidi/great-generator/wiki/Adding-a-New-Domain-Pack)
+
+Repository docs:
+
 - [Quickstart](docs/QUICKSTART.md)
 - [API reference](docs/API_REFERENCE.md)
 - [Domain packs](docs/DOMAIN_PACKS.md)
