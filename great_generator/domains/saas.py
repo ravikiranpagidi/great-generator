@@ -44,6 +44,10 @@ def schema() -> DomainSchema:
             columns=(
                 _c("user_id", "int64"),
                 _c("organization_id", "int64"),
+                _c("first_name", "string"),
+                _c("last_name", "string"),
+                _c("user_name", "string"),
+                _c("email", "string"),
                 _c("role", "string"),
                 _c("user_status", "string"),
                 _c("created_date", "date"),

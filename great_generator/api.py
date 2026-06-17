@@ -10,6 +10,7 @@ import pandas as pd
 
 from great_generator.cdc.generator import generate_cdc as _generate_cdc
 from great_generator.config import resolve_row_counts
+from great_generator.core.realism import validate_realism
 from great_generator.domains import DOMAIN_MODULES
 from great_generator.exporters.csv_exporter import export_csv
 from great_generator.exporters.delta_exporter import export_delta
@@ -51,6 +52,7 @@ def generate_domain(
     rows: Mapping[str, int] | None = None,
     spark: Any | None = None,
     seed: int | None = None,
+    realism: str = "realistic",
     anomalies: Mapping[str, float] | None = None,
     output_path: str | Path | None = None,
     output_format: str | None = None,
@@ -64,6 +66,7 @@ def generate_domain(
 
     validate_engine(engine)
     validate_output_format(output_format)
+    validate_realism(realism)
     schema = get_domain_schema(domain)
     row_counts = resolve_row_counts(domain, scale, rows)
     module = DOMAIN_MODULES[domain]
@@ -71,12 +74,20 @@ def generate_domain(
     if engine == "pandas":
         from great_generator.engines.pandas_engine import generate_domain as generate_with_pandas
 
-        data = generate_with_pandas(module, schema, row_counts, seed=seed, anomalies=anomalies)
+        data = generate_with_pandas(
+            module, schema, row_counts, seed=seed, anomalies=anomalies, realism=realism
+        )
     else:
         from great_generator.engines.spark_engine import generate_domain as generate_with_spark
 
         data = generate_with_spark(
-            domain, schema, row_counts, spark=spark, seed=seed, anomalies=anomalies
+            domain,
+            schema,
+            row_counts,
+            spark=spark,
+            seed=seed,
+            anomalies=anomalies,
+            realism=realism,
         )
 
     if output_path is not None:
@@ -103,6 +114,7 @@ def generate_relational(
     engine: str = "pandas",
     spark: Any | None = None,
     seed: int | None = None,
+    realism: str = "realistic",
     anomalies: Mapping[str, float] | None = None,
     output_path: str | Path | None = None,
     output_format: str | None = None,
@@ -123,6 +135,7 @@ def generate_relational(
 
     validate_engine(engine)
     validate_output_format(output_format)
+    validate_realism(realism)
     schema, row_counts = relational_schema_from_specs(
         tables=tables,
         rows=rows,
@@ -138,6 +151,7 @@ def generate_relational(
             row_counts=row_counts,
             seed=seed,
             anomalies=anomalies,
+            realism=realism,
         )
     else:
         from great_generator.engines.spark_engine import generate_domain as generate_with_spark
@@ -149,6 +163,7 @@ def generate_relational(
             spark=spark,
             seed=seed,
             anomalies=anomalies,
+            realism=realism,
         )
 
     if output_path is not None:
@@ -259,6 +274,7 @@ def generate_from_schema(
     engine: str = "auto",
     spark: Any | None = None,
     table_name: str = "sample",
+    realism: str = "placeholder",
 ) -> dict[str, pd.DataFrame] | pd.DataFrame | Any:
     """Generate sample data from domain metadata, DataFrames, DDL strings, or Spark schemas.
 
@@ -271,6 +287,7 @@ def generate_from_schema(
     - PySpark ``DataFrame``: returns a Spark DataFrame and infers its SparkSession.
     """
 
+    validate_realism(realism)
     if engine == "auto":
         resolved_engine = "spark" if _has_spark_context(schema, spark) else "pandas"
     else:
@@ -279,6 +296,10 @@ def generate_from_schema(
 
     if isinstance(schema, DomainSchema):
         generated = generate_domain_schema_pandas(schema, rows=rows, seed=seed)
+        if realism == "realistic":
+            from great_generator.core.realism import apply_realism_pandas
+
+            generated = apply_realism_pandas(generated, schema, seed=seed, realism=realism)
         if resolved_engine == "spark":
             spark_session = spark or active_spark_session()
             if spark_session is None:
@@ -299,12 +320,14 @@ def generate_from_schema(
             spark=spark,
             seed=seed,
             table_name=table_name,
+            realism=realism,
         )
     return generate_single_table_pandas(
         schema,
         rows=row_count,
         seed=seed,
         table_name=table_name,
+        realism=realism,
     )
 
 

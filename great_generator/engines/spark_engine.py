@@ -6,9 +6,63 @@ from collections.abc import Mapping
 from typing import Any
 
 from great_generator.anomalies.injector import inject_anomalies_spark
+from great_generator.core.realism import COMPANY_NAME_FIELDS, PERSON_NAME_FIELDS, validate_realism
+from great_generator.core.reference_values import REFERENCE_VALUES_BY_FIELD
 from great_generator.relationships.graph import topological_sort
 from great_generator.schemas.generation import active_spark_session
 from great_generator.schemas.models import ColumnSpec, DomainSchema
+
+SPARK_FIRST_NAMES = [
+    "Emily",
+    "Arjun",
+    "Sophia",
+    "Noah",
+    "Maya",
+    "Liam",
+    "Ava",
+    "Ethan",
+    "Isabella",
+    "Ravi",
+    "Priya",
+    "Marcus",
+]
+
+SPARK_LAST_NAMES = [
+    "Carter",
+    "Mehta",
+    "Martin",
+    "Williams",
+    "Patel",
+    "Johnson",
+    "Garcia",
+    "Brown",
+    "Singh",
+    "Miller",
+    "Davis",
+    "Wilson",
+]
+
+SPARK_CITIES = [
+    "New York",
+    "Chicago",
+    "Dallas",
+    "San Francisco",
+    "Atlanta",
+    "Seattle",
+    "Boston",
+    "Austin",
+]
+
+SPARK_STATES = ["NY", "IL", "TX", "CA", "GA", "WA", "MA", "FL"]
+
+SPARK_COMPANIES = [
+    "Northstar Analytics",
+    "Harbor Retail Group",
+    "Apex Manufacturing",
+    "Summit Health Partners",
+    "Keystone Logistics",
+    "Nimbus Digital",
+]
 
 
 def _require_spark(spark: Any) -> Any:
@@ -55,6 +109,197 @@ def _generic_value(column: ColumnSpec, key_column: str, seed: int | None, salt: 
             return F.pmod(F.xxhash64(key, F.lit(salt)), F.lit(80)) + F.lit(1)
         return F.pmod(F.xxhash64(key, F.lit(salt)), F.lit(1000))
     return F.concat(F.lit(f"{column.name}_"), F.format_string("%08d", key))
+
+
+def _choice_expr(key_column: str, values: list[str] | tuple[str, ...], salt: int) -> Any:
+    """Return a deterministic Spark expression choosing one value from a small list."""
+
+    from pyspark.sql import functions as F
+
+    if not values:
+        return F.lit(None)
+    return F.element_at(
+        F.array(*[F.lit(value) for value in values]),
+        (F.pmod(F.xxhash64(F.col(key_column), F.lit(salt)), F.lit(len(values))) + F.lit(1)).cast(
+            "int"
+        ),
+    )
+
+
+def _spark_person_exprs(frame: Any, key_column: str, person_salt: int) -> tuple[Any, Any]:
+    from pyspark.sql import functions as F
+
+    first_name = (
+        F.col("first_name")
+        if "first_name" in frame.columns
+        else _choice_expr(key_column, SPARK_FIRST_NAMES, person_salt + 1)
+    )
+    last_name = (
+        F.col("last_name")
+        if "last_name" in frame.columns
+        else _choice_expr(key_column, SPARK_LAST_NAMES, person_salt + 2)
+    )
+    return first_name, last_name
+
+
+def _spark_realistic_value(
+    frame: Any,
+    column: ColumnSpec,
+    key_column: str,
+    seed: int | None,
+    field_salt: int,
+    person_salt: int,
+) -> Any | None:
+    """Return a deterministic Spark expression for common realistic fields."""
+
+    from pyspark.sql import functions as F
+
+    field = column.name.lower()
+    first_name, last_name = _spark_person_exprs(frame, key_column, person_salt)
+
+    if field == "first_name":
+        return _choice_expr(key_column, SPARK_FIRST_NAMES, person_salt + 1)
+    if field == "last_name":
+        return _choice_expr(key_column, SPARK_LAST_NAMES, person_salt + 2)
+    if field in PERSON_NAME_FIELDS:
+        return F.concat_ws(" ", first_name, last_name)
+    if "email" in field:
+        suffix = F.pmod(F.xxhash64(F.col(key_column), F.lit(person_salt + 3)), F.lit(9000)) + F.lit(
+            100
+        )
+        return F.lower(
+            F.concat(
+                F.regexp_replace(first_name, r"[^A-Za-z0-9]+", "."),
+                F.lit("."),
+                F.regexp_replace(last_name, r"[^A-Za-z0-9]+", "."),
+                suffix.cast("string"),
+                F.lit("@example.com"),
+            )
+        )
+    if "phone" in field:
+        return F.format_string(
+            "+1-%03d-%03d-%04d",
+            F.pmod(F.xxhash64(F.col(key_column), F.lit(field_salt + 1)), F.lit(800)) + F.lit(200),
+            F.pmod(F.xxhash64(F.col(key_column), F.lit(field_salt + 2)), F.lit(800)) + F.lit(100),
+            F.pmod(F.xxhash64(F.col(key_column), F.lit(field_salt + 3)), F.lit(10000)),
+        )
+    if "address" in field:
+        return F.concat(
+            (
+                F.pmod(F.xxhash64(F.col(key_column), F.lit(field_salt + 4)), F.lit(9000))
+                + F.lit(100)
+            ).cast("string"),
+            F.lit(" "),
+            _choice_expr(
+                key_column,
+                ["Maple", "Oak", "Cedar", "Market", "Lake", "Hill", "Main", "Park"],
+                field_salt + 5,
+            ),
+            F.lit(" St"),
+        )
+    if field == "city":
+        return _choice_expr(key_column, SPARK_CITIES, field_salt + 6)
+    if field == "state":
+        return _choice_expr(key_column, SPARK_STATES, field_salt + 7)
+    if "zip" in field or "postal" in field:
+        return F.format_string(
+            "%05d",
+            F.pmod(F.xxhash64(F.col(key_column), F.lit(field_salt + 8)), F.lit(90000))
+            + F.lit(10000),
+        )
+    if (
+        field in COMPANY_NAME_FIELDS
+        or field in {"company", "employer"}
+        or field.endswith("_company")
+        or field.endswith("_employer")
+    ):
+        return _choice_expr(key_column, SPARK_COMPANIES, field_salt + 9)
+    if field in REFERENCE_VALUES_BY_FIELD:
+        return _choice_expr(key_column, REFERENCE_VALUES_BY_FIELD[field], field_salt + 10)
+    if "merchant" in field and "name" in field:
+        return _choice_expr(key_column, REFERENCE_VALUES_BY_FIELD["merchant_name"], field_salt + 11)
+    if "product" in field and "name" in field:
+        return _choice_expr(key_column, REFERENCE_VALUES_BY_FIELD["product_name"], field_salt + 12)
+    if "provider" in field and "name" in field:
+        return F.concat(
+            F.lit("Dr. "),
+            _choice_expr(key_column, SPARK_LAST_NAMES, field_salt + 13),
+            F.lit(" "),
+            _choice_expr(key_column, ["MD", "DO", "NP", "PA"], field_salt + 14),
+        )
+    if "facility" in field and "name" in field:
+        return F.concat(
+            _choice_expr(key_column, SPARK_CITIES, field_salt + 15), F.lit(" Medical Center")
+        )
+    if "dealer" in field and "name" in field:
+        return F.concat(
+            _choice_expr(key_column, SPARK_COMPANIES, field_salt + 16), F.lit(" Auto Group")
+        )
+    if field.endswith("_name"):
+        return _choice_expr(key_column, SPARK_COMPANIES, field_salt + 17)
+    return None
+
+
+def _ensure_and_apply_realism_spark(
+    data: dict[str, Any],
+    schema: DomainSchema,
+    seed: int | None,
+    realism: str,
+) -> dict[str, Any]:
+    """Ensure schema columns exist and enrich Spark DataFrames with realistic fields."""
+
+    validate_realism(realism)
+    from pyspark.sql import functions as F
+
+    enriched = dict(data)
+    salt = 700
+    for table_name, table in schema.tables.items():
+        if table_name not in enriched:
+            continue
+        frame = enriched[table_name]
+        key_column = table.primary_key if table.primary_key in frame.columns else frame.columns[0]
+        skip = {table.primary_key, *(fk.column for fk in table.foreign_keys)}
+        person_salt = salt
+
+        for column in table.columns:
+            if column.name in skip:
+                continue
+            if column.name not in frame.columns:
+                if realism == "realistic":
+                    expr = _spark_realistic_value(
+                        frame, column, key_column, seed, salt, person_salt
+                    )
+                    frame = frame.withColumn(
+                        column.name,
+                        (
+                            expr
+                            if expr is not None
+                            else _generic_value(column, key_column, seed, salt)
+                        ),
+                    )
+                else:
+                    frame = frame.withColumn(
+                        column.name, _generic_value(column, key_column, seed, salt)
+                    )
+            salt += 1
+
+        if realism == "realistic":
+            for column in table.columns:
+                if column.name in skip or column.name not in frame.columns:
+                    continue
+                expr = _spark_realistic_value(frame, column, key_column, seed, salt, person_salt)
+                if expr is not None:
+                    if column.nullable and any(
+                        token in column.name.lower()
+                        for token in ("phone", "email", "address", "secondary", "middle")
+                    ):
+                        expr = F.when(F.rand(_rand(seed, salt)) < 0.03, F.lit(None)).otherwise(expr)
+                    frame = frame.withColumn(column.name, expr)
+                salt += 1
+
+        enriched[table_name] = frame
+        salt += 50
+    return enriched
 
 
 def _generate_schema_driven(
@@ -552,6 +797,7 @@ def generate_domain(
     spark: Any,
     seed: int | None,
     anomalies: Mapping[str, float] | None,
+    realism: str = "realistic",
 ) -> dict[str, Any]:
     spark = _require_spark(spark)
     if domain == "ecommerce":
@@ -560,4 +806,5 @@ def generate_domain(
         data = _generate_banking(row_counts, spark, seed)
     else:
         data = _generate_schema_driven(schema, row_counts, spark, seed)
+    data = _ensure_and_apply_realism_spark(data, schema, seed=seed, realism=realism)
     return inject_anomalies_spark(data, schema, anomalies, seed=seed)

@@ -30,10 +30,37 @@ python -m twine check dist/*
 ## Good contributions
 
 - New domain packs with documented relationships and behaviors
+- Additional realistic reference values for existing domains
 - Additional anomaly types that are opt-in and testable
 - Spark generation improvements that preserve deterministic behavior
 - Exporters, schema utilities, and documentation examples
 - Bug fixes with regression tests
+
+## Adding a domain pack
+
+A good domain pack should include:
+
+1. table schemas with primary keys and foreign keys
+2. deterministic pandas generation
+3. Spark support through either a domain-specific generator or schema-driven fallback
+4. realistic distributions, skew, and time behavior
+5. tests for tables, columns, relationships, and seed reproducibility
+6. README or docs examples showing why the domain is useful
+
+## Adding realistic values
+
+Add reusable business values to `great_generator/core/reference_values.py` when they can help more than one domain or user-provided schema. Keep lists realistic, dependency-light, and safe for public demos. Add tests that prove realistic mode is not returning placeholder-only values.
+
+## Suggested starter issues
+
+- Add realistic values for telecom plans and device models
+- Add ecommerce dashboard demo notebook
+- Add Spark benchmark script for cluster runs
+- Improve API reference docs with more examples
+- Add Great Expectations integration example
+- Add Microsoft Fabric demo using generated Parquet data
+- Add more healthcare provider and facility reference values
+- Add tests for realistic optional-null distribution
 
 ## Releases
 

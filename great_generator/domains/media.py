@@ -29,6 +29,10 @@ def schema() -> DomainSchema:
             (
                 c("user_id", "int64"),
                 c("user_code", "string"),
+                c("first_name", "string"),
+                c("last_name", "string"),
+                c("user_name", "string"),
+                c("email", "string"),
                 c("user_segment", "string"),
                 c("region", "string"),
                 c("signup_date", "date"),

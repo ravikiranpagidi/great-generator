@@ -10,6 +10,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from great_generator.core.realism import apply_realism_pandas, validate_realism
 from great_generator.relationships.graph import topological_sort
 from great_generator.schemas.models import ColumnSpec, DomainSchema, TableSchema
 from great_generator.utils.random import get_rng
@@ -53,9 +54,11 @@ def generate_single_table_pandas(
     rows: int,
     seed: int | None = None,
     table_name: str = "sample",
+    realism: str = "placeholder",
 ) -> pd.DataFrame:
     """Generate a pandas DataFrame from a single-table schema input."""
 
+    validate_realism(realism)
     table, source = normalize_single_table_schema(schema, table_name=table_name)
     rng = get_rng(seed, f"schema:{table.name}")
     values = {
@@ -63,6 +66,15 @@ def generate_single_table_pandas(
         for column in table.columns
     }
     frame = pd.DataFrame(values, columns=[column.name for column in table.columns])
+    if realism == "realistic":
+        domain_schema = DomainSchema(
+            name="single_table",
+            tables={table.name: table},
+            description="Single-table schema.",
+        )
+        frame = apply_realism_pandas(
+            {table.name: frame}, domain_schema, seed=seed, realism=realism
+        )[table.name]
     if isinstance(source, pd.DataFrame):
         frame = _cast_like_pandas_schema(frame, source)
     return frame
@@ -74,6 +86,7 @@ def generate_single_table_spark(
     spark: Any | None,
     seed: int | None = None,
     table_name: str = "sample",
+    realism: str = "placeholder",
 ) -> Any:
     """Generate a Spark DataFrame from a single-table schema input."""
 
@@ -81,7 +94,9 @@ def generate_single_table_spark(
     if spark is None:
         raise ValueError("Spark schema generation requires a SparkSession via spark=...")
     table, source = normalize_single_table_schema(schema, table_name=table_name)
-    frame = generate_single_table_pandas(table, rows=rows, seed=seed, table_name=table.name)
+    frame = generate_single_table_pandas(
+        table, rows=rows, seed=seed, table_name=table.name, realism=realism
+    )
     source_schema = source.schema if is_pyspark_dataframe(source) else source
 
     if is_pyspark_struct_type(source_schema):

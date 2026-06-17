@@ -4,6 +4,24 @@ All notable changes to this project will be documented here.
 
 This project follows semantic versioning once public releases begin.
 
+## Unreleased
+
+### Added
+
+- Added Faker-backed realistic value generation for pandas outputs.
+- Added Spark-native deterministic realistic value generation for Spark outputs.
+- Added `realism` mode to domain, relational, and schema generation APIs.
+- Added realistic customer, patient, resident, user, merchant, product, provider, organization, company, phone, email, address, city, state, and postal-code fields where applicable.
+- Added curated domain reference values for banking, ecommerce, healthcare, insurance, telecom, manufacturing, logistics, energy, hospitality, SaaS, public sector, media, and automotive-style data.
+- Added tests for realistic value quality, placeholder compatibility, seed reproducibility, and relationship safety.
+- Added realistic-value examples, documentation pages, and a lightweight pandas benchmark script.
+
+### Changed
+
+- Improved default generated datasets from placeholder-style values to more believable enterprise-style synthetic data.
+- Improved README positioning, badges, API guidance, documentation links, roadmap, and package discoverability.
+- Improved package metadata with Faker dependency and additional PyPI keywords.
+
 ## 0.1.0 - 2026-05-31
 
 Initial public release candidate.

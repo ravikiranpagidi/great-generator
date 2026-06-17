@@ -57,6 +57,7 @@ def schema() -> DomainSchema:
             (
                 c("product_id", "int64"),
                 c("sku", "string"),
+                c("product_name", "string"),
                 c("product_family", "string"),
                 c("unit_cost", "float64"),
                 c("active", "bool"),

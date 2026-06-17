@@ -66,6 +66,7 @@ def schema() -> DomainSchema:
             columns=(
                 _c("product_id", "int64"),
                 _c("sku", "string"),
+                _c("product_name", "string"),
                 _c("category", "string"),
                 _c("weight_kg", "float64"),
                 _c("hazmat", "bool"),

@@ -30,6 +30,11 @@ def schema() -> DomainSchema:
             (
                 c("resident_id", "int64"),
                 c("resident_code", "string"),
+                c("first_name", "string"),
+                c("last_name", "string"),
+                c("resident_name", "string"),
+                c("email", "string"),
+                c("phone_number", "string", nullable=True),
                 c("resident_segment", "string"),
                 c("region", "string"),
                 c("enrolled_date", "date"),

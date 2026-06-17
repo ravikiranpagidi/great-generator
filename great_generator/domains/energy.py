@@ -29,6 +29,11 @@ def schema() -> DomainSchema:
             (
                 c("customer_id", "int64"),
                 c("customer_code", "string"),
+                c("first_name", "string"),
+                c("last_name", "string"),
+                c("customer_name", "string"),
+                c("email", "string"),
+                c("phone_number", "string", nullable=True),
                 c("customer_type", "string"),
                 c("region", "string"),
                 c("customer_status", "string"),

@@ -1,18 +1,30 @@
 # Great Generator
 
-**Developer-first enterprise synthetic data generation for realistic relational, streaming-style, and Spark-scale datasets.**
+[![Tests](https://github.com/ravikiranpagidi/great-generator/actions/workflows/tests.yml/badge.svg)](https://github.com/ravikiranpagidi/great-generator/actions/workflows/tests.yml)
+[![PyPI version](https://img.shields.io/pypi/v/great-generator.svg)](https://pypi.org/project/great-generator/)
+[![Python versions](https://img.shields.io/pypi/pyversions/great-generator.svg)](https://pypi.org/project/great-generator/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Lint: Ruff](https://img.shields.io/badge/lint-ruff-46a0f5.svg)](https://github.com/astral-sh/ruff)
+
+**Developer-first synthetic enterprise data generation for Pandas, Spark, lakehouse demos, testing, benchmarking, and research.**
 
 > Faker gives you fake values. Great Generator gives you a believable enterprise data system.
 
-Generate realistic enterprise datasets for Spark, Pandas, testing, demos, benchmarking, learning, and research.
+Great Generator helps engineers quickly create realistic multi-table datasets with believable values, primary-key/foreign-key relationships, domain behavior, CDC-style records, anomaly injection, and export support for CSV, JSON, Parquet, and Delta.
+
+It is built for data engineers, analytics engineers, Spark users, educators, researchers, hackathon teams, and demo builders who need credible synthetic data without depending on sensitive production data.
+
+> **Privacy note:** Great Generator creates synthetic data from templates. It does **not** anonymize, de-identify, or transform real production data.
 
 ```python
 from great_generator import generate_domain
 
-data = generate_domain("ecommerce", scale="small")
+data = generate_domain("banking", scale="small", realism="realistic", seed=42)
 
 customers = data["customers"]
-orders = data["orders"]
+accounts = data["accounts"]
+transactions = data["transactions"]
 ```
 
 ## Why this exists
@@ -71,14 +83,25 @@ import great_generator
 
 ## Quickstart
 
+```bash
+pip install great-generator
+```
+
 ```python
 from great_generator import generate_domain
 
-data = generate_domain("ecommerce", scale="small")
+data = generate_domain(
+    "banking",
+    scale="small",
+    realism="realistic",
+    seed=42,
+)
 
 customers = data["customers"]
-orders = data["orders"]
-order_items = data["order_items"]
+accounts = data["accounts"]
+transactions = data["transactions"]
+
+print(customers.head())
 ```
 
 Returned value:
@@ -110,6 +133,82 @@ sample = generate_from_schema(
     rows=10,
 )
 print(sample)
+```
+
+## Realistic value generation
+
+Great Generator supports two realism modes:
+
+```python
+generate_domain("banking", scale="small", realism="placeholder")
+generate_domain("banking", scale="small", realism="realistic")
+```
+
+- `realism="placeholder"` keeps simple deterministic values, useful for debugging and strict tests.
+- `realism="realistic"` generates believable names, emails, phone numbers, addresses, company names, merchant names, product names, account types, transaction types, order statuses, claim statuses, and other business values.
+
+The realistic layer is relationship-safe: it enriches descriptive fields but does not rewrite primary keys or foreign keys.
+
+```python
+from great_generator import generate_domain
+
+banking = generate_domain("banking", scale="small", realism="realistic", seed=42)
+print(banking["customers"][["customer_id", "customer_name", "email"]].head())
+```
+
+Example output:
+
+```text
+customer_id | customer_name | email
+1           | Emily Carter  | emily.carter247@example.com
+2           | Arjun Mehta   | arjun.mehta812@example.com
+```
+
+### Before and after
+
+```text
+Placeholder mode:
+customer_id | customer_name   | email
+1           | customer_name_1 | user_1@example.com
+2           | customer_name_2 | user_2@example.com
+
+Realistic mode:
+customer_id | customer_name | email
+1           | Emily Carter  | emily.carter247@example.com
+2           | Arjun Mehta   | arjun.mehta812@example.com
+```
+
+## Who should use this?
+
+Great Generator is useful for:
+
+- data engineers building pipeline demos
+- Spark and Databricks users testing lakehouse patterns
+- analytics engineers building semantic model demos
+- BI developers creating dashboards without production data
+- teachers and workshop speakers needing realistic datasets
+- researchers needing repeatable synthetic datasets
+- hackathon teams needing realistic starter data
+
+## How is this different from Faker?
+
+Faker creates realistic individual values.
+
+Great Generator creates realistic connected business datasets.
+
+Faker can generate a name or address. Great Generator can generate a banking system with customers, accounts, transactions, merchants, balances, CDC records, anomalies, and export-ready tables.
+
+```python
+# Faker gives individual values
+fake.name()
+fake.email()
+
+# Great Generator gives a connected enterprise dataset
+data = generate_domain("banking", scale="small", realism="realistic")
+
+customers = data["customers"]
+accounts = data["accounts"]
+transactions = data["transactions"]
 ```
 
 ## One-line examples worth stealing
@@ -913,23 +1012,14 @@ generate_domain(
 ## Architecture overview
 
 ```mermaid
-flowchart LR
-    A["Public API"] --> B["Domain packs"]
-    A --> K["Custom relational schemas"]
-    B --> C["Relationship graph"]
-    K --> C
-    B --> D["Distribution helpers"]
-    K --> D
-    B --> E["Key registry"]
-    K --> E
-    B --> F["Pandas engine"]
-    B --> G["Spark engine"]
-    K --> F
-    K --> G
-    F --> H["Anomaly injector"]
-    G --> H
-    H --> I["Exporters"]
-    B --> J["CDC generator"]
+flowchart TD
+    A["Domain Pack or User Schema"] --> B["Relationship Graph"]
+    B --> C["Key Registry"]
+    C --> D["Distribution Helpers"]
+    D --> E["Realistic Value Generator"]
+    E --> F["CDC / Anomaly Layer"]
+    F --> G["Pandas / Spark Engine"]
+    G --> H["CSV / JSON / Parquet / Delta Export"]
 ```
 
 - **Domain packs** encode tables, columns, relationships, and realistic behavior.
@@ -937,6 +1027,7 @@ flowchart LR
 - **Relationship graph** keeps parent tables ahead of children.
 - **Key registry** guarantees valid foreign-key sampling.
 - **Distribution helpers** provide skew, seasonality, payroll, and weighted behavior.
+- **Realistic value generator** enriches descriptive fields with Faker-backed pandas values and Spark-native deterministic expressions.
 - **Engines** separate local pandas generation from optional Spark generation.
 - **Exporters** write table-per-folder CSV, JSON, Parquet, and Delta outputs.
 - **CDC generator** creates event-style changes for pipeline validation.
@@ -956,6 +1047,28 @@ from great_generator import (
 )
 ```
 
+Common parameters:
+
+- `domain`: built-in domain pack such as `banking`, `ecommerce`, `healthcare`, `telecom`, or `saas`
+- `engine`: `"pandas"`, `"spark"`, or `"auto"` for schema generation
+- `scale`: `"tiny"`, `"small"`, `"medium"`, or `"large"`
+- `realism`: `"realistic"` for demo-ready values or `"placeholder"` for simple deterministic values
+- `seed`: optional integer for reproducible output
+- `anomalies`: opt-in data quality problems such as nulls, duplicates, orphan keys, late records, outliers, and invalid statuses
+- `output_path` / `output_format`: optional convenience exports; returned DataFrames can also be written by users directly
+
+## Documentation
+
+- [Quickstart](docs/QUICKSTART.md)
+- [API reference](docs/API_REFERENCE.md)
+- [Domain packs](docs/DOMAIN_PACKS.md)
+- [Realistic values](docs/REALISTIC_VALUES.md)
+- [Spark and Delta](docs/SPARK_AND_DELTA.md)
+- [CDC simulation](docs/CDC.md)
+- [Anomaly injection](docs/ANOMALIES.md)
+- [Benchmarks](docs/BENCHMARKS.md)
+- [PyPI release checklist](docs/PYPI_RELEASE.md)
+
 ## Limitations
 
 - Generated data is synthetic; it is not transformed production data.
@@ -968,19 +1081,23 @@ from great_generator import (
 - Spark export helpers do not configure cloud credentials, attach storage, or register catalog tables for you.
 - Generic `generate_from_schema(...)` supports DDL strings, empty pandas DataFrames, TableSchema, DomainSchema, PySpark StructType inputs, and PySpark DataFrame inputs. It returns pandas by default and Spark DataFrames when a Spark context is provided or inferred, but domain packs provide the richer realism.
 
+## Benchmarks
+
+See [docs/BENCHMARKS.md](docs/BENCHMARKS.md) and `benchmarks/benchmark_pandas_generation.py` for a lightweight local benchmark harness. Larger Spark and Delta benchmark numbers will depend on cluster size, storage, and runtime configuration.
+
 ## Roadmap
 
-- more domain packs: education, real estate, cybersecurity, agriculture
+- More realistic domain-specific value generation
+- Additional industry domain packs
+- Spark-scale benchmark results
+- Delta Lake write examples
+- More CDC simulation patterns
+- Data quality rule generation
+- Great Expectations / Soda integration examples
+- Databricks and Microsoft Fabric demo notebooks
+- Documentation website using MkDocs or GitHub Pages
 - JSON-native generation with `generate_json_from_schema(...)`
-- simple, nested, file-based, pandas, and Spark schema inputs for JSON payloads
-- richer schema-driven sample generation
-- schema introspection
-- richer streaming / Kafka simulation
-- more export formats
-- more anomaly controls
-- domain-pack authoring helpers
-- optional catalog registration helpers
-- managed-cloud integration smoke tests
+- Optional catalog registration helpers
 
 ## Contributing
 

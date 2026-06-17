@@ -30,6 +30,15 @@ def schema() -> DomainSchema:
             columns=(
                 _c("customer_id", "int64"),
                 _c("customer_code", "string"),
+                _c("first_name", "string"),
+                _c("last_name", "string"),
+                _c("customer_name", "string"),
+                _c("email", "string"),
+                _c("phone_number", "string", nullable=True),
+                _c("street_address", "string"),
+                _c("city", "string"),
+                _c("state", "string"),
+                _c("postal_code", "string"),
                 _c("customer_segment", "string"),
                 _c("customer_status", "string"),
                 _c("signup_date", "date"),
@@ -44,6 +53,7 @@ def schema() -> DomainSchema:
             columns=(
                 _c("product_id", "int64"),
                 _c("sku", "string"),
+                _c("product_name", "string"),
                 _c("category", "string"),
                 _c("brand", "string"),
                 _c("list_price", "float64"),
