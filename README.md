@@ -1071,6 +1071,7 @@ Recommended Wiki starting points:
 
 Repository docs:
 
+- [Demo guide](docs/DEMO_GUIDE.md)
 - [Quickstart](docs/QUICKSTART.md)
 - [API reference](docs/API_REFERENCE.md)
 - [Domain packs](docs/DOMAIN_PACKS.md)
