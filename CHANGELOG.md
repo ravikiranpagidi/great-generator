@@ -6,30 +6,21 @@ This project follows semantic versioning once public releases begin.
 
 ## Unreleased
 
-### Added
+No unreleased changes yet.
 
-- Added Faker-backed realistic value generation for pandas outputs.
-- Added Spark-native deterministic realistic value generation for Spark outputs.
-- Added `realism` mode to domain, relational, and schema generation APIs.
-- Added realistic customer, patient, resident, user, merchant, product, provider, organization, company, phone, email, address, city, state, and postal-code fields where applicable.
-- Added curated domain reference values for banking, ecommerce, healthcare, insurance, telecom, manufacturing, logistics, energy, hospitality, SaaS, public sector, media, and automotive-style data.
-- Added tests for realistic value quality, placeholder compatibility, seed reproducibility, and relationship safety.
-- Added realistic-value examples, documentation pages, and a lightweight pandas benchmark script.
+## 0.1.0 - 2026-06-19
 
-### Changed
-
-- Improved default generated datasets from placeholder-style values to more believable enterprise-style synthetic data.
-- Improved README positioning, badges, API guidance, documentation links, roadmap, and package discoverability.
-- Improved package metadata with Faker dependency and additional PyPI keywords.
-
-## 0.1.0 - 2026-05-31
-
-Initial public release candidate.
+Initial public PyPI release.
 
 ### Added
 
 - Great Generator package identity: publish as `great-generator` and import as `great_generator`.
 - Backward-compatible `enterprise_synth` import alias for pre-release users of the earlier repo name.
+- Faker-backed realistic value generation for pandas outputs.
+- Spark-native deterministic realistic value generation for Spark outputs.
+- `realism` mode for domain, relational, and schema generation APIs.
+- Realistic customer, patient, resident, user, merchant, product, provider, organization, company, phone, email, address, city, state, and postal-code fields where applicable.
+- Curated domain reference values for banking, ecommerce, healthcare, insurance, telecom, manufacturing, logistics, energy, hospitality, SaaS, public sector, media, and automotive-style data.
 - Ecommerce domain pack with customers, products, orders, order items, payments, shipments, and returns.
 - Banking domain pack with customers, accounts, transactions, cards, merchants, fraud events, and CDC-style customer changes.
 - Healthcare domain pack with patients, providers, facilities, encounters, claims, prescriptions, and lab results.
@@ -55,6 +46,8 @@ Initial public release candidate.
 - Opt-in anomaly injection for nulls, duplicates, orphan keys, late records, out-of-order records, outliers, negative amounts, invalid statuses, and skew.
 - Schema-first generation from compact schema strings, pandas DataFrames, PySpark StructTypes, and PySpark DataFrames.
 - Custom relational schema generation with user-provided tables, row counts, primary keys, foreign keys, pandas/Spark output, and optional exports.
+- Realistic-value examples, documentation pages, a GitHub Wiki, and a lightweight pandas benchmark script.
+- Tests for realistic value quality, placeholder compatibility, seed reproducibility, and relationship safety.
 - Tests for domain generation, relationship integrity, exports, CDC, anomalies, seed reproducibility, schema generation, and optional Spark behavior.
 
 ### Notes
