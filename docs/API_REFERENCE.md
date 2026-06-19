@@ -13,6 +13,8 @@ Important parameters:
 - `realism`: `"realistic"` or `"placeholder"`
 - `seed`: optional integer for reproducible output
 - `anomalies`: opt-in data quality issues
+- `return_labels`: optional pandas anomaly label table named `_anomaly_labels`
+- `history`: optional `"scd2"` history generation for pandas domains
 - `output_path` and `output_format`: optional convenience exports
 
 ```python
@@ -64,3 +66,55 @@ cdc = generate_cdc("banking", table="customers", rows=10000, seed=42)
 Writes a dictionary of tables to CSV, JSON, Parquet, or Delta.
 
 Returned DataFrames are always preserved, so users can also write with native pandas or Spark APIs.
+
+
+## `generate_from_recipe(...)`
+
+Generates a domain or relational dataset from a declarative JSON, TOML, or simple YAML recipe.
+
+```python
+from great_generator import generate_from_recipe
+
+data = generate_from_recipe("banking_recipe.yaml")
+```
+
+Recipes are useful when a dataset needs to be reproduced for a demo, benchmark, lab, or paper.
+
+## `generate_history(...)`
+
+Generates an SCD2 history table for a single domain table.
+
+```python
+from great_generator import generate_history
+
+history = generate_history("banking", table="customers", history_window="2y")
+```
+
+The result includes `effective_from`, `effective_to`, and `is_current`.
+
+## `generate_dimensional_model(...)`
+
+Generates a relational dimensional model from a domain pack.
+
+```python
+from great_generator import generate_dimensional_model
+
+model = generate_dimensional_model("ecommerce", scale="small")
+fact_sales = model["fact_sales"]
+dim_customer = model["dim_customer"]
+```
+
+Ecommerce and banking include domain-aware fact and dimension tables. Other domains receive a generic fact/dimension split.
+
+## `generate_data_vault_model(...)`
+
+Generates a relational Data Vault model from a domain pack.
+
+```python
+from great_generator import generate_data_vault_model
+
+vault = generate_data_vault_model("banking", scale="small")
+hub_customer = vault["hub_customer"]
+```
+
+The output includes hubs, links, satellites, stable hash keys, load dates, record source values, and model metadata.

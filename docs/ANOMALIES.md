@@ -29,3 +29,20 @@ Supported anomaly categories include:
 - invalid status codes
 
 Anomalies are opt-in so regular domain generation remains valid by default.
+
+
+## Labeled anomaly ground truth
+
+Set `return_labels=True` when you want an answer key for every planted defect.
+
+```python
+data = generate_domain(
+    "ecommerce",
+    anomalies={"null_rate": 0.02, "invalid_status_rate": 0.005},
+    return_labels=True,
+)
+
+labels = data["_anomaly_labels"]
+```
+
+The label table includes the table name, row index, primary key value, affected column, anomaly type, original value, and corrupted value. This is useful for data-quality tool demos, anomaly detection benchmarks, and repeatable QA tests.

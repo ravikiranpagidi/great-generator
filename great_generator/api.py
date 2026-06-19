@@ -16,6 +16,7 @@ from great_generator.exporters.csv_exporter import export_csv
 from great_generator.exporters.delta_exporter import export_delta
 from great_generator.exporters.json_exporter import export_json
 from great_generator.exporters.parquet_exporter import export_parquet
+from great_generator.recipes import generate_from_recipe as _generate_from_recipe
 from great_generator.schemas.generation import (
     active_spark_session,
     generate_domain_schema_pandas,
@@ -61,6 +62,9 @@ def generate_domain(
     writer_options: Mapping[str, str] | None = None,
     num_partitions: int | None = None,
     partition_strategy: str = "repartition",
+    return_labels: bool = False,
+    history: str | None = None,
+    history_window: str = "2y",
 ) -> dict[str, Any]:
     """Generate a complete synthetic domain."""
 
@@ -75,9 +79,17 @@ def generate_domain(
         from great_generator.engines.pandas_engine import generate_domain as generate_with_pandas
 
         data = generate_with_pandas(
-            module, schema, row_counts, seed=seed, anomalies=anomalies, realism=realism
+            module,
+            schema,
+            row_counts,
+            seed=seed,
+            anomalies=anomalies,
+            realism=realism,
+            return_labels=return_labels,
         )
     else:
+        if return_labels:
+            raise ValueError("return_labels is currently supported for the pandas engine only.")
         from great_generator.engines.spark_engine import generate_domain as generate_with_spark
 
         data = generate_with_spark(
@@ -89,6 +101,17 @@ def generate_domain(
             anomalies=anomalies,
             realism=realism,
         )
+
+    if history is not None:
+        if engine != "pandas":
+            raise ValueError(
+                "history generation is currently supported for the pandas engine only."
+            )
+        if history != "scd2":
+            raise ValueError("Unsupported history mode. Use history='scd2'.")
+        from great_generator.history import add_scd2_history_tables
+
+        data = add_scd2_history_tables(data, schema, seed=seed, history_window=history_window)
 
     if output_path is not None:
         if output_format is None:
@@ -123,6 +146,7 @@ def generate_relational(
     writer_options: Mapping[str, str] | None = None,
     num_partitions: int | None = None,
     partition_strategy: str = "repartition",
+    return_labels: bool = False,
 ) -> dict[str, Any]:
     """Generate a user-defined relational dataset and return table-name DataFrames.
 
@@ -152,8 +176,11 @@ def generate_relational(
             seed=seed,
             anomalies=anomalies,
             realism=realism,
+            return_labels=return_labels,
         )
     else:
+        if return_labels:
+            raise ValueError("return_labels is currently supported for the pandas engine only.")
         from great_generator.engines.spark_engine import generate_domain as generate_with_spark
 
         data = generate_with_spark(
@@ -265,6 +292,113 @@ def generate_cdc(
         duplicate_rate=duplicate_rate,
         seed=seed,
     )
+
+
+def generate_from_recipe(path: str | Path) -> dict[str, Any]:
+    """Generate a dataset from a JSON, TOML, or simple YAML recipe file."""
+
+    return _generate_from_recipe(path)
+
+
+def generate_history(
+    domain: str,
+    table: str,
+    scale: str = "tiny",
+    rows: Mapping[str, int] | None = None,
+    seed: int | None = None,
+    realism: str = "realistic",
+    history_window: str = "2y",
+) -> pd.DataFrame:
+    """Generate an SCD2 history table for one domain table."""
+
+    from great_generator.history import generate_scd2_history
+
+    data = generate_domain(
+        domain,
+        engine="pandas",
+        scale=scale,
+        rows=rows,
+        seed=seed,
+        realism=realism,
+    )
+    schema = get_domain_schema(domain)
+    if table not in data or table not in schema.tables:
+        raise ValueError(f"Unknown table '{table}' for domain '{domain}'.")
+    primary_key = schema.tables[table].primary_key
+    if primary_key is None:
+        raise ValueError(f"Table '{table}' does not define a primary key.")
+    return generate_scd2_history(
+        data[table],
+        natural_key=primary_key,
+        seed=seed,
+        history_window=history_window,
+        namespace=f"{domain}.{table}",
+    )
+
+
+def generate_dimensional_model(
+    domain: str,
+    model: str = "star",
+    grain: str | None = None,
+    engine: str = "pandas",
+    scale: str = "tiny",
+    rows: Mapping[str, int] | None = None,
+    spark: Any | None = None,
+    seed: int | None = None,
+    realism: str = "realistic",
+) -> dict[str, Any]:
+    """Generate a relational dimensional model with fact and dimension tables."""
+
+    validate_engine(engine)
+    from great_generator.models.dimensional import generate_dimensional_model as _generate
+
+    source = generate_domain(
+        domain,
+        engine="pandas",
+        scale=scale,
+        rows=rows,
+        seed=seed,
+        realism=realism,
+    )
+    data = _generate(domain, source, model=model, grain=grain)
+    if engine == "spark":
+        spark_session = spark or active_spark_session()
+        if spark_session is None:
+            raise ValueError("Spark dimensional generation requires a SparkSession via spark=...")
+        return {name: spark_session.createDataFrame(frame) for name, frame in data.items()}
+    return data
+
+
+def generate_data_vault_model(
+    domain: str,
+    engine: str = "pandas",
+    scale: str = "tiny",
+    rows: Mapping[str, int] | None = None,
+    spark: Any | None = None,
+    seed: int | None = None,
+    realism: str = "realistic",
+) -> dict[str, Any]:
+    """Generate a relational Data Vault model with hubs, links, and satellites."""
+
+    validate_engine(engine)
+    from great_generator.models.data_vault import generate_data_vault_model as _generate
+
+    schema = get_domain_schema(domain)
+    source = generate_domain(
+        domain,
+        engine="pandas",
+        scale=scale,
+        rows=rows,
+        seed=seed,
+        realism=realism,
+    )
+    data = _generate(domain, source, schema)
+    if engine == "spark":
+        spark_session = spark or active_spark_session()
+        if spark_session is None:
+            raise ValueError("Spark Data Vault generation requires a SparkSession via spark=...")
+        return {name: spark_session.createDataFrame(frame) for name, frame in data.items()}
+    return data
 
 
 def generate_from_schema(

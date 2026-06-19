@@ -135,6 +135,44 @@ sample = generate_from_schema(
 print(sample)
 ```
 
+## Advanced capabilities
+
+Great Generator now includes higher-value generation paths for demos, testing, analytics modeling, and research:
+
+```python
+from great_generator import (
+    generate_data_vault_model,
+    generate_dimensional_model,
+    generate_domain,
+    generate_from_recipe,
+    generate_history,
+)
+
+# Dirty data plus an answer key for data-quality benchmarks.
+dirty = generate_domain(
+    "ecommerce",
+    anomalies={"null_rate": 0.02, "invalid_status_rate": 0.005},
+    return_labels=True,
+)
+labels = dirty["_anomaly_labels"]
+
+# SCD2 history for snapshot, merge, and time-travel demos.
+customer_history = generate_history("banking", table="customers")
+
+# Star-schema style facts and dimensions.
+star = generate_dimensional_model("ecommerce", scale="small")
+sales = star["fact_sales"]
+
+# Data Vault style hubs, links, and satellites.
+vault = generate_data_vault_model("banking", scale="small")
+hub_customer = vault["hub_customer"]
+
+# Reproducible dataset recipes from JSON, TOML, or simple YAML.
+recipe_data = generate_from_recipe("banking_recipe.yaml")
+```
+
+For details, see [docs/ADVANCED_CAPABILITIES.md](docs/ADVANCED_CAPABILITIES.md).
+
 ## Realistic value generation
 
 Great Generator supports two realism modes:
@@ -1031,7 +1069,10 @@ flowchart TD
 - **Engines** separate local pandas generation from optional Spark generation.
 - **Exporters** write table-per-folder CSV, JSON, Parquet, and Delta outputs.
 - **CDC generator** creates event-style changes for pipeline validation.
-- **Anomaly injector** adds opt-in quality problems after clean generation.
+- **Anomaly injector** adds opt-in quality problems after clean generation and can emit labeled ground truth.
+- **History generator** creates SCD2 tables for snapshot, merge, and time-travel demos.
+- **Model generators** create dimensional facts/dimensions and Data Vault hubs/links/satellites.
+- **Recipe runner** turns JSON, TOML, or simple YAML recipe files into reproducible datasets.
 
 ## Public API
 
@@ -1039,8 +1080,12 @@ flowchart TD
 from great_generator import (
     export_data,
     generate_cdc,
+    generate_data_vault_model,
+    generate_dimensional_model,
     generate_domain,
+    generate_from_recipe,
     generate_from_schema,
+    generate_history,
     generate_relational,
     get_domain_schema,
     list_domains,
@@ -1055,6 +1100,8 @@ Common parameters:
 - `realism`: `"realistic"` for demo-ready values or `"placeholder"` for simple deterministic values
 - `seed`: optional integer for reproducible output
 - `anomalies`: opt-in data quality problems such as nulls, duplicates, orphan keys, late records, outliers, and invalid statuses
+- `return_labels`: optional anomaly answer-key table for pandas outputs
+- `history`: optional history mode, currently `"scd2"` for pandas domain generation
 - `output_path` / `output_format`: optional convenience exports; returned DataFrames can also be written by users directly
 
 ## Documentation
@@ -1079,6 +1126,7 @@ Repository docs:
 - [Spark and Delta](docs/SPARK_AND_DELTA.md)
 - [CDC simulation](docs/CDC.md)
 - [Anomaly injection](docs/ANOMALIES.md)
+- [Advanced capabilities](docs/ADVANCED_CAPABILITIES.md)
 - [Benchmarks](docs/BENCHMARKS.md)
 - [PyPI release checklist](docs/PYPI_RELEASE.md)
 
@@ -1093,6 +1141,7 @@ Repository docs:
 - Legacy DBFS root and mounts are not the recommended long-term Databricks storage pattern.
 - Spark export helpers do not configure cloud credentials, attach storage, or register catalog tables for you.
 - Generic `generate_from_schema(...)` supports DDL strings, empty pandas DataFrames, TableSchema, DomainSchema, PySpark StructType inputs, and PySpark DataFrame inputs. It returns pandas by default and Spark DataFrames when a Spark context is provided or inferred, but domain packs provide the richer realism.
+- Dimensional and Data Vault model generation is intentionally generated from domain packs. For custom warehouse modeling, start with `generate_relational(...)` and shape the result in your own modeling layer.
 
 ## Benchmarks
 

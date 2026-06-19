@@ -26,10 +26,16 @@ def generate_domain(
     seed: int | None,
     anomalies: Mapping[str, float] | None,
     realism: str = "realistic",
+    return_labels: bool = False,
 ) -> dict[str, pd.DataFrame]:
     if domain_module is None:
         data = generate_domain_schema_pandas(schema, rows=row_counts, seed=seed)
     else:
         data = domain_module.generate_pandas(row_counts=row_counts, seed=seed)
     data = apply_realism_pandas(data, schema, seed=seed, realism=realism)
-    return inject_anomalies_pandas(data, schema, anomalies, seed=seed)
+    if return_labels:
+        frames, labels = inject_anomalies_pandas(
+            data, schema, anomalies, seed=seed, return_labels=True
+        )
+        return {**frames, "_anomaly_labels": labels}
+    return inject_anomalies_pandas(data, schema, anomalies, seed=seed, return_labels=False)

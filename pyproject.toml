@@ -79,6 +79,14 @@ dependencies = [
 [project.optional-dependencies]
 spark = ["pyspark>=3.4"]
 delta = ["pyspark>=3.4", "delta-spark>=3.0"]
+ingest = []
+streaming = []
+quality = []
+vectors = []
+llm = []
+fit = []
+dp = []
+all = ["pyspark>=3.4", "delta-spark>=3.0"]
 dev = [
   "black>=24.0",
   "build>=1.2",
@@ -89,6 +97,9 @@ dev = [
   "ruff>=0.5",
   "twine>=5.1",
 ]
+
+[project.scripts]
+great-generator = "great_generator.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/ravikiranpagidi/great-generator"
