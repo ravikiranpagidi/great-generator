@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Mapping
+from typing import Any, cast
 
 import numpy as np
 import pandas as pd
@@ -333,7 +334,9 @@ def generate_pandas(
 
     cards_by_customer: dict[int, list[int]] = defaultdict(list)
     for row in cards.itertuples(index=False):
-        cards_by_customer[int(row.customer_id)].append(int(row.card_id))
+        customer_id = int(cast(Any, row.customer_id))
+        card_id = int(cast(Any, row.card_id))
+        cards_by_customer[customer_id].append(card_id)
     card_usage = txn_rng.random(txn_count) < 0.67
     chosen_cards: list[int | None] = []
     for customer_id, uses_card in zip(transaction_customer_ids, card_usage):

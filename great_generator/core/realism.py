@@ -172,27 +172,27 @@ def _apply_realistic_columns(
     first_present = "first_name" in column_names
     last_present = "last_name" in column_names
     email_present = any("email" in column.lower() for column in column_names)
-    name_columns = [column for column in column_names if column.lower() in PERSON_NAME_FIELDS]
+    name_columns = [name for name in column_names if name.lower() in PERSON_NAME_FIELDS]
 
     if first_present:
         frame["first_name"] = [record.first_name for record in person_records]
     if last_present:
         frame["last_name"] = [record.last_name for record in person_records]
-    for column in name_columns:
-        frame[column] = [record.full_name for record in person_records]
+    for name_column in name_columns:
+        frame[name_column] = [record.full_name for record in person_records]
     if email_present:
-        for column in [column for column in column_names if "email" in column.lower()]:
-            frame[column] = [record.email for record in person_records]
+        for email_column in [name for name in column_names if "email" in name.lower()]:
+            frame[email_column] = [record.email for record in person_records]
 
-    for column in columns:
-        name = column.name
+    for spec in columns:
+        name = spec.name
         if name in {"first_name", "last_name"} or name.lower() in PERSON_NAME_FIELDS:
             continue
         if "email" in name.lower():
             continue
         generated = _realistic_series(name, rows, value_gen.child(name))
         if generated is not None:
-            if column.nullable and _is_optional_business_field(name):
+            if spec.nullable and _is_optional_business_field(name):
                 nullable_rng = value_gen.child(f"{name}.nulls").random
                 generated = [
                     maybe_null(value, OPTIONAL_REALISTIC_NULL_RATE, nullable_rng)

@@ -257,8 +257,13 @@ def _ensure_and_apply_realism_spark(
         if table_name not in enriched:
             continue
         frame = enriched[table_name]
-        key_column = table.primary_key if table.primary_key in frame.columns else frame.columns[0]
-        skip = {table.primary_key, *(fk.column for fk in table.foreign_keys)}
+        if table.primary_key is not None and table.primary_key in frame.columns:
+            key_column = table.primary_key
+        else:
+            key_column = str(frame.columns[0])
+        skip = {fk.column for fk in table.foreign_keys}
+        if table.primary_key is not None:
+            skip.add(table.primary_key)
         person_salt = salt
 
         for column in table.columns:

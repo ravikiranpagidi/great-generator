@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from typing import Protocol
 
 import pandas as pd
 
@@ -12,8 +13,14 @@ from great_generator.schemas.generation import generate_domain_schema_pandas
 from great_generator.schemas.models import DomainSchema
 
 
+class DomainModule(Protocol):
+    def generate_pandas(
+        self, row_counts: Mapping[str, int], seed: int | None
+    ) -> dict[str, pd.DataFrame]: ...
+
+
 def generate_domain(
-    domain_module: object,
+    domain_module: DomainModule | None,
     schema: DomainSchema,
     row_counts: Mapping[str, int],
     seed: int | None,

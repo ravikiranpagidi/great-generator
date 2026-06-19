@@ -335,6 +335,11 @@ def generate_pandas(
         0.0,
         np.round(allowed_amount * claim_rng.uniform(0.72, 0.98, claim_count), 2),
     )
+    denial_reason = np.full(claim_count, None, dtype=object)
+    denied = claim_status == "denied"
+    denial_reason[denied] = claim_rng.choice(
+        ["coverage", "coding", "eligibility"], int(denied.sum())
+    )
     claims = pd.DataFrame(
         {
             "claim_id": claim_ids,
@@ -346,11 +351,7 @@ def generate_pandas(
             "claim_status": claim_status,
             "allowed_amount": allowed_amount,
             "paid_amount": paid_amount,
-            "denial_reason": np.where(
-                claim_status == "denied",
-                claim_rng.choice(["coverage", "coding", "eligibility"], claim_count),
-                None,
-            ),
+            "denial_reason": denial_reason,
         }
     )
 
