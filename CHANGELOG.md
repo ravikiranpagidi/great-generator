@@ -8,6 +8,25 @@ This project follows semantic versioning once public releases begin.
 
 No unreleased changes yet.
 
+## 0.1.1 - 2026-06-20
+
+Advanced generation release.
+
+### Added
+
+- Labeled anomaly ground truth with `_anomaly_labels` for pandas anomaly injection.
+- SCD2 history generation through `generate_domain(..., history="scd2")` and `generate_history(...)`.
+- Command line interface through `great-generator`.
+- Dataset recipes through `generate_from_recipe(...)` and `great-generator run`, supporting JSON, TOML, and simple YAML recipes.
+- Dimensional model generation through `generate_dimensional_model(...)`, including domain-aware facts and dimensions for ecommerce and banking.
+- Data Vault model generation through `generate_data_vault_model(...)`, including hubs, links, satellites, hash keys, load dates, and record sources.
+- Advanced capabilities documentation and RFCs for planned optional extras such as ingestion, streaming, quality integrations, vectors, LLM document generation, fit-from-sample, differential privacy, ML training data, and provenance research.
+
+### Changed
+
+- README and API reference now document the advanced generation APIs.
+- Optional-extra namespace now reserves `ingest`, `streaming`, `quality`, `vectors`, `llm`, `fit`, `dp`, and `all`.
+
 ## 0.1.0 - 2026-06-19
 
 Initial public PyPI release.
