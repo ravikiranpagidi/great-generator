@@ -1,0 +1,38 @@
+title: "[Show and Tell]: "
+labels: ["show-and-tell"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share what you built with Great Generator. Demos, notebooks, blog posts, talks, dashboards, and benchmarks are welcome.
+  - type: input
+    id: link
+    attributes:
+      label: Link
+      description: Notebook, repo, article, video, slides, or demo link.
+    validations:
+      required: false
+  - type: textarea
+    id: summary
+    attributes:
+      label: What did you build?
+      description: Tell the community what you generated and why.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Pandas
+        - Spark / Databricks
+        - BI / dashboards
+        - Data quality
+        - CDC pipelines
+        - Dimensional modeling
+        - Data Vault
+        - Teaching / workshop
+        - Research / benchmarking
+        - Other
+    validations:
+      required: false

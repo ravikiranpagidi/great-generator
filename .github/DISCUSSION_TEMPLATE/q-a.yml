@@ -1,0 +1,36 @@
+title: "[Q&A]: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for using Great Generator. Use this category for usage questions, notebook help, Spark setup, or API guidance.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What are you trying to do?
+      placeholder: I want to generate realistic banking data for a Spark notebook...
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options:
+        - Python / pandas
+        - PySpark / Spark
+        - Databricks
+        - Microsoft Fabric
+        - Local notebook
+        - Other
+    validations:
+      required: false
+  - type: textarea
+    id: code
+    attributes:
+      label: Code or example
+      description: Paste a minimal example if useful.
+      render: python
+    validations:
+      required: false

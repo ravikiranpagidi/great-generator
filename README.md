@@ -1161,6 +1161,12 @@ See [docs/BENCHMARKS.md](docs/BENCHMARKS.md) and `benchmarks/benchmark_pandas_ge
 - JSON-native generation with `generate_json_from_schema(...)`
 - Optional catalog registration helpers
 
+## Community and support
+
+- Use [GitHub Discussions](https://github.com/ravikiranpagidi/great-generator/discussions) for usage questions, ideas, demos, and show-and-tell posts.
+- Use [Issues](https://github.com/ravikiranpagidi/great-generator/issues) for bugs, scoped feature requests, domain-pack proposals, and realistic-value improvements.
+- Please do not report security issues in public issues or discussions. See [SECURITY.md](SECURITY.md).
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).

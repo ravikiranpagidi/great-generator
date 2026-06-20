@@ -1,0 +1,30 @@
+title: "[Idea]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this category for early ideas before they become scoped GitHub issues.
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+      description: What should Great Generator support?
+      placeholder: A medallion lakehouse demo generator that writes bronze, silver, and gold layers...
+    validations:
+      required: true
+  - type: textarea
+    id: users
+    attributes:
+      label: Who would use this?
+      description: Data engineers, analytics engineers, QA teams, researchers, students, speakers, or another group?
+    validations:
+      required: false
+  - type: textarea
+    id: api
+    attributes:
+      label: Possible API
+      description: Optional, show how you wish the feature worked.
+      render: python
+    validations:
+      required: false
