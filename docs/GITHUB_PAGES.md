@@ -8,7 +8,7 @@ https://ravikiranpagidi.github.io/great-generator/
 
 ## Enable the site
 
-The repository includes `.github/workflows/pages.yml`, which publishes the `docs/` folder through GitHub Actions.
+The repository includes `.github/workflows/pages.yml`, which enables GitHub Pages when allowed and publishes the `docs/` folder through GitHub Actions.
 
 In the GitHub repository:
 

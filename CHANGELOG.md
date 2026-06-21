@@ -10,7 +10,7 @@ This project follows semantic versioning once public releases begin.
 
 - Added a GitHub Pages documentation landing site under `docs/index.html` with install, examples, platform guidance, feature coverage, and project links.
 - Added `docs/GITHUB_PAGES.md` with setup instructions for publishing the site with GitHub Actions or from the `main` branch and `/docs` folder.
-- Added `.github/workflows/pages.yml` to publish the static documentation site through GitHub Pages.
+- Added `.github/workflows/pages.yml` to enable and publish the static documentation site through GitHub Pages.
 
 ### Changed
 
