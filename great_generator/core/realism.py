@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import warnings
 from collections.abc import Mapping, Sequence
 from typing import Any
 
@@ -13,7 +14,7 @@ from great_generator.core.value_generator import RealisticValueGenerator, maybe_
 from great_generator.schemas.models import ColumnSpec, DomainSchema
 from great_generator.utils.random import get_rng
 
-VALID_REALISM_MODES = {"placeholder", "realistic"}
+VALID_REALISM_MODES = {"placeholder", "basic", "simple", "realistic", "clean"}
 
 PERSON_NAME_FIELDS = {
     "customer_name",
@@ -48,11 +49,38 @@ COMPANY_NAME_FIELDS = {
 OPTIONAL_REALISTIC_NULL_RATE = 0.03
 
 
-def validate_realism(realism: str) -> None:
-    if realism not in VALID_REALISM_MODES:
-        raise ValueError(
-            f"Invalid realism '{realism}'. Expected one of {sorted(VALID_REALISM_MODES)}."
+def normalize_realism_mode(realism: str | None) -> str:
+    """Normalize user-facing realism modes to internal modes.
+
+    ``placeholder`` is the lightweight deterministic mode. ``realistic`` is the
+    clean semantic mode. ``basic`` and ``simple`` are friendly aliases for
+    placeholder mode, while ``clean`` is an alias for realistic mode.
+    """
+
+    if realism is None:
+        return "placeholder"
+    normalized = str(realism).strip().lower()
+    if normalized == "realsitic":
+        warnings.warn(
+            'realism="realsitic" looks like a typo. Using realism="realistic".',
+            UserWarning,
+            stacklevel=2,
         )
+        return "realistic"
+    if normalized in {"placeholder", "basic", "simple"}:
+        return "placeholder"
+    if normalized in {"realistic", "clean"}:
+        return "realistic"
+    if normalized not in VALID_REALISM_MODES:
+        raise ValueError(
+            "Invalid realism "
+            f"'{realism}'. Expected one of placeholder, basic, simple, realistic, clean."
+        )
+    return normalized
+
+
+def validate_realism(realism: str | None) -> None:
+    normalize_realism_mode(realism)
 
 
 def apply_realism_pandas(
@@ -64,7 +92,7 @@ def apply_realism_pandas(
 ) -> dict[str, pd.DataFrame]:
     """Apply placeholder compatibility or realistic value enrichment to pandas tables."""
 
-    validate_realism(realism)
+    realism = normalize_realism_mode(realism)
     enriched = {table_name: frame.copy() for table_name, frame in data.items()}
 
     for table_name, table_schema in schema.tables.items():

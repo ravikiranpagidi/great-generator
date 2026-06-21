@@ -1,18 +1,37 @@
 import pandas as pd
+import pytest
 
-from great_generator import generate_from_schema, validate_generated_data
+from great_generator import (
+    explain_generation_plan,
+    generate_domain,
+    generate_from_schema,
+    validate_generated_data,
+)
 from great_generator.core import value_generator
-from great_generator.schemas.semantic import infer_field_semantic_type, normalize_column_name
+from great_generator.core.realism import normalize_realism_mode
+from great_generator.schemas.semantic import (
+    infer_field_semantic_info,
+    infer_field_semantic_type,
+    normalize_column_name,
+)
 
 
 def test_semantic_inference_handles_common_aliases():
     assert normalize_column_name("memberName") == "member_name"
     assert normalize_column_name("cust-name") == "customer_name"
+    assert normalize_column_name("cust_nm") == "customer_name"
     assert infer_field_semantic_type("emp_name", "string") == "employee_name"
+    assert infer_field_semantic_type("CustomerName", "string") == "customer_name"
     assert infer_field_semantic_type("email_id", "string") == "email"
     assert infer_field_semantic_type("city_name", "string") == "city"
     assert infer_field_semantic_type("mobile_no", "string") == "phone"
+    assert infer_field_semantic_type("txn_amt", "double") == "transaction_amount"
+    assert infer_field_semantic_type("created_ts", "timestamp") == "created_at"
     assert infer_field_semantic_type("transaction_amount", "double") == "transaction_amount"
+
+    info = infer_field_semantic_info("emp_age", "int")
+    assert info["semantic_type"] == "employee_age"
+    assert info["confidence"] > 0.9
 
 
 def test_generate_from_schema_uses_semantic_field_values_by_default():
@@ -66,30 +85,50 @@ def test_age_and_date_of_birth_are_consistent():
     frame = generate_from_schema("date_of_birth date, age int", rows=10, seed=42)
 
     approximate_age = (
-        pd.Timestamp("2026-01-01") - pd.to_datetime(frame["date_of_birth"])
+        pd.Timestamp.today().normalize() - pd.to_datetime(frame["date_of_birth"])
     ).dt.days // 365
     assert (frame["age"] == approximate_age).all()
 
 
 def test_date_relationships_are_consistent():
     frame = generate_from_schema(
-        "created_at timestamp, updated_at timestamp, start_date date, end_date date",
+        (
+            "created_at timestamp, updated_at timestamp, start_date date, end_date date, "
+            "order_date date, delivery_date date, payment_date date, transaction_date date"
+        ),
         rows=20,
         seed=42,
     )
 
+    today = pd.Timestamp.today().normalize()
+    for column in [
+        "created_at",
+        "updated_at",
+        "start_date",
+        "end_date",
+        "order_date",
+        "delivery_date",
+        "payment_date",
+        "transaction_date",
+    ]:
+        assert (pd.to_datetime(frame[column]) <= today).all()
     assert (pd.to_datetime(frame["updated_at"]) >= pd.to_datetime(frame["created_at"])).all()
     assert (pd.to_datetime(frame["end_date"]) >= pd.to_datetime(frame["start_date"])).all()
+    assert (pd.to_datetime(frame["delivery_date"]) >= pd.to_datetime(frame["order_date"])).all()
+    assert (pd.to_datetime(frame["payment_date"]) >= pd.to_datetime(frame["order_date"])).all()
 
 
 def test_quantity_price_total_are_consistent():
     frame = generate_from_schema(
-        "quantity int, unit_price double, total_amount double",
+        "quantity int, unit_price double, discount double, tax double, total_amount double",
         rows=20,
         seed=42,
     )
 
-    expected = (frame["quantity"] * frame["unit_price"]).round(2)
+    expected = frame["quantity"] * frame["unit_price"]
+    expected = expected - (expected * frame["discount"])
+    expected = expected + (expected * frame["tax"])
+    expected = expected.round(2)
     assert frame["total_amount"].round(2).equals(expected)
 
 
@@ -158,7 +197,10 @@ def test_validate_generated_data_returns_quality_result():
 
     result = validate_generated_data(frame)
 
-    assert result == {"passed": True, "errors": [], "warnings": []}
+    assert result["passed"] is True
+    assert result["errors"] == []
+    assert result["warnings"] == []
+    assert result["summary"]["rows_checked"] == 10
 
 
 def test_validate_generated_data_detects_bad_email_and_age():
@@ -170,6 +212,107 @@ def test_validate_generated_data_detects_bad_email_and_age():
     assert result["passed"] is False
     assert any("email" in error for error in result["errors"])
     assert any("age" in error for error in result["errors"])
+
+
+def test_realism_typo_alias_is_supported_with_warning():
+    with pytest.warns(UserWarning, match="looks like a typo"):
+        assert normalize_realism_mode("realsitic") == "realistic"
+
+    with pytest.warns(UserWarning, match="looks like a typo"):
+        frame = generate_from_schema("customer_name string, age int", rows=5, realism="realsitic")
+
+    assert frame["customer_name"].str.contains(" ").all()
+    assert frame["age"].between(18, 90).all()
+
+
+def test_id_safety_and_generic_numeric_ranges():
+    frame = generate_from_schema(
+        {
+            "customer_id": "string",
+            "employee_id": "string",
+            "transaction_id": "string",
+            "integer_metric": "int",
+        },
+        rows=25,
+        seed=42,
+    )
+
+    assert frame["customer_id"].is_unique
+    assert frame["employee_id"].is_unique
+    assert frame["transaction_id"].is_unique
+    assert frame["customer_id"].str.startswith("CUST").all()
+    assert frame["integer_metric"].between(1, 100).all()
+
+
+def test_status_aware_dates_are_null_when_status_requires_it():
+    frame = generate_from_schema(
+        (
+            "order_status string, order_date date, delivery_date date, "
+            "payment_status string, payment_date date, employment_status string, "
+            "hire_date date, termination_date date, account_status string, "
+            "opened_date date, closed_date date"
+        ),
+        rows=10,
+        seed=42,
+        custom_rules={
+            "order_status": {"values": ["Pending"]},
+            "payment_status": {"values": ["Pending"]},
+            "employment_status": {"values": ["Active"]},
+            "account_status": {"values": ["Active"]},
+        },
+    )
+
+    assert frame["delivery_date"].isna().all()
+    assert frame["payment_date"].isna().all()
+    assert frame["termination_date"].isna().all()
+    assert frame["closed_date"].isna().all()
+
+
+def test_validation_catches_future_and_out_of_order_dates():
+    result = validate_generated_data(
+        [
+            {
+                "created_at": "2035-01-01T00:00:00",
+                "updated_at": "2020-01-01T00:00:00",
+            }
+        ],
+        {"created_at": "timestamp", "updated_at": "timestamp"},
+    )
+
+    assert result["passed"] is False
+    assert any("future" in error for error in result["errors"])
+    assert any("updated_at" in error for error in result["errors"])
+
+
+def test_validate_and_return_report_are_opt_in():
+    frame, report = generate_from_schema(
+        {"customer_name": "string", "age": "int", "email": "string"},
+        rows=10,
+        validate=True,
+        return_report=True,
+        seed=42,
+    )
+
+    assert len(frame) == 10
+    assert report["passed"] is True
+    assert report["summary"]["semantic_coverage"] == 1.0
+
+
+def test_explain_generation_plan_reports_coverage():
+    plan = explain_generation_plan(
+        {"customer_name": "string", "age": "int", "misc_value": "string"}
+    )
+
+    assert plan["realism"] == "realistic"
+    assert plan["semantic_coverage"] < 1.0
+    assert any(field["semantic_type"] == "customer_name" for field in plan["fields"])
+
+
+def test_generate_domain_public_behavior_still_returns_tables():
+    data = generate_domain("banking", scale="tiny")
+
+    assert "customers" in data
+    assert "accounts" in data
 
 
 def test_fallback_generator_works_when_faker_is_unavailable(monkeypatch):

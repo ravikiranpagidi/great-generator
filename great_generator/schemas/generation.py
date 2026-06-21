@@ -10,7 +10,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from great_generator.core.realism import validate_realism
+from great_generator.core.realism import normalize_realism_mode, validate_realism
 from great_generator.relationships.graph import topological_sort
 from great_generator.schemas.models import ColumnSpec, DomainSchema, TableSchema
 from great_generator.schemas.semantic import generate_semantic_table
@@ -61,6 +61,7 @@ def generate_single_table_pandas(
 ) -> pd.DataFrame:
     """Generate a pandas DataFrame from a single-table schema input."""
 
+    realism = normalize_realism_mode(realism)
     validate_realism(realism)
     table, source = normalize_single_table_schema(schema, table_name=table_name)
     if realism == "realistic":

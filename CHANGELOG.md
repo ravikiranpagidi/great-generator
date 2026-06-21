@@ -9,10 +9,14 @@ This project follows semantic versioning once public releases begin.
 ### Added
 
 - Semantic-field based schema generation for `generate_from_schema(...)`, including abbreviation-aware column inference, realistic schema values, domain presets, custom rules, cross-field consistency, mapping schemas, and `validate_generated_data(...)`.
+- Clean realistic schema data-quality rules for ages, dates, lifecycle ordering, ID safety, status-aware nulls, amount formulas, validation summaries, and semantic coverage reports.
+- `explain_generation_plan(...)` for inspecting semantic inference before generating rows.
+- Optional `validate=True` and `return_report=True` support for `generate_from_schema(...)`.
 
 ### Changed
 
 - `generate_from_schema(...)` now defaults to realistic schema values. Use `realistic=False` or `realism="placeholder"` for the older placeholder-style output.
+- `realism` now supports friendly aliases: `basic` and `simple` map to placeholder mode, `clean` maps to realistic mode, and the common typo `realsitic` maps to `realistic` with a warning.
 
 ## 0.1.1 - 2026-06-20
 

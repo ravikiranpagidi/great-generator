@@ -43,12 +43,24 @@ df = generate_from_schema(
 )
 ```
 
+
+Realistic schema mode applies clean data-quality defaults:
+
+- ages stay within realistic ranges and align with `date_of_birth` when present
+- business dates are not future dates by default
+- `updated_at` follows `created_at`, and `end_date` follows `start_date`
+- status-aware fields use logical nulls such as no `payment_date` for pending payments
+- ID fields are unique and are not confused with normal numeric columns
+- `realism="realsitic"` is accepted as a typo alias with a warning
+
 Important optional parameters:
 
 - `domain`: optional preset such as `banking`, `retail`, `healthcare`, `insurance`, `hr`, or `education`
 - `custom_rules`: per-column overrides for values, min/max ranges, semantic type, prefixes, uniqueness, and date ranges
 - `realistic`: set `False` for older placeholder-style values
-- `realism`: string mode, `"realistic"` or `"placeholder"`
+- `realism`: string mode, `"realistic"` or `"placeholder"`; `"clean"` maps to realistic, `"basic"` and `"simple"` map to placeholder
+- `validate`: optional post-generation data quality check
+- `return_report`: return `(dataframe, report)` when you want the validation report with the generated data
 
 ## `generate_relational(...)`
 
@@ -144,4 +156,24 @@ df = generate_from_schema(schema, rows=100)
 result = validate_generated_data(df, schema)
 ```
 
-Returns a dictionary with `passed`, `errors`, and `warnings`.
+Returns a dictionary with `passed`, `errors`, `warnings`, and `summary`.
+
+## `explain_generation_plan(...)`
+
+Explains how each schema field will be interpreted before generation.
+
+```python
+from great_generator import explain_generation_plan
+
+plan = explain_generation_plan({
+    "cust_nm": "string",
+    "emp_age": "int",
+    "txn_amt": "double",
+    "created_ts": "timestamp",
+})
+
+print(plan["semantic_coverage"])
+print(plan["fields"])
+```
+
+Each field includes the column name, dtype, inferred semantic type, confidence, reason, and generator description.

@@ -10,7 +10,7 @@ import pandas as pd
 
 from great_generator.cdc.generator import generate_cdc as _generate_cdc
 from great_generator.config import resolve_row_counts
-from great_generator.core.realism import validate_realism
+from great_generator.core.realism import normalize_realism_mode, validate_realism
 from great_generator.domains import DOMAIN_MODULES
 from great_generator.exporters.csv_exporter import export_csv
 from great_generator.exporters.delta_exporter import export_delta
@@ -24,9 +24,11 @@ from great_generator.schemas.generation import (
     generate_single_table_spark,
     is_pyspark_dataframe,
     is_pyspark_struct_type,
+    normalize_single_table_schema,
 )
 from great_generator.schemas.models import DomainSchema, TableSchema
 from great_generator.schemas.relational import relational_schema_from_specs
+from great_generator.schemas.semantic import explain_generation_plan as _explain_generation_plan
 from great_generator.schemas.semantic import validate_generated_data as _validate_generated_data
 from great_generator.utils.validation import validate_engine, validate_output_format
 
@@ -71,6 +73,7 @@ def generate_domain(
 
     validate_engine(engine)
     validate_output_format(output_format)
+    realism = normalize_realism_mode(realism)
     validate_realism(realism)
     schema = get_domain_schema(domain)
     row_counts = resolve_row_counts(domain, scale, rows)
@@ -160,6 +163,7 @@ def generate_relational(
 
     validate_engine(engine)
     validate_output_format(output_format)
+    realism = normalize_realism_mode(realism)
     validate_realism(realism)
     schema, row_counts = relational_schema_from_specs(
         tables=tables,
@@ -413,7 +417,9 @@ def generate_from_schema(
     domain: str | None = None,
     custom_rules: Mapping[str, Mapping[str, Any]] | None = None,
     realistic: bool | None = None,
-) -> dict[str, pd.DataFrame] | pd.DataFrame | Any:
+    validate: bool = False,
+    return_report: bool = False,
+) -> dict[str, pd.DataFrame] | pd.DataFrame | Any | tuple[Any, dict[str, Any]]:
     """Generate sample data from domain metadata, DataFrames, DDL strings, or Spark schemas.
 
     Supported inputs:
@@ -429,6 +435,7 @@ def generate_from_schema(
     effective_realism = (
         "realistic" if realistic is True else "placeholder" if realistic is False else realism
     )
+    effective_realism = normalize_realism_mode(effective_realism)
     validate_realism(effective_realism)
     if engine == "auto":
         resolved_engine = "spark" if _has_spark_context(schema, spark) else "pandas"
@@ -448,8 +455,23 @@ def generate_from_schema(
             spark_session = spark or active_spark_session()
             if spark_session is None:
                 raise ValueError("Spark schema generation requires a SparkSession via spark=...")
-            return {name: spark_session.createDataFrame(frame) for name, frame in generated.items()}
-        return generated
+            spark_tables = {
+                name: spark_session.createDataFrame(frame) for name, frame in generated.items()
+            }
+            return _maybe_attach_report(
+                spark_tables,
+                schema=schema,
+                rules=custom_rules,
+                validate=validate,
+                return_report=return_report,
+            )
+        return _maybe_attach_report(
+            generated,
+            schema=schema,
+            rules=custom_rules,
+            validate=validate,
+            return_report=return_report,
+        )
 
     if isinstance(rows, Mapping):
         raise ValueError("Single-table schema generation expects rows to be an integer.")
@@ -458,7 +480,7 @@ def generate_from_schema(
         raise ValueError("rows must be greater than or equal to zero.")
 
     if resolved_engine == "spark":
-        return generate_single_table_spark(
+        spark_frame = generate_single_table_spark(
             schema,
             rows=row_count,
             spark=spark,
@@ -468,7 +490,14 @@ def generate_from_schema(
             domain=domain,
             custom_rules=custom_rules,
         )
-    return generate_single_table_pandas(
+        return _maybe_attach_report(
+            spark_frame,
+            schema=schema,
+            rules=custom_rules,
+            validate=validate,
+            return_report=return_report,
+        )
+    pandas_frame = generate_single_table_pandas(
         schema,
         rows=row_count,
         seed=seed,
@@ -477,16 +506,88 @@ def generate_from_schema(
         domain=domain,
         custom_rules=custom_rules,
     )
+    return _maybe_attach_report(
+        pandas_frame,
+        schema=schema,
+        rules=custom_rules,
+        validate=validate,
+        return_report=return_report,
+    )
 
 
 def validate_generated_data(
     records: Any,
     schema: TableSchema | Mapping[str, str] | str | pd.DataFrame | None = None,
     rules: Mapping[str, Mapping[str, Any]] | None = None,
+    strict: bool = False,
 ) -> dict[str, Any]:
     """Validate generated schema data for common semantic quality checks."""
 
-    return _validate_generated_data(records, schema=schema, rules=rules)
+    return _validate_generated_data(records, schema=schema, rules=rules, strict=strict)
+
+
+def explain_generation_plan(
+    schema: TableSchema | Mapping[str, str] | str | pd.DataFrame | Any,
+    realism: str = "realistic",
+    custom_rules: Mapping[str, Mapping[str, Any]] | None = None,
+    table_name: str = "sample",
+) -> dict[str, Any]:
+    """Explain the semantic generation plan for a single-table schema."""
+
+    table, _ = normalize_single_table_schema(schema, table_name=table_name)
+    return _explain_generation_plan(
+        table,
+        realism=normalize_realism_mode(realism),
+        custom_rules=custom_rules,
+    )
+
+
+def _maybe_attach_report(
+    result: Any,
+    schema: Any,
+    rules: Mapping[str, Mapping[str, Any]] | None,
+    validate: bool,
+    return_report: bool,
+) -> Any | tuple[Any, dict[str, Any]]:
+    if not validate and not return_report:
+        return result
+    report = _validation_report_for_result(result, schema=schema, rules=rules)
+    return (result, report) if return_report else result
+
+
+def _validation_report_for_result(
+    result: Any,
+    schema: Any,
+    rules: Mapping[str, Mapping[str, Any]] | None,
+) -> dict[str, Any]:
+    if isinstance(result, pd.DataFrame):
+        return _validate_generated_data(result, schema=schema, rules=rules)
+    if isinstance(result, Mapping):
+        table_reports: dict[str, Any] = {}
+        passed = True
+        for table_name, frame in result.items():
+            if isinstance(frame, pd.DataFrame):
+                table_schema = (
+                    schema.tables.get(table_name) if isinstance(schema, DomainSchema) else None
+                )
+                table_report = _validate_generated_data(frame, schema=table_schema, rules=rules)
+                table_reports[table_name] = table_report
+                passed = passed and bool(table_report["passed"])
+        return {
+            "passed": passed,
+            "errors": [],
+            "warnings": [],
+            "summary": {"tables_checked": len(table_reports)},
+            "tables": table_reports,
+        }
+    return {
+        "passed": True,
+        "errors": [],
+        "warnings": [
+            "Validation report was not run locally because the result is not a pandas object."
+        ],
+        "summary": {"rows_checked": None, "columns_checked": None, "semantic_coverage": None},
+    }
 
 
 def _has_spark_context(schema: Any, spark: Any | None) -> bool:

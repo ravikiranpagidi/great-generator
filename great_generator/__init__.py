@@ -1,6 +1,7 @@
 """Developer-first enterprise synthetic data generation."""
 
 from .api import (
+    explain_generation_plan,
     export_data,
     generate_cdc,
     generate_data_vault_model,
@@ -17,6 +18,7 @@ from .api import (
 
 __all__ = [
     "export_data",
+    "explain_generation_plan",
     "generate_cdc",
     "generate_domain",
     "generate_from_recipe",

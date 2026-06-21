@@ -6,7 +6,12 @@ from collections.abc import Mapping
 from typing import Any
 
 from great_generator.anomalies.injector import inject_anomalies_spark
-from great_generator.core.realism import COMPANY_NAME_FIELDS, PERSON_NAME_FIELDS, validate_realism
+from great_generator.core.realism import (
+    COMPANY_NAME_FIELDS,
+    PERSON_NAME_FIELDS,
+    normalize_realism_mode,
+    validate_realism,
+)
 from great_generator.core.reference_values import REFERENCE_VALUES_BY_FIELD
 from great_generator.relationships.graph import topological_sort
 from great_generator.schemas.generation import active_spark_session
@@ -248,6 +253,7 @@ def _ensure_and_apply_realism_spark(
 ) -> dict[str, Any]:
     """Ensure schema columns exist and enrich Spark DataFrames with realistic fields."""
 
+    realism = normalize_realism_mode(realism)
     validate_realism(realism)
     from pyspark.sql import functions as F
 

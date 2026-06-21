@@ -183,8 +183,10 @@ generate_domain("banking", scale="small", realism="realistic")
 
 - `realism="placeholder"` keeps simple deterministic values, useful for debugging and strict tests.
 - `realism="realistic"` generates believable names, emails, phone numbers, addresses, company names, merchant names, product names, account types, transaction types, order statuses, claim statuses, and other business values.
+- `realism="basic"` and `realism="simple"` are friendly aliases for placeholder mode.
+- `realism="clean"` is a friendly alias for realistic mode.
 
-The realistic layer is relationship-safe: it enriches descriptive fields but does not rewrite primary keys or foreign keys.
+The realistic layer is relationship-safe: it enriches descriptive fields but does not rewrite primary keys or foreign keys. If a user accidentally passes `realism="realsitic"`, Great Generator treats it as `realism="realistic"` and emits a warning.
 
 ```python
 from great_generator import generate_domain
@@ -214,6 +216,39 @@ customer_id | customer_name | email
 1           | Emily Carter  | emily.carter247@example.com
 2           | Arjun Mehta   | arjun.mehta812@example.com
 ```
+
+### Realistic Mode and Data Quality
+
+Realistic mode is designed to generate clean, logically valid data by default.
+
+Bad synthetic data often looks like this:
+
+```text
+customer_name: customer_name_1
+age: 104
+created_at: 2035-01-01
+updated_at: 2020-01-01 while created_at is 2024-01-01
+```
+
+Great Generator now applies semantic and data-quality rules:
+
+```text
+customer_name: Ava Johnson
+age: 42
+created_at: 2024-03-12 10:45:00
+updated_at: 2024-03-15 16:20:00
+```
+
+Clean realistic mode includes:
+
+- age ranges such as 18 to 90 for `age`, 21 to 65 for `employee_age`, and 5 to 30 for `student_age`
+- `date_of_birth` values that align with age fields when both exist
+- no future `created_at`, `updated_at`, `order_date`, `transaction_date`, or `payment_date` by default
+- `updated_at >= created_at`, `end_date >= start_date`, and `delivery_date >= order_date`
+- positive quantities, realistic salaries and amounts, bounded discounts and taxes
+- unique ID fields such as `customer_id`, `employee_id`, and `transaction_id`
+- status-aware nulls, such as no `payment_date` for pending payments and no `termination_date` for active employees
+
 
 ## Who should use this?
 
@@ -896,6 +931,8 @@ customers = generate_from_schema(
         "customer_id": {"prefix": "CUST", "unique": True},
         "status": {"values": ["Active", "Inactive"]},
         "created_at": {"start": "2024-01-01", "end": "2024-12-31"},
+        "middle_name": {"null_rate": 0.50},
+        "priority": {"weighted_values": {"Low": 0.60, "Medium": 0.30, "High": 0.10}},
     },
 )
 ```
@@ -919,9 +956,41 @@ from great_generator import validate_generated_data
 
 result = validate_generated_data(customers, schema)
 assert result["passed"]
+print(result["summary"])
 ```
 
-Validation checks practical quality rules such as email format, realistic age ranges, unique IDs, numeric ranges, date relationships, and `total_amount = quantity * unit_price` where those fields exist.
+Validation checks practical quality rules such as email format, realistic age ranges, unique IDs, numeric ranges, future dates, date relationships, status-dependent nulls, and amount formulas where those fields exist.
+
+You can also ask `generate_from_schema(...)` to return a report with the generated DataFrame:
+
+```python
+customers, report = generate_from_schema(
+    schema,
+    rows=1_000,
+    validate=True,
+    return_report=True,
+)
+
+assert report["passed"]
+```
+
+### Explain the generation plan
+
+Use `explain_generation_plan(...)` when a schema has unfamiliar field names and you want to see how Great Generator will interpret them.
+
+```python
+from great_generator import explain_generation_plan
+
+plan = explain_generation_plan({
+    "cust_nm": "string",
+    "emp_age": "int",
+    "txn_amt": "double",
+    "created_ts": "timestamp",
+})
+
+print(plan["semantic_coverage"])
+print(plan["fields"])
+```
 
 ### From a PySpark StructType
 
