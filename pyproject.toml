@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "great-generator"
-version = "0.1.3"
+version = "0.1.4"
 description = "Generate realistic synthetic enterprise data for Spark, Pandas, testing, demos, benchmarking, learning, and research."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -106,7 +106,7 @@ Homepage = "https://github.com/ravikiranpagidi/great-generator"
 Repository = "https://github.com/ravikiranpagidi/great-generator"
 Issues = "https://github.com/ravikiranpagidi/great-generator/issues"
 Changelog = "https://github.com/ravikiranpagidi/great-generator/blob/main/CHANGELOG.md"
-Documentation = "https://github.com/ravikiranpagidi/great-generator#readme"
+Documentation = "https://github.com/ravikiranpagidi/great-generator/wiki"
 Security = "https://github.com/ravikiranpagidi/great-generator/security/policy"
 
 [tool.hatch.build.targets.wheel]

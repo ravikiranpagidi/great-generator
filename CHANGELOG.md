@@ -6,6 +6,15 @@ This project follows semantic versioning once public releases begin.
 
 ## Unreleased
 
+## 0.1.4 - 2026-06-21
+
+PyPI author presentation release.
+
+### Changed
+
+- Added a PyPI-friendly Author section with project links in the README.
+- Updated the package documentation project link to the GitHub Wiki.
+
 ## 0.1.3 - 2026-06-21
 
 PyPI metadata visibility release.

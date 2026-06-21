@@ -28,11 +28,16 @@ transactions = data["transactions"]
 ```
 
 
-## Author and maintainer
+## Author
 
-Great Generator is authored and maintained by **Ravi Kiran Pagidi**.
+Created and maintained by Ravi Kiran Pagidi.
 
-Contact: [ravikiran.pagidi@gmail.com](mailto:ravikiran.pagidi@gmail.com)
+Project links:
+
+- PyPI: [great-generator](https://pypi.org/project/great-generator/)
+- GitHub: [ravikiranpagidi/great-generator](https://github.com/ravikiranpagidi/great-generator)
+- Documentation: [Great Generator Docs](https://github.com/ravikiranpagidi/great-generator/wiki)
+- Contact: [ravikiran.pagidi@gmail.com](mailto:ravikiran.pagidi@gmail.com)
 
 ## Why this exists
 
