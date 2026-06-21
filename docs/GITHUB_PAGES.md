@@ -8,7 +8,21 @@ https://ravikiranpagidi.github.io/great-generator/
 
 ## Enable the site
 
+The repository includes `.github/workflows/pages.yml`, which publishes the `docs/` folder through GitHub Actions.
+
 In the GitHub repository:
+
+1. Open **Settings**.
+2. Open **Pages**.
+3. For **Build and deployment**, choose **GitHub Actions**.
+4. Save the setting if GitHub asks you to confirm.
+5. Open **Actions** and run **Publish documentation site** if it does not start automatically.
+
+GitHub will publish the site after the Pages workflow completes.
+
+### Alternative branch-based setup
+
+If you prefer branch-based Pages instead of Actions:
 
 1. Open **Settings**.
 2. Open **Pages**.
@@ -16,8 +30,6 @@ In the GitHub repository:
 4. Select branch **main**.
 5. Select folder **/docs**.
 6. Save.
-
-GitHub will publish the site after the next Pages build.
 
 ## What the page is for
 
