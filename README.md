@@ -36,7 +36,8 @@ Project links:
 
 - PyPI: [great-generator](https://pypi.org/project/great-generator/)
 - GitHub: [ravikiranpagidi/great-generator](https://github.com/ravikiranpagidi/great-generator)
-- Documentation: [Great Generator Docs](https://github.com/ravikiranpagidi/great-generator/wiki)
+- Documentation: [Great Generator Docs](https://ravikiranpagidi.github.io/great-generator/)
+- Wiki: [Great Generator Wiki](https://github.com/ravikiranpagidi/great-generator/wiki)
 - Contact: [ravikiran.pagidi@gmail.com](mailto:ravikiran.pagidi@gmail.com)
 
 ## Why this exists
@@ -1270,7 +1271,9 @@ Common parameters:
 
 ## Documentation
 
-For detailed guides, examples, design concepts, and contributor documentation, see the [GitHub Wiki](https://github.com/ravikiranpagidi/great-generator/wiki).
+Start with the public documentation site: [Great Generator Docs](https://ravikiranpagidi.github.io/great-generator/). It is the demo-friendly front door for installation, examples, platforms, DataFrame-first output, and links to deeper guides.
+
+For detailed guides, design concepts, and contributor documentation, also see the [GitHub Wiki](https://github.com/ravikiranpagidi/great-generator/wiki).
 
 Recommended Wiki starting points:
 
@@ -1293,6 +1296,7 @@ Repository docs:
 - [Advanced capabilities](docs/ADVANCED_CAPABILITIES.md)
 - [Benchmarks](docs/BENCHMARKS.md)
 - [PyPI release checklist](docs/PYPI_RELEASE.md)
+- [GitHub Pages setup](docs/GITHUB_PAGES.md)
 
 ## Limitations
 
@@ -1321,7 +1325,7 @@ See [docs/BENCHMARKS.md](docs/BENCHMARKS.md) and `benchmarks/benchmark_pandas_ge
 - Data quality rule generation
 - Great Expectations / Soda integration examples
 - Databricks and Microsoft Fabric demo notebooks
-- Documentation website using MkDocs or GitHub Pages
+- Searchable documentation site improvements
 - JSON-native generation with `generate_json_from_schema(...)`
 - Optional catalog registration helpers
 

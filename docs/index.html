@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Great Generator | Synthetic enterprise data for Pandas, Spark, testing, demos, and research</title>
+  <meta name="description" content="Great Generator is a developer-first Python library for realistic synthetic enterprise data across Pandas, Spark, relational domains, schema-first generation, CDC, anomalies, and lakehouse demos." />
+  <meta name="keywords" content="synthetic data, pandas, pyspark, spark, databricks, faker alternative, test data, enterprise data, CDC, data quality, lakehouse, delta lake" />
+  <meta property="og:title" content="Great Generator" />
+  <meta property="og:description" content="Developer-first synthetic enterprise data for Pandas, Spark, testing, demos, benchmarking, learning, and research." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://ravikiranpagidi.github.io/great-generator/" />
+  <link rel="stylesheet" href="assets/site.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="#top" aria-label="Great Generator home">
+        <span class="brand-mark">GG</span>
+        <span>Great Generator</span>
+      </a>
+      <div class="nav-links">
+        <a href="#install">Install</a>
+        <a href="#examples">Examples</a>
+        <a href="#platforms">Platforms</a>
+        <a href="#docs">Docs</a>
+        <a href="https://pypi.org/project/great-generator/">PyPI</a>
+        <a href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-copy">
+        <p class="eyebrow">Synthetic enterprise data, built for developers</p>
+        <h1>Generate realistic data systems, not just fake values.</h1>
+        <p class="lede">
+          Great Generator creates useful synthetic datasets for Pandas, Spark, lakehouse demos,
+          pipeline testing, benchmarking, SQL learning, data quality validation, and research.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#quickstart">Start in 30 seconds</a>
+          <a class="button secondary" href="https://github.com/ravikiranpagidi/great-generator">View repository</a>
+        </div>
+        <p class="positioning">
+          Faker gives fake values. Great Generator gives a believable enterprise data system.
+        </p>
+      </div>
+      <div class="hero-card" aria-label="Example code">
+        <div class="code-window">
+          <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
+          <pre><code>from great_generator import generate_domain
+
+data = generate_domain("ecommerce", scale="small")
+
+customers = data["customers"]
+orders = data["orders"]
+order_items = data["order_items"]</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="signal-grid" aria-label="Key outcomes">
+      <article>
+        <strong>Domain-aware</strong>
+        <span>Ecommerce, banking, healthcare, telecom, insurance, logistics, SaaS, and more.</span>
+      </article>
+      <article>
+        <strong>DataFrame-first</strong>
+        <span>Return Pandas or Spark DataFrames, then write to any destination your runtime supports.</span>
+      </article>
+      <article>
+        <strong>Schema-first</strong>
+        <span>Generate realistic values from DDL strings, pandas frames, Spark schemas, and mapping schemas.</span>
+      </article>
+      <article>
+        <strong>Enterprise-ready</strong>
+        <span>CDC, anomalies, referential data, dimensional models, Data Vault models, and exports.</span>
+      </article>
+    </section>
+
+    <section class="section" id="why">
+      <div class="section-heading">
+        <p class="eyebrow">Why it exists</p>
+        <h2>Realistic test data is harder than it should be.</h2>
+        <p>
+          Teams need data that looks familiar enough for demos, tests, notebooks, POCs, prototypes,
+          Spark jobs, SQL models, and research. Value generators are useful, but they do not give you
+          relationships, business behavior, late records, anomalies, schema realism, or lakehouse-friendly outputs.
+        </p>
+      </div>
+      <div class="compare">
+        <div>
+          <h3>Compared with Faker</h3>
+          <p>Faker creates individual fake values. Great Generator creates complete datasets with relationships, behavior, and outputs that developers can use immediately.</p>
+        </div>
+        <div>
+          <h3>Compared with heavy synthetic data platforms</h3>
+          <p>Great Generator is lightweight and developer-first. It is designed for fast starts, demos, pipelines, tests, and repeatable examples rather than statistical modeling of private source data.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section split" id="install">
+      <div>
+        <p class="eyebrow">Install</p>
+        <h2>Simple package, optional Spark and Delta extras.</h2>
+        <p>
+          The base package stays local-friendly. Spark and Delta support are optional so users can install only what their environment needs.
+        </p>
+      </div>
+      <div class="code-stack">
+        <pre><code>pip install great-generator</code></pre>
+        <pre><code>pip install "great-generator[spark]"</code></pre>
+        <pre><code>pip install "great-generator[delta]"</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="quickstart">
+      <div class="section-heading">
+        <p class="eyebrow">Quickstart</p>
+        <h2>Useful in one import.</h2>
+        <p>Use domain packs when you want a ready-made enterprise dataset with tables that fit together.</p>
+      </div>
+      <div class="example-grid" id="examples">
+        <article class="example-card">
+          <h3>Generate an ecommerce domain</h3>
+          <pre><code>from great_generator import generate_domain
+
+data = generate_domain("ecommerce", scale="small")
+
+customers = data["customers"]
+orders = data["orders"]
+payments = data["payments"]</code></pre>
+        </article>
+        <article class="example-card">
+          <h3>Generate banking CDC records</h3>
+          <pre><code>from great_generator import generate_cdc
+
+cdc = generate_cdc(
+    "banking",
+    table="customers",
+    rows=1000,
+    operations=["insert", "update", "delete"],
+    late_arrival_rate=0.02,
+)</code></pre>
+        </article>
+        <article class="example-card">
+          <h3>Generate from a schema string</h3>
+          <pre><code>from great_generator import generate_from_schema
+
+df = generate_from_schema(
+    "customer_id int, customer_name string, signup_date date, annual_income double",
+    rows=100,
+)</code></pre>
+        </article>
+        <article class="example-card">
+          <h3>Generate user-defined relational data</h3>
+          <pre><code>from great_generator import generate_relational
+
+tables = {
+    "customers": "customer_id int primary key, customer_name string, segment string",
+    "orders": "order_id int primary key, customer_id int, order_amount double",
+}
+
+data = generate_relational(
+    tables=tables,
+    relationships=["orders.customer_id -> customers.customer_id"],
+    rows={"customers": 1000, "orders": 5000},
+)</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="section split" id="spark">
+      <div>
+        <p class="eyebrow">Spark and lakehouse</p>
+        <h2>Designed for notebooks, Databricks, and Spark clusters.</h2>
+        <p>
+          Use Spark mode when data should be generated as PySpark DataFrames and written with Spark-native writers.
+          This works with DBFS, ADLS, S3, GCS, HDFS, local paths, and catalog tables when those destinations are configured in your Spark environment.
+        </p>
+      </div>
+      <div class="example-card compact">
+        <pre><code>from great_generator import generate_domain
+
+data = generate_domain(
+    "banking",
+    engine="spark",
+    scale="large",
+    spark=spark,
+)
+
+data["transactions"].write.mode("overwrite").parquet(
+    "s3://your-bucket/demo/banking/transactions"
+)</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="section-heading">
+        <p class="eyebrow">Features</p>
+        <h2>The first-release feature set is intentionally practical.</h2>
+      </div>
+      <div class="feature-grid">
+        <article><h3>Prebuilt domains</h3><p>Generate complete industry datasets with related tables and realistic business behavior.</p></article>
+        <article><h3>Referential integrity</h3><p>Parent tables are generated before child tables, with valid primary keys and foreign keys by default.</p></article>
+        <article><h3>Semantic schema generation</h3><p>Name-like, date-like, amount-like, status-like, ID-like, and domain-specific fields are detected from column names.</p></article>
+        <article><h3>Pandas and Spark</h3><p>Return the right DataFrame type for your engine, then write through native DataFrame APIs.</p></article>
+        <article><h3>Export helpers</h3><p>CSV, JSON, Parquet, and Delta convenience exports with table-per-folder output.</p></article>
+        <article><h3>Cloud paths</h3><p>Use local paths with Pandas and DBFS, ADLS, S3, GCS, HDFS, or mounted paths with Spark runtimes.</p></article>
+        <article><h3>CDC simulation</h3><p>Create insert, update, and delete records with event timestamps, ingestion timestamps, late arrival flags, and duplicates when configured.</p></article>
+        <article><h3>Anomaly injection</h3><p>Inject nulls, duplicates, orphan keys, late records, outliers, invalid statuses, and negative amounts for quality testing.</p></article>
+        <article><h3>Dimensional models</h3><p>Create facts and dimensions for analytics engineering, SQL modeling, BI demos, and warehouse examples.</p></article>
+        <article><h3>Data Vault models</h3><p>Create hubs, links, and satellites for enterprise architecture demos and modeling experiments.</p></article>
+        <article><h3>Quality checks</h3><p>Explain generation plans and validate generated schema data for semantic consistency.</p></article>
+        <article><h3>Recipes and CLI</h3><p>Package repeatable data generation scenarios as files or run them from the command line.</p></article>
+      </div>
+    </section>
+
+    <section class="section" id="platforms">
+      <div class="section-heading">
+        <p class="eyebrow">Platforms</p>
+        <h2>Use the same library across local notebooks and cloud Spark environments.</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Environment</th><th>Recommended engine</th><th>Typical outputs</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Local Python</td><td>Pandas</td><td>DataFrame, CSV, JSON, Parquet</td><td>Best for unit tests, demos, tutorials, and small to medium local data.</td></tr>
+            <tr><td>Jupyter or Anaconda</td><td>Pandas</td><td>DataFrame, local files</td><td>Great for exploration and presentation demos.</td></tr>
+            <tr><td>Databricks</td><td>Spark</td><td>DataFrame, DBFS, ADLS, S3, Delta</td><td>Use paths and credentials already configured in the workspace.</td></tr>
+            <tr><td>EMR, Glue, Synapse, Fabric, Dataproc</td><td>Spark</td><td>DataFrame, object storage, Parquet, Delta where available</td><td>Use Spark-native writes for cloud storage and catalog targets.</td></tr>
+            <tr><td>Research and benchmarking</td><td>Pandas or Spark</td><td>Repeatable DataFrames and files</td><td>Use explicit row counts and document your environment for reproducibility.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">
+        Scale guidance: Great Generator is designed to support small to large datasets. It can be used to generate datasets ranging from one row to millions of rows, depending on the user environment and memory or compute setup. For very large datasets, chunking or Spark-native generation is recommended.
+      </p>
+    </section>
+
+    <section class="section" id="write-anywhere">
+      <div class="section-heading">
+        <p class="eyebrow">DataFrame-first output</p>
+        <h2>Return the data first, then write wherever you need it.</h2>
+        <p>
+          Great Generator does not force a storage decision. Functions return a DataFrame or a dictionary of table-name DataFrames. Users can inspect, transform, validate, join, visualize, or write using normal Pandas and Spark APIs.
+        </p>
+      </div>
+      <div class="example-grid">
+        <article class="example-card">
+          <h3>Pandas write options</h3>
+          <pre><code>data = generate_domain("healthcare")
+
+patients = data["patients"]
+patients.to_csv("patients.csv", index=False)
+patients.to_json("patients.json", orient="records")
+patients.to_parquet("patients.parquet")</code></pre>
+        </article>
+        <article class="example-card">
+          <h3>Spark write options</h3>
+          <pre><code>data = generate_domain("telecom", engine="spark", spark=spark)
+
+usage = data["usage_events"]
+usage.write.mode("overwrite").format("delta").save(
+    "abfss://container@account.dfs.core.windows.net/demo/usage"
+)</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="docs">
+      <div class="section-heading">
+        <p class="eyebrow">Documentation</p>
+        <h2>Guides for demos, implementation, and release-readiness.</h2>
+      </div>
+      <div class="doc-grid">
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/QUICKSTART.md"><strong>Quickstart</strong><span>Install, import, generate, inspect, and export.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/API_REFERENCE.md"><strong>API reference</strong><span>Main public APIs and usage patterns.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/REALISTIC_VALUES.md"><strong>Realistic values</strong><span>Semantic field detection and generation quality.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/DOMAIN_PACKS.md"><strong>Domain packs</strong><span>Supported industry domains and table layouts.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SPARK_AND_DELTA.md"><strong>Spark and Delta</strong><span>Cluster usage, large data, and lakehouse outputs.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CLOUD_DEPLOYMENT.md"><strong>Cloud deployment</strong><span>AWS, Azure, GCP, Databricks, and storage guidance.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CDC.md"><strong>CDC</strong><span>Change data capture style events.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/ANOMALIES.md"><strong>Anomalies</strong><span>Data quality problems for testing tools and pipelines.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/DEMO_GUIDE.md"><strong>Demo guide</strong><span>Speaker-friendly story, examples, and demo flow.</span></a>
+      </div>
+    </section>
+
+    <section class="section split" id="author">
+      <div>
+        <p class="eyebrow">Author</p>
+        <h2>Created and maintained by Ravi Kiran Pagidi.</h2>
+        <p>
+          Great Generator is an open-source Python library for developers, data engineers, analytics engineers, researchers, students, and teams building realistic data demos and tests.
+        </p>
+      </div>
+      <div class="link-panel">
+        <a href="https://pypi.org/project/great-generator/">PyPI project</a>
+        <a href="https://github.com/ravikiranpagidi/great-generator">GitHub repository</a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/wiki">GitHub Wiki</a>
+        <a href="mailto:ravikiran.pagidi@gmail.com">Contact Ravi</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Great Generator is MIT licensed. Created and maintained by Ravi Kiran Pagidi.</p>
+    <p class="small">To publish this page, enable GitHub Pages for the repository using the <code>main</code> branch and <code>/docs</code> folder, or use a GitHub Pages workflow.</p>
+  </footer>
+</body>
+</html>

@@ -6,6 +6,15 @@ This project follows semantic versioning once public releases begin.
 
 ## Unreleased
 
+### Added
+
+- Added a GitHub Pages documentation landing site under `docs/index.html` with install, examples, platform guidance, feature coverage, and project links.
+- Added `docs/GITHUB_PAGES.md` with setup instructions for publishing the site from the `main` branch and `/docs` folder.
+
+### Changed
+
+- Updated README and package project links to point documentation users to the public documentation site while keeping the GitHub Wiki linked for deeper guides.
+
 ## 0.1.4 - 2026-06-21
 
 PyPI author presentation release.
