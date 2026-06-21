@@ -9,6 +9,7 @@ def test_generate_from_schema_accepts_ddl_string():
         "id int, name string, amount decimal(10,2), active boolean, created_at timestamp",
         rows=5,
         seed=42,
+        realistic=False,
     )
 
     assert list(frame.columns) == ["id", "name", "amount", "active", "created_at"]

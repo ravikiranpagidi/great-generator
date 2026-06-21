@@ -12,6 +12,7 @@ from .api import (
     generate_relational,
     get_domain_schema,
     list_domains,
+    validate_generated_data,
 )
 
 __all__ = [
@@ -26,6 +27,7 @@ __all__ = [
     "generate_relational",
     "get_domain_schema",
     "list_domains",
+    "validate_generated_data",
 ]
 
 __version__ = "0.1.1"

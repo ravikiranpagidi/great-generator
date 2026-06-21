@@ -6,7 +6,13 @@ This project follows semantic versioning once public releases begin.
 
 ## Unreleased
 
-No unreleased changes yet.
+### Added
+
+- Semantic-field based schema generation for `generate_from_schema(...)`, including abbreviation-aware column inference, realistic schema values, domain presets, custom rules, cross-field consistency, mapping schemas, and `validate_generated_data(...)`.
+
+### Changed
+
+- `generate_from_schema(...)` now defaults to realistic schema values. Use `realistic=False` or `realism="placeholder"` for the older placeholder-style output.
 
 ## 0.1.1 - 2026-06-20
 

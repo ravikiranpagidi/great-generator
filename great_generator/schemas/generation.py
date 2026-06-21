@@ -10,9 +10,10 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from great_generator.core.realism import apply_realism_pandas, validate_realism
+from great_generator.core.realism import validate_realism
 from great_generator.relationships.graph import topological_sort
 from great_generator.schemas.models import ColumnSpec, DomainSchema, TableSchema
+from great_generator.schemas.semantic import generate_semantic_table
 from great_generator.utils.random import get_rng
 
 
@@ -50,43 +51,47 @@ def generate_domain_schema_pandas(
 
 
 def generate_single_table_pandas(
-    schema: TableSchema | pd.DataFrame | str | Any,
+    schema: TableSchema | pd.DataFrame | str | Mapping[str, str] | Any,
     rows: int,
     seed: int | None = None,
     table_name: str = "sample",
     realism: str = "placeholder",
+    domain: str | None = None,
+    custom_rules: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> pd.DataFrame:
     """Generate a pandas DataFrame from a single-table schema input."""
 
     validate_realism(realism)
     table, source = normalize_single_table_schema(schema, table_name=table_name)
-    rng = get_rng(seed, f"schema:{table.name}")
-    values = {
-        column.name: generate_column_values(column, rows, rng, primary_key=table.primary_key)
-        for column in table.columns
-    }
-    frame = pd.DataFrame(values, columns=[column.name for column in table.columns])
     if realism == "realistic":
-        domain_schema = DomainSchema(
-            name="single_table",
-            tables={table.name: table},
-            description="Single-table schema.",
+        frame = generate_semantic_table(
+            table,
+            rows=rows,
+            seed=seed,
+            domain=domain,
+            custom_rules=custom_rules,
         )
-        frame = apply_realism_pandas(
-            {table.name: frame}, domain_schema, seed=seed, realism=realism
-        )[table.name]
+    else:
+        rng = get_rng(seed, f"schema:{table.name}")
+        values = {
+            column.name: generate_column_values(column, rows, rng, primary_key=table.primary_key)
+            for column in table.columns
+        }
+        frame = pd.DataFrame(values, columns=[column.name for column in table.columns])
     if isinstance(source, pd.DataFrame):
         frame = _cast_like_pandas_schema(frame, source)
     return frame
 
 
 def generate_single_table_spark(
-    schema: TableSchema | pd.DataFrame | str | Any,
+    schema: TableSchema | pd.DataFrame | str | Mapping[str, str] | Any,
     rows: int,
     spark: Any | None,
     seed: int | None = None,
     table_name: str = "sample",
     realism: str = "placeholder",
+    domain: str | None = None,
+    custom_rules: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> Any:
     """Generate a Spark DataFrame from a single-table schema input."""
 
@@ -95,7 +100,13 @@ def generate_single_table_spark(
         raise ValueError("Spark schema generation requires a SparkSession via spark=...")
     table, source = normalize_single_table_schema(schema, table_name=table_name)
     frame = generate_single_table_pandas(
-        table, rows=rows, seed=seed, table_name=table.name, realism=realism
+        table,
+        rows=rows,
+        seed=seed,
+        table_name=table.name,
+        realism=realism,
+        domain=domain,
+        custom_rules=custom_rules,
     )
     source_schema = source.schema if is_pyspark_dataframe(source) else source
 
@@ -106,7 +117,7 @@ def generate_single_table_spark(
 
 
 def normalize_single_table_schema(
-    schema: TableSchema | pd.DataFrame | str | Any,
+    schema: TableSchema | pd.DataFrame | str | Mapping[str, str] | Any,
     table_name: str = "sample",
 ) -> tuple[TableSchema, Any]:
     """Normalize supported single-table schema inputs to TableSchema metadata."""
@@ -117,13 +128,15 @@ def normalize_single_table_schema(
         return table_schema_from_pandas(schema, table_name=table_name), schema
     if isinstance(schema, str):
         return table_schema_from_ddl(schema, table_name=table_name), schema
+    if isinstance(schema, Mapping):
+        return table_schema_from_mapping(schema, table_name=table_name), schema
     if is_pyspark_dataframe(schema):
         return table_schema_from_pyspark(schema.schema, table_name=table_name), schema
     if is_pyspark_struct_type(schema):
         return table_schema_from_pyspark(schema, table_name=table_name), schema
     raise TypeError(
         "schema must be a DomainSchema, TableSchema, pandas DataFrame, PySpark DataFrame, "
-        "DDL string, or PySpark StructType."
+        "DDL string, mapping, or PySpark StructType."
     )
 
 
@@ -138,6 +151,26 @@ def table_schema_from_pandas(frame: pd.DataFrame, table_name: str = "sample") ->
         ),
         primary_key=_infer_primary_key(frame.columns),
         description="Inferred from pandas DataFrame schema.",
+    )
+
+
+def table_schema_from_mapping(
+    mapping: Mapping[str, str],
+    table_name: str = "sample",
+) -> TableSchema:
+    """Infer TableSchema metadata from a simple ``{column: dtype}`` mapping."""
+
+    if not mapping:
+        raise ValueError("Schema mapping must define at least one column.")
+    columns = tuple(
+        ColumnSpec(name=str(column), dtype=str(dtype), nullable=True)
+        for column, dtype in mapping.items()
+    )
+    return TableSchema(
+        name=table_name,
+        columns=columns,
+        primary_key=_infer_primary_key([column.name for column in columns]),
+        description="Inferred from schema mapping.",
     )
 
 

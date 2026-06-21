@@ -20,7 +20,7 @@ It is built for data engineers, analytics engineers, Spark users, educators, res
 ```python
 from great_generator import generate_domain
 
-data = generate_domain("banking", scale="small", realism="realistic", seed=42)
+data = generate_domain("banking", scale="small", realism="realistic")
 
 customers = data["customers"]
 accounts = data["accounts"]
@@ -94,7 +94,6 @@ data = generate_domain(
     "banking",
     scale="small",
     realism="realistic",
-    seed=42,
 )
 
 customers = data["customers"]
@@ -190,7 +189,7 @@ The realistic layer is relationship-safe: it enriches descriptive fields but doe
 ```python
 from great_generator import generate_domain
 
-banking = generate_domain("banking", scale="small", realism="realistic", seed=42)
+banking = generate_domain("banking", scale="small", realism="realistic")
 print(banking["customers"][["customer_id", "customer_name", "email"]].head())
 ```
 
@@ -806,7 +805,25 @@ Supported anomalies:
 
 ## Schema-first sample generation
 
-Domain packs are the main value, but Great Generator also supports quick sample generation from schemas you already have.
+Domain packs are the main value, but Great Generator also supports realistic sample generation from schemas you already have.
+
+This path is semantic-field based, not just Faker-based. Great Generator normalizes column names, handles abbreviations, looks at the declared data type, and then chooses an appropriate strategy. That means fields such as `emp_name`, `employee_name`, `cust_name`, `customer_name`, `memberName`, and `full_name` are all treated as name-like fields, while `age`, `salary`, `email_id`, `mobile_no`, `zip_code`, `created_at`, and `order_status` receive type-aware values.
+
+Bad placeholder-style output used to look like this:
+
+```text
+customer_name: customer_name_1, customer_name_2
+address: address_1, address_2
+age: 101, 102
+```
+
+Improved realistic output looks like this:
+
+```text
+customer_name: Ava Johnson, Liam Patel
+address: 1248 Maple Street, 742 Oak Avenue
+age: 29, 41
+```
 
 Return type follows the execution context:
 
@@ -820,9 +837,16 @@ Return type follows the execution context:
 from great_generator import generate_from_schema
 
 sample = generate_from_schema(
-    "id int, customer_name string, amount decimal(10,2), active boolean, created_at timestamp",
+    "customer_id string, cust_name string, email_id string, employee_age int, salary double",
     rows=100,
+    domain="hr",
 )
+```
+
+For old placeholder-style values, opt out explicitly:
+
+```python
+sample = generate_from_schema("id int, name string", rows=10, realistic=False)
 ```
 
 ### From an empty pandas DataFrame with dtypes
@@ -840,6 +864,64 @@ empty = pd.DataFrame({
 
 sample = generate_from_schema(empty, rows=1_000)
 ```
+
+
+### From a Python schema dictionary
+
+```python
+from great_generator import generate_from_schema
+
+schema = {
+    "customer_id": "string",
+    "customer_name": "string",
+    "age": "int",
+    "email": "string",
+    "phone_number": "string",
+    "created_at": "timestamp",
+}
+
+customers = generate_from_schema(schema, rows=1_000)
+```
+
+### Custom rules
+
+Use `custom_rules` when you want to override inferred behavior.
+
+```python
+customers = generate_from_schema(
+    schema,
+    rows=1_000,
+    custom_rules={
+        "age": {"min": 25, "max": 55},
+        "customer_id": {"prefix": "CUST", "unique": True},
+        "status": {"values": ["Active", "Inactive"]},
+        "created_at": {"start": "2024-01-01", "end": "2024-12-31"},
+    },
+)
+```
+
+### Domain presets
+
+Domain presets influence status values, categories, ID prefixes, amount ranges, and other business choices.
+
+```python
+banking = generate_from_schema(schema, rows=1_000, domain="banking")
+retail = generate_from_schema(schema, rows=1_000, domain="retail")
+hr = generate_from_schema(schema, rows=1_000, domain="hr")
+```
+
+Supported preset names include `banking`, `retail`, `healthcare`, `insurance`, `hr`, and `education`.
+
+### Validate generated schema data
+
+```python
+from great_generator import validate_generated_data
+
+result = validate_generated_data(customers, schema)
+assert result["passed"]
+```
+
+Validation checks practical quality rules such as email format, realistic age ranges, unique IDs, numeric ranges, date relationships, and `total_amount = quantity * unit_price` where those fields exist.
 
 ### From a PySpark StructType
 
@@ -877,7 +959,7 @@ df.write.mode("overwrite").parquet("s3a://my-bucket/demo/customers_parquet")
 df.write.format("delta").mode("overwrite").save("dbfs:/Volumes/catalog/schema/volume/customers_delta")
 ```
 
-This path is intentionally lightweight: it creates type-aware sample rows for custom schemas. Use domain packs when you need realistic multi-table enterprise behavior, CDC, anomalies, and referential integrity.
+This path is intentionally lightweight and schema-aware. It creates realistic single-table sample rows from field semantics and data types. Use domain packs or `generate_relational(...)` when you need richer multi-table enterprise behavior, CDC, anomalies, and referential integrity.
 
 ## Custom relational schema generation
 
@@ -1089,6 +1171,7 @@ from great_generator import (
     generate_relational,
     get_domain_schema,
     list_domains,
+    validate_generated_data,
 )
 ```
 

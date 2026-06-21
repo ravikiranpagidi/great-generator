@@ -23,11 +23,12 @@ data = generate_domain("ecommerce", scale="small", realism="realistic", seed=42)
 
 ## `generate_from_schema(...)`
 
-Generates a single DataFrame or domain-shaped dictionary from schema metadata.
+Generates a single DataFrame or domain-shaped dictionary from schema metadata. Single-table schema generation is semantic-field based: it normalizes column names, expands common abbreviations, combines column-name intent with data type, and generates realistic values where possible.
 
 Supported inputs:
 
 - compact DDL strings such as `"id int, name string"`
+- Python mappings such as `{ "customer_name": "string", "age": "int" }`
 - empty pandas DataFrames with dtypes
 - PySpark `StructType`
 - PySpark DataFrames
@@ -35,8 +36,19 @@ Supported inputs:
 - `DomainSchema`
 
 ```python
-df = generate_from_schema("id int, customer_name string, email string", rows=100)
+df = generate_from_schema(
+    {"customer_name": "string", "email_id": "string", "age": "int"},
+    rows=100,
+    domain="retail",
+)
 ```
+
+Important optional parameters:
+
+- `domain`: optional preset such as `banking`, `retail`, `healthcare`, `insurance`, `hr`, or `education`
+- `custom_rules`: per-column overrides for values, min/max ranges, semantic type, prefixes, uniqueness, and date ranges
+- `realistic`: set `False` for older placeholder-style values
+- `realism`: string mode, `"realistic"` or `"placeholder"`
 
 ## `generate_relational(...)`
 
@@ -118,3 +130,18 @@ hub_customer = vault["hub_customer"]
 ```
 
 The output includes hubs, links, satellites, stable hash keys, load dates, record source values, and model metadata.
+
+
+## `validate_generated_data(...)`
+
+Validates generated schema data for common quality expectations.
+
+```python
+from great_generator import generate_from_schema, validate_generated_data
+
+schema = {"email": "string", "age": "int", "customer_id": "string"}
+df = generate_from_schema(schema, rows=100)
+result = validate_generated_data(df, schema)
+```
+
+Returns a dictionary with `passed`, `errors`, and `warnings`.

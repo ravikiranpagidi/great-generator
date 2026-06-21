@@ -27,6 +27,7 @@ from great_generator.schemas.generation import (
 )
 from great_generator.schemas.models import DomainSchema, TableSchema
 from great_generator.schemas.relational import relational_schema_from_specs
+from great_generator.schemas.semantic import validate_generated_data as _validate_generated_data
 from great_generator.utils.validation import validate_engine, validate_output_format
 
 
@@ -408,20 +409,27 @@ def generate_from_schema(
     engine: str = "auto",
     spark: Any | None = None,
     table_name: str = "sample",
-    realism: str = "placeholder",
+    realism: str = "realistic",
+    domain: str | None = None,
+    custom_rules: Mapping[str, Mapping[str, Any]] | None = None,
+    realistic: bool | None = None,
 ) -> dict[str, pd.DataFrame] | pd.DataFrame | Any:
     """Generate sample data from domain metadata, DataFrames, DDL strings, or Spark schemas.
 
     Supported inputs:
     - ``DomainSchema``: returns pandas tables, or Spark tables when ``spark=...``/``engine="spark"``.
     - ``TableSchema``: returns a pandas or Spark DataFrame.
+    - ``Mapping[str, str]``: returns a pandas or Spark DataFrame from ``{column: dtype}``.
     - empty pandas ``DataFrame`` with dtypes: returns a pandas or Spark DataFrame.
     - DDL-like string such as ``"id int, name string"``: returns a pandas or Spark DataFrame.
     - PySpark ``StructType``: returns Spark when a SparkSession is provided or active.
     - PySpark ``DataFrame``: returns a Spark DataFrame and infers its SparkSession.
     """
 
-    validate_realism(realism)
+    effective_realism = (
+        "realistic" if realistic is True else "placeholder" if realistic is False else realism
+    )
+    validate_realism(effective_realism)
     if engine == "auto":
         resolved_engine = "spark" if _has_spark_context(schema, spark) else "pandas"
     else:
@@ -430,10 +438,12 @@ def generate_from_schema(
 
     if isinstance(schema, DomainSchema):
         generated = generate_domain_schema_pandas(schema, rows=rows, seed=seed)
-        if realism == "realistic":
+        if effective_realism == "realistic":
             from great_generator.core.realism import apply_realism_pandas
 
-            generated = apply_realism_pandas(generated, schema, seed=seed, realism=realism)
+            generated = apply_realism_pandas(
+                generated, schema, seed=seed, realism=effective_realism
+            )
         if resolved_engine == "spark":
             spark_session = spark or active_spark_session()
             if spark_session is None:
@@ -454,15 +464,29 @@ def generate_from_schema(
             spark=spark,
             seed=seed,
             table_name=table_name,
-            realism=realism,
+            realism=effective_realism,
+            domain=domain,
+            custom_rules=custom_rules,
         )
     return generate_single_table_pandas(
         schema,
         rows=row_count,
         seed=seed,
         table_name=table_name,
-        realism=realism,
+        realism=effective_realism,
+        domain=domain,
+        custom_rules=custom_rules,
     )
+
+
+def validate_generated_data(
+    records: Any,
+    schema: TableSchema | Mapping[str, str] | str | pd.DataFrame | None = None,
+    rules: Mapping[str, Mapping[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Validate generated schema data for common semantic quality checks."""
+
+    return _validate_generated_data(records, schema=schema, rules=rules)
 
 
 def _has_spark_context(schema: Any, spark: Any | None) -> bool:
