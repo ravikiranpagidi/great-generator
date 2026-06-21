@@ -6,6 +6,10 @@ This project follows semantic versioning once public releases begin.
 
 ## Unreleased
 
+## 0.1.2 - 2026-06-21
+
+Schema realism quality release.
+
 ### Added
 
 - Semantic-field based schema generation for `generate_from_schema(...)`, including abbreviation-aware column inference, realistic schema values, domain presets, custom rules, cross-field consistency, mapping schemas, and `validate_generated_data(...)`.
