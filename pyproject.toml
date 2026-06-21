@@ -108,7 +108,6 @@ Issues = "https://github.com/ravikiranpagidi/great-generator/issues"
 Changelog = "https://github.com/ravikiranpagidi/great-generator/blob/main/CHANGELOG.md"
 Documentation = "https://github.com/ravikiranpagidi/great-generator#readme"
 Security = "https://github.com/ravikiranpagidi/great-generator/security/policy"
-Contact = "mailto:ravikiran.pagidi@gmail.com"
 
 [tool.hatch.build.targets.wheel]
 packages = ["great_generator", "enterprise_synth"]
