@@ -27,6 +27,13 @@ accounts = data["accounts"]
 transactions = data["transactions"]
 ```
 
+
+## Author and maintainer
+
+Great Generator is authored and maintained by **Ravi Kiran Pagidi**.
+
+Contact: [ravikiran.pagidi@gmail.com](mailto:ravikiran.pagidi@gmail.com)
+
 ## Why this exists
 
 Creating useful synthetic data is strangely expensive. Teams need datasets that are:

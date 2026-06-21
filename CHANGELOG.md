@@ -6,6 +6,14 @@ This project follows semantic versioning once public releases begin.
 
 ## Unreleased
 
+## 0.1.3 - 2026-06-21
+
+PyPI metadata visibility release.
+
+### Changed
+
+- Updated package metadata so PyPI displays the author and maintainer name directly, with contact details available through project links and README.
+
 ## 0.1.2 - 2026-06-21
 
 Schema realism quality release.
