@@ -499,7 +499,37 @@ spark_df.write.format("delta").mode("overwrite").save(
 
 Use the path conventions and permissions configured for your Fabric workspace and lakehouse.
 
-### Write to Snowflake
+### Write PySpark or Databricks Data to Snowflake
+
+For Spark workloads, use the Snowflake Spark Connector rather than collecting data into Pandas:
+
+```python
+def secret(key: str) -> str:
+    return dbutils.secrets.get(scope="great-generator", key=key)
+
+
+snowflake_options = {
+    "sfURL": secret("snowflake-url"),
+    "sfUser": secret("snowflake-user"),
+    "sfPassword": secret("snowflake-password"),
+    "sfDatabase": secret("snowflake-database"),
+    "sfSchema": secret("snowflake-schema"),
+    "sfWarehouse": secret("snowflake-warehouse"),
+    "sfRole": secret("snowflake-role"),
+}
+
+(
+    spark_df.write.format("net.snowflake.spark.snowflake")
+    .options(**snowflake_options)
+    .option("dbtable", "SYNTHETIC_CUSTOMERS")
+    .mode("overwrite")
+    .save()
+)
+```
+
+Install a Snowflake Spark Connector version compatible with the cluster's Spark and Scala versions when it is not bundled by the runtime.
+
+For local Pandas workflows, SQLAlchemy remains an option:
 
 ```python
 import os
@@ -511,7 +541,37 @@ df.to_sql("SYNTHETIC_CUSTOMERS", con=engine, if_exists="replace", index=False)
 
 Install and configure the appropriate Snowflake SQLAlchemy connector separately.
 
-### Write to Azure SQL or SQL Server
+### Write PySpark or Databricks Data to Azure SQL with JDBC
+
+```python
+server = dbutils.secrets.get(scope="great-generator", key="azure-sql-server")
+database = dbutils.secrets.get(scope="great-generator", key="azure-sql-database")
+jdbc_url = (
+    f"jdbc:sqlserver://{server}:1433;"
+    f"databaseName={database};"
+    "encrypt=true;"
+    "trustServerCertificate=false;"
+    "hostNameInCertificate=*.database.windows.net;"
+    "loginTimeout=30;"
+)
+
+(
+    spark_df.coalesce(4)
+    .write.format("jdbc")
+    .mode("overwrite")
+    .option("url", jdbc_url)
+    .option("dbtable", "dbo.synthetic_customers")
+    .option("user", dbutils.secrets.get(scope="great-generator", key="azure-sql-user"))
+    .option("password", dbutils.secrets.get(scope="great-generator", key="azure-sql-password"))
+    .option("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver")
+    .option("batchsize", "1000")
+    .save()
+)
+```
+
+The Microsoft SQL Server JDBC driver must be available to the Spark runtime. Limit partitions so the cluster does not overwhelm Azure SQL with concurrent connections.
+
+For local Pandas workflows, SQLAlchemy remains an option:
 
 ```python
 import os
@@ -520,6 +580,8 @@ from sqlalchemy import create_engine
 engine = create_engine(os.environ["SQLSERVER_SQLALCHEMY_URL"])
 df.to_sql("synthetic_customers", con=engine, if_exists="replace", index=False)
 ```
+
+See [Spark database writes](docs/SPARK_DATABASE_WRITES.md) for connector setup, secrets, authentication alternatives, and production notes.
 
 ### Write to PostgreSQL
 

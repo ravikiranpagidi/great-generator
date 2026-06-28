@@ -89,6 +89,22 @@ generate_domain(
 )
 ```
 
+## Spark database destinations
+
+Great Generator returns Spark DataFrames that can be written through database connectors already installed in the runtime.
+
+| Destination | Recommended path |
+|---|---|
+| Snowflake | Snowflake Spark Connector using `net.snowflake.spark.snowflake` |
+| Azure SQL or SQL Server | Spark JDBC using `com.microsoft.sqlserver.jdbc.SQLServerDriver` |
+
+Use Databricks secret scopes or the platform's managed identity and OAuth facilities. Do not place credentials in source code.
+
+Full examples are available in [SPARK_DATABASE_WRITES.md](SPARK_DATABASE_WRITES.md) and:
+
+- `examples/02-write-generated-data/write_to_snowflake_spark.py`
+- `examples/02-write-generated-data/write_to_azure_sql_jdbc.py`
+
 ## Export controls
 
 | Option | Why it matters |
@@ -108,6 +124,8 @@ Before blaming the library, verify the environment:
 3. Delta support is enabled when using `output_format="delta"`.
 4. Network policies allow the cluster to reach the storage service.
 5. The output path is suitable for the chosen format and overwrite behavior.
+6. Database drivers or Spark connectors are installed and compatible with the runtime.
+7. Database firewall, DNS, private endpoint, and network rules allow the cluster to connect.
 
 ## Deliberately not hidden inside the library
 
