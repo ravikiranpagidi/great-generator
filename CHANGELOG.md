@@ -6,15 +6,28 @@ This project follows semantic versioning once public releases begin.
 
 ## Unreleased
 
+## 0.1.5 - 2026-06-28
+
+Schema-first documentation and Spark database integration release.
+
 ### Added
 
 - Added a GitHub Pages documentation landing site under `docs/index.html` with install, examples, platform guidance, feature coverage, and project links.
 - Added `docs/GITHUB_PAGES.md` with setup instructions for publishing the site with GitHub Actions or from the `main` branch and `/docs` folder.
 - Added `.github/workflows/pages.yml` to enable and publish the static documentation site through GitHub Pages.
+- Added a complete schema input support matrix with supported, partial, and planned input types.
+- Added schema-first examples for mappings, compact DDL, Pandas dtypes and DataFrames, PySpark StructType and DataFrames, and TableSchema.
+- Added Spark and Databricks write examples for Snowflake through the Snowflake Spark Connector.
+- Added Spark JDBC write examples for Azure SQL using the Microsoft SQL Server JDBC driver.
+- Added focused Spark database-write documentation covering connectors, secrets, authentication, and operational guidance.
 
 ### Changed
 
 - Updated README and package project links to point documentation users to the public documentation site while keeping the GitHub Wiki linked for deeper guides.
+- Repositioned `generate_from_schema(...)` as the primary workflow for lower-environment data generation, testing, QA, and data engineering.
+- Positioned `generate_relational(...)` immediately after schema generation as the primary path for user-defined connected tables.
+- Moved `generate_domain(...)` into its secondary role for ready-made demonstrations, tutorials, and learning datasets.
+- Updated the README, documentation site, package metadata, examples, and Wiki with accurate schema support and DataFrame write patterns.
 
 ## 0.1.4 - 2026-06-21
 

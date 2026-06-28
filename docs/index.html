@@ -143,16 +143,19 @@ schema = {
 df = generate_from_schema(schema, rows=1000)</code></pre>
         </article>
         <article class="example-card">
-          <h3>Generate banking CDC records</h3>
-          <pre><code>from great_generator import generate_cdc
+          <h3>Generate related tables</h3>
+          <pre><code>from great_generator import generate_relational
 
-cdc = generate_cdc(
-    "banking",
-    table="customers",
-    rows=1000,
-    operations=["insert", "update", "delete"],
-    late_arrival_rate=0.02,
-)</code></pre>
+data = generate_relational(
+    tables={
+        "customers": "customer_id int primary key, customer_name string",
+        "orders": "order_id int primary key, customer_id int references customers.customer_id",
+    },
+    rows={"customers": 1000, "orders": 5000},
+)
+
+customers = data["customers"]
+orders = data["orders"]</code></pre>
         </article>
         <article class="example-card">
           <h3>Generate from a schema string</h3>
@@ -164,18 +167,15 @@ df = generate_from_schema(
 )</code></pre>
         </article>
         <article class="example-card">
-          <h3>Generate user-defined relational data</h3>
-          <pre><code>from great_generator import generate_relational
+          <h3>Generate banking CDC records</h3>
+          <pre><code>from great_generator import generate_cdc
 
-tables = {
-    "customers": "customer_id int primary key, customer_name string, segment string",
-    "orders": "order_id int primary key, customer_id int, order_amount double",
-}
-
-data = generate_relational(
-    tables=tables,
-    relationships=["orders.customer_id -> customers.customer_id"],
-    rows={"customers": 1000, "orders": 5000},
+cdc = generate_cdc(
+    "banking",
+    table="customers",
+    rows=1000,
+    operations=["insert", "update", "delete"],
+    late_arrival_rate=0.02,
 )</code></pre>
         </article>
       </div>

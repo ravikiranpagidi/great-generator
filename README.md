@@ -147,6 +147,40 @@ CUST000002   Liam Patel     42   liam.patel@example.com        Seattle    Washin
 
 Exact values vary. Pass an optional `seed` only when your test or experiment needs repeatable output.
 
+## Next: Generate Related Tables from Your Schemas
+
+Use `generate_relational` when your test environment needs several tables with valid primary-key and foreign-key relationships.
+
+```python
+from great_generator import generate_relational
+
+data = generate_relational(
+    tables={
+        "customers": {
+            "schema": "customer_id int primary key, customer_name string, email string",
+            "rows": 1000,
+        },
+        "orders": {
+            "schema": "order_id int primary key, customer_id int references customers.customer_id, order_amount double, order_date date",
+            "rows": 5000,
+        },
+    },
+    engine="pandas",
+)
+
+customers_df = data["customers"]
+orders_df = data["orders"]
+```
+
+The result is a dictionary of named DataFrames. Each order references a generated customer, and users remain free to write each DataFrame to CSV, Parquet, Delta, Snowflake, Azure SQL, or another destination.
+
+```python
+customers_df.to_parquet("customers.parquet", index=False)
+orders_df.to_parquet("orders.parquet", index=False)
+```
+
+Select `engine="spark"` in a Spark notebook to receive Spark DataFrames instead of Pandas DataFrames.
+
 ## Supported Schema Input Types
 
 The table below reflects the current implementation, not the long-term roadmap.
@@ -703,7 +737,7 @@ Return behavior:
 - A PySpark `StructType` returns Spark when an active or explicit SparkSession is available; otherwise auto mode resolves to Pandas.
 - `DomainSchema` returns a dictionary of table-name to DataFrame.
 
-## `generate_domain`: Prebuilt Learning and Demo Datasets
+## Later: `generate_domain` for Prebuilt Learning and Demo Datasets
 
 Use domain packs when you want a complete ready-made dataset rather than data shaped around your own schema.
 
@@ -723,7 +757,7 @@ Available domain packs include ecommerce, banking, healthcare, insurance, teleco
 
 Domain packs include relationships and domain behaviors. They are useful for demonstrations, tutorials, SQL learning, architecture prototypes, benchmarks, and examples where the user does not already have a schema.
 
-## `generate_from_schema` vs `generate_domain`
+## Choose the Right Generation API
 
 | Use Case | Recommended Function | Why |
 |---|---|---|
@@ -737,32 +771,7 @@ Domain packs include relationships and domain behaviors. They are useful for dem
 
 For industry projects, start with `generate_from_schema`. For ready-made learning and demos, use `generate_domain`.
 
-## Custom Relational Schemas
-
-```python
-from great_generator import generate_relational
-
-data = generate_relational(
-    tables={
-        "customers": {
-            "schema": "customer_id int primary key, customer_name string, email string",
-            "rows": 1000,
-        },
-        "orders": {
-            "schema": "order_id int primary key, customer_id int references customers.customer_id, order_amount double, order_date date",
-            "rows": 5000,
-        },
-    },
-    engine="pandas",
-)
-
-customers_df = data["customers"]
-orders_df = data["orders"]
-```
-
-The dictionary output keeps each table as a DataFrame. Write each table using Pandas, Spark, database, or cloud APIs without forcing a storage decision inside the generator.
-
-## Additional Capabilities
+## Later: Modeling, CDC, and Data Vault Capabilities
 
 | Capability | API |
 |---|---|

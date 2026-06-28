@@ -26,6 +26,30 @@ df = generate_from_schema(schema, rows=1000)
 
 Semantic field inference recognizes name-like fields, IDs, contact details, ages, dates, amounts, quantities, statuses, and common cross-field relationships.
 
+## Next: Generate Related Tables
+
+```python
+from great_generator import generate_relational
+
+data = generate_relational(
+    tables={
+        "customers": {
+            "schema": "customer_id int primary key, customer_name string",
+            "rows": 1000,
+        },
+        "orders": {
+            "schema": "order_id int primary key, customer_id int references customers.customer_id, order_amount double",
+            "rows": 5000,
+        },
+    }
+)
+
+customers_df = data["customers"]
+orders_df = data["orders"]
+```
+
+Use `generate_relational` for your own connected tables. Use prebuilt domains later when you need ready-made demonstration data.
+
 ## Installation
 
 ```bash
