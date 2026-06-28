@@ -3,918 +3,17 @@
 [![Tests](https://github.com/ravikiranpagidi/great-generator/actions/workflows/tests.yml/badge.svg)](https://github.com/ravikiranpagidi/great-generator/actions/workflows/tests.yml)
 [![PyPI version](https://img.shields.io/pypi/v/great-generator.svg)](https://pypi.org/project/great-generator/)
 [![Python versions](https://img.shields.io/pypi/pyversions/great-generator.svg)](https://pypi.org/project/great-generator/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Lint: Ruff](https://img.shields.io/badge/lint-ruff-46a0f5.svg)](https://github.com/astral-sh/ruff)
+[![PyPI downloads](https://img.shields.io/pypi/dm/great-generator.svg)](https://pypi.org/project/great-generator/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/ravikiranpagidi/great-generator?style=flat)](https://github.com/ravikiranpagidi/great-generator/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/ravikiranpagidi/great-generator)](https://github.com/ravikiranpagidi/great-generator/issues)
+[![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-**Developer-first synthetic enterprise data generation for Pandas, Spark, lakehouse demos, testing, benchmarking, and research.**
+## Generate Realistic Synthetic Data from Your Schema
 
-> Faker gives you fake values. Great Generator gives you a believable enterprise data system.
+**Have a schema but no safe test data?**
 
-Great Generator helps engineers quickly create realistic multi-table datasets with believable values, primary-key/foreign-key relationships, domain behavior, CDC-style records, anomaly injection, and export support for CSV, JSON, Parquet, and Delta.
-
-It is built for data engineers, analytics engineers, Spark users, educators, researchers, hackathon teams, and demo builders who need credible synthetic data without depending on sensitive production data.
-
-> **Privacy note:** Great Generator creates synthetic data from templates. It does **not** anonymize, de-identify, or transform real production data.
-
-```python
-from great_generator import generate_domain
-
-data = generate_domain("banking", scale="small", realism="realistic")
-
-customers = data["customers"]
-accounts = data["accounts"]
-transactions = data["transactions"]
-```
-
-
-## Author
-
-Created and maintained by Ravi Kiran Pagidi.
-
-Project links:
-
-- PyPI: [great-generator](https://pypi.org/project/great-generator/)
-- GitHub: [ravikiranpagidi/great-generator](https://github.com/ravikiranpagidi/great-generator)
-- Documentation: [Great Generator Docs](https://ravikiranpagidi.github.io/great-generator/)
-- Wiki: [Great Generator Wiki](https://github.com/ravikiranpagidi/great-generator/wiki)
-- Contact: [ravikiran.pagidi@gmail.com](mailto:ravikiran.pagidi@gmail.com)
-
-## Why this exists
-
-Creating useful synthetic data is strangely expensive. Teams need datasets that are:
-
-- relationally consistent
-- large enough for pipelines and benchmarks
-- realistic enough for demos and teaching
-- reproducible enough for tests and research
-- messy on demand when validating data quality systems
-
-`Faker` is excellent at generating individual fake values, but production systems are made of tables, keys, events, and behavior over time. `SDV` is valuable when statistical modeling is the core problem, but many engineers need something lighter: domain templates, one-line ergonomics, Spark awareness, export formats, and fast iteration.
-
-Great Generator is built for that middle ground.
-
-## What makes it different
-
-| Tool | Best at | Great Generator difference |
-| --- | --- | --- |
-| Faker | fake values like names, emails, addresses | generates complete domains with relationships and business behavior |
-| SDV | statistical synthetic modeling | stays lightweight, template-driven, developer-first, and Spark/export friendly |
-| Great Generator | relational synthetic enterprise systems | focuses on parent-child tables, CDC, anomalies, scale profiles, and lakehouse-ready outputs |
-
-## What this is / is not
-
-Great Generator is for developers who need credible synthetic data quickly.
-
-It is:
-
-- a lightweight Python library
-- can produce deterministic output when requested
-- useful for pandas, Spark, notebooks, demos, tests, and benchmarks
-- built around domain packs, schema generation, exports, CDC, and anomalies
-
-It is not:
-
-- a privacy transformation tool for production data
-- a heavyweight ML/statistical synthetic data platform
-- a cloud credential manager
-- a database, web server, or orchestration framework
-
-## Installation
-
-```bash
-pip install great-generator
-pip install great-generator[spark]
-pip install great-generator[delta]
-```
-
-Install with a hyphen, import with an underscore:
-
-```python
-import great_generator
-```
-
-## Quickstart
-
-```bash
-pip install great-generator
-```
-
-```python
-from great_generator import generate_domain
-
-data = generate_domain(
-    "banking",
-    scale="small",
-    realism="realistic",
-)
-
-customers = data["customers"]
-accounts = data["accounts"]
-transactions = data["transactions"]
-
-print(customers.head())
-```
-
-Returned value:
-
-```python
-{
-    "customers": customers_df,
-    "products": products_df,
-    "orders": orders_df,
-    "order_items": order_items_df,
-    "payments": payments_df,
-    "shipments": shipments_df,
-    "returns": returns_df,
-}
-```
-
-## First 5 minutes
-
-```python
-from great_generator import generate_domain, generate_from_schema, list_domains
-
-print(list_domains())
-
-ecommerce = generate_domain("ecommerce", scale="tiny")
-print(ecommerce["orders"].head())
-
-sample = generate_from_schema(
-    "id int, customer_name string, amount double, created_at timestamp",
-    rows=10,
-)
-print(sample)
-```
-
-## Advanced capabilities
-
-Great Generator now includes higher-value generation paths for demos, testing, analytics modeling, and research:
-
-```python
-from great_generator import (
-    generate_data_vault_model,
-    generate_dimensional_model,
-    generate_domain,
-    generate_from_recipe,
-    generate_history,
-)
-
-# Dirty data plus an answer key for data-quality benchmarks.
-dirty = generate_domain(
-    "ecommerce",
-    anomalies={"null_rate": 0.02, "invalid_status_rate": 0.005},
-    return_labels=True,
-)
-labels = dirty["_anomaly_labels"]
-
-# SCD2 history for snapshot, merge, and time-travel demos.
-customer_history = generate_history("banking", table="customers")
-
-# Star-schema style facts and dimensions.
-star = generate_dimensional_model("ecommerce", scale="small")
-sales = star["fact_sales"]
-
-# Data Vault style hubs, links, and satellites.
-vault = generate_data_vault_model("banking", scale="small")
-hub_customer = vault["hub_customer"]
-
-# Reproducible dataset recipes from JSON, TOML, or simple YAML.
-recipe_data = generate_from_recipe("banking_recipe.yaml")
-```
-
-For details, see [docs/ADVANCED_CAPABILITIES.md](docs/ADVANCED_CAPABILITIES.md).
-
-## Realistic value generation
-
-Great Generator supports two realism modes:
-
-```python
-generate_domain("banking", scale="small", realism="placeholder")
-generate_domain("banking", scale="small", realism="realistic")
-```
-
-- `realism="placeholder"` keeps simple deterministic values, useful for debugging and strict tests.
-- `realism="realistic"` generates believable names, emails, phone numbers, addresses, company names, merchant names, product names, account types, transaction types, order statuses, claim statuses, and other business values.
-- `realism="basic"` and `realism="simple"` are friendly aliases for placeholder mode.
-- `realism="clean"` is a friendly alias for realistic mode.
-
-The realistic layer is relationship-safe: it enriches descriptive fields but does not rewrite primary keys or foreign keys. If a user accidentally passes `realism="realsitic"`, Great Generator treats it as `realism="realistic"` and emits a warning.
-
-```python
-from great_generator import generate_domain
-
-banking = generate_domain("banking", scale="small", realism="realistic")
-print(banking["customers"][["customer_id", "customer_name", "email"]].head())
-```
-
-Example output:
-
-```text
-customer_id | customer_name | email
-1           | Emily Carter  | emily.carter247@example.com
-2           | Arjun Mehta   | arjun.mehta812@example.com
-```
-
-### Before and after
-
-```text
-Placeholder mode:
-customer_id | customer_name   | email
-1           | customer_name_1 | user_1@example.com
-2           | customer_name_2 | user_2@example.com
-
-Realistic mode:
-customer_id | customer_name | email
-1           | Emily Carter  | emily.carter247@example.com
-2           | Arjun Mehta   | arjun.mehta812@example.com
-```
-
-### Realistic Mode and Data Quality
-
-Realistic mode is designed to generate clean, logically valid data by default.
-
-Bad synthetic data often looks like this:
-
-```text
-customer_name: customer_name_1
-age: 104
-created_at: 2035-01-01
-updated_at: 2020-01-01 while created_at is 2024-01-01
-```
-
-Great Generator now applies semantic and data-quality rules:
-
-```text
-customer_name: Ava Johnson
-age: 42
-created_at: 2024-03-12 10:45:00
-updated_at: 2024-03-15 16:20:00
-```
-
-Clean realistic mode includes:
-
-- age ranges such as 18 to 90 for `age`, 21 to 65 for `employee_age`, and 5 to 30 for `student_age`
-- `date_of_birth` values that align with age fields when both exist
-- no future `created_at`, `updated_at`, `order_date`, `transaction_date`, or `payment_date` by default
-- `updated_at >= created_at`, `end_date >= start_date`, and `delivery_date >= order_date`
-- positive quantities, realistic salaries and amounts, bounded discounts and taxes
-- unique ID fields such as `customer_id`, `employee_id`, and `transaction_id`
-- status-aware nulls, such as no `payment_date` for pending payments and no `termination_date` for active employees
-
-
-## Who should use this?
-
-Great Generator is useful for:
-
-- data engineers building pipeline demos
-- Spark and Databricks users testing lakehouse patterns
-- analytics engineers building semantic model demos
-- BI developers creating dashboards without production data
-- teachers and workshop speakers needing realistic datasets
-- researchers needing repeatable synthetic datasets
-- hackathon teams needing realistic starter data
-
-## How is this different from Faker?
-
-Faker creates realistic individual values.
-
-Great Generator creates realistic connected business datasets.
-
-Faker can generate a name or address. Great Generator can generate a banking system with customers, accounts, transactions, merchants, balances, CDC records, anomalies, and export-ready tables.
-
-```python
-# Faker gives individual values
-fake.name()
-fake.email()
-
-# Great Generator gives a connected enterprise dataset
-data = generate_domain("banking", scale="small", realism="realistic")
-
-customers = data["customers"]
-accounts = data["accounts"]
-transactions = data["transactions"]
-```
-
-## One-line examples worth stealing
-
-```python
-# Ecommerce in one line
-data = generate_domain("ecommerce")
-
-# Banking CDC
-from great_generator import generate_cdc
-cdc = generate_cdc("banking", table="customers", rows=10_000)
-
-# Healthcare demo data
-healthcare = generate_domain("healthcare", scale="small")
-
-# Telecom usage data
-telecom = generate_domain("telecom", scale="small")
-
-# Insurance claims demo
-insurance = generate_domain("insurance", scale="small")
-
-# Manufacturing quality data
-manufacturing = generate_domain("manufacturing", scale="small")
-
-# Medium banking dataset
-banking = generate_domain("banking", scale="medium")
-
-# Anomaly-rich test data
-dirty = generate_domain(
-    "ecommerce",
-    anomalies={
-        "null_rate": 0.03,
-        "duplicate_rate": 0.01,
-        "late_arrival_rate": 0.02,
-        "outlier_rate": 0.005,
-    },
-)
-```
-
-## Pandas examples
-
-### Ecommerce
-
-```python
-from great_generator import generate_domain
-
-data = generate_domain("ecommerce", engine="pandas", scale="small")
-
-print(data["orders"].head())
-print(data["order_items"].head())
-```
-
-### Banking
-
-```python
-banking = generate_domain("banking", engine="pandas", scale="small")
-
-customers = banking["customers"]
-transactions = banking["transactions"]
-fraud_events = banking["fraud_events"]
-```
-
-### Validate relationships
-
-```python
-orders = data["orders"]
-customers = data["customers"]
-
-assert orders["customer_id"].isin(customers["customer_id"]).all()
-```
-
-### Export CSV / JSON / Parquet
-
-```python
-generate_domain(
-    "ecommerce",
-    engine="pandas",
-    scale="medium",
-    output_path="./synthetic/ecommerce",
-    output_format="csv",
-)
-
-generate_domain(
-    "ecommerce",
-    engine="pandas",
-    scale="medium",
-    output_path="./synthetic/ecommerce_json",
-    output_format="json",
-)
-
-generate_domain(
-    "banking",
-    engine="pandas",
-    scale="medium",
-    output_path="./synthetic/banking_parquet",
-    output_format="parquet",
-)
-```
-
-## Spark examples
-
-```python
-from great_generator import generate_domain
-
-data = generate_domain(
-    "banking",
-    engine="spark",
-    scale="large",
-    spark=spark,
-)
-```
-
-### Parquet export
-
-```python
-generate_domain(
-    "banking",
-    engine="spark",
-    scale="large",
-    spark=spark,
-    output_path="/mnt/lakehouse/banking",
-    output_format="parquet",
-    partition_by=["event_date"],
-)
-```
-
-### Delta export
-
-```python
-generate_domain(
-    "banking",
-    engine="spark",
-    scale="large",
-    spark=spark,
-    output_format="delta",
-    output_path="/mnt/demo/banking_delta",
-    partition_by=["event_date"],
-)
-```
-
-### Cloud notebook / cluster exports
-
-`engine="spark"` preserves storage URIs and lets the Spark cluster's filesystem layer resolve them.
-That means the same API works across common cloud notebook environments:
-
-```python
-# AWS / EMR / Databricks on AWS
-generate_domain(
-    "banking",
-    engine="spark",
-    spark=spark,
-    output_path="s3a://my-bucket/synthetic/banking",
-    output_format="parquet",
-)
-
-# Azure Databricks / ADLS Gen2
-generate_domain(
-    "banking",
-    engine="spark",
-    spark=spark,
-    output_path="abfss://container@account.dfs.core.windows.net/synthetic/banking",
-    output_format="delta",
-)
-
-# GCP Dataproc / Databricks on GCP
-generate_domain(
-    "ecommerce",
-    engine="spark",
-    spark=spark,
-    output_path="gs://my-bucket/synthetic/ecommerce",
-    output_format="parquet",
-)
-
-# Databricks volume-style path
-generate_domain(
-    "ecommerce",
-    engine="spark",
-    spark=spark,
-    output_path="dbfs:/Volumes/catalog/schema/volume/synthetic/ecommerce",
-    output_format="delta",
-)
-```
-
-For pandas, use a local filesystem path:
-
-```python
-generate_domain(
-    "ecommerce",
-    engine="pandas",
-    output_path="./synthetic/ecommerce",
-    output_format="parquet",
-)
-```
-
-Remote writes still depend on the runtime being configured correctly:
-
-- Spark must know the relevant filesystem connector (`s3a://`, `abfss://`, `gs://`, and so on).
-- The cluster identity must already have storage permissions.
-- Delta writes require a runtime with Delta support, such as Databricks Runtime or a Spark session configured for Delta Lake.
-- On Databricks, prefer Unity Catalog volumes or external locations over legacy DBFS root and mounts for new projects.
-
-For a fuller platform checklist, see [docs/CLOUD_DEPLOYMENT.md](docs/CLOUD_DEPLOYMENT.md).
-
-### Spark export controls
-
-```python
-generate_domain(
-    "banking",
-    engine="spark",
-    spark=spark,
-    output_path="s3a://my-bucket/synthetic/banking",
-    output_format="parquet",
-    partition_by=["event_date"],
-    writer_options={"compression": "snappy"},
-    num_partitions=32,
-    partition_strategy="repartition",
-)
-```
-
-Use:
-
-- `writer_options` to forward storage-format settings into Spark writers
-- `num_partitions` to shape output parallelism and file counts
-- `partition_strategy="repartition"` when you need a reshuffle
-- `partition_strategy="coalesce"` when you are only shrinking partition counts
-
-## Use cases
-
-Great Generator is useful for:
-
-- enterprise demos and architecture proof-of-concepts
-- lakehouse demos and Delta examples
-- ETL and CDC pipeline testing
-- Spark benchmarking and partition testing
-- data quality tool demos
-- BI dashboard demos
-- dbt-style modeling exercises
-- SQL, Pandas, and Spark learning
-- ML experiments and repeatable research
-- load testing and performance testing
-- tutorials, talks, hackathons, and conference presentations
-
-## Domain packs
-
-Available domain packs:
-
-- `banking` - retail banking-style customers, accounts, cards, transactions, fraud, and CDC
-- `insurance` - policyholders, agents, policies, claims, payments, risk, and reinsurance
-- `telecom` - customers, plans, devices, subscriptions, usage, invoices, and support
-- `automotive` - customers, dealers, vehicles, sales, service, warranty, and telematics
-- `healthcare` - patients, providers, facilities, encounters, claims, prescriptions, and labs
-- `ecommerce` - retail customers, products, orders, payments, shipments, and returns
-- `energy` - customers, sites, meters, usage readings, outages, rates, and bills
-- `manufacturing` - suppliers, plants, products, work orders, production, quality, and inventory
-- `logistics` - shippers, warehouses, carriers, products, shipments, tracking, and inventory
-- `media` - users, content, subscriptions, viewing events, ads, and game sessions
-- `public_sector` - residents, agencies, programs, applications, cases, payments, and services
-- `hospitality` - customers, properties, rooms, reservations, stays, payments, and reviews
-- `saas` - organizations, users, plans, subscriptions, features, product usage, invoices, and support
-
-### Ecommerce
-
-**Tables**
-
-- `customers`
-- `products`
-- `orders`
-- `order_items`
-- `payments`
-- `shipments`
-- `returns`
-
-**Relationships**
-
-```text
-customers.customer_id -> orders.customer_id
-orders.order_id       -> order_items.order_id
-products.product_id   -> order_items.product_id
-orders.order_id       -> payments.order_id
-orders.order_id       -> shipments.order_id
-orders.order_id       -> returns.order_id
-```
-
-**Behavior**
-
-- a minority of customers drive a large share of orders
-- inactive and newer customers order less often
-- category influences pricing
-- weekends and holiday periods lift order volume
-- failed payments, refunds, shipment delays, and returns are correlated to business flow
-- apparel returns more often than grocery
-
-**Generated columns**
-
-| Table | Representative columns |
-| --- | --- |
-| customers | `customer_id`, `customer_segment`, `signup_date`, `country` |
-| products | `product_id`, `category`, `brand`, `list_price` |
-| orders | `order_id`, `customer_id`, `order_ts`, `total_amount` |
-| order_items | `order_item_id`, `order_id`, `product_id`, `quantity` |
-| payments | `payment_id`, `order_id`, `payment_status`, `refunded_amount` |
-| shipments | `shipment_id`, `shipment_status`, `delayed` |
-| returns | `return_id`, `order_id`, `return_reason`, `refund_amount` |
-
-### Banking
-
-**Tables**
-
-- `customers`
-- `accounts`
-- `transactions`
-- `cards`
-- `merchants`
-- `fraud_events`
-- `cdc_customer_changes`
-
-**Relationships**
-
-```text
-customers.customer_id       -> accounts.customer_id
-customers.customer_id       -> cards.customer_id
-accounts.account_id         -> transactions.account_id
-cards.card_id               -> transactions.card_id
-merchants.merchant_id       -> transactions.merchant_id
-transactions.transaction_id -> fraud_events.transaction_id
-customers.customer_id       -> cdc_customer_changes.customer_id
-```
-
-**Behavior**
-
-- customers can own multiple accounts and cards
-- account type and business ownership influence spend
-- transactions increase around payroll dates and weekends
-- merchant category changes amount distribution
-- fraud stays rare and clustered
-- CDC records support inserts, updates, deletes, duplicate flags, and late-arrival flags
-
-**Generated columns**
-
-| Table | Representative columns |
-| --- | --- |
-| customers | `customer_id`, `customer_type`, `segment`, `risk_band` |
-| accounts | `account_id`, `customer_id`, `account_type`, `balance` |
-| cards | `card_id`, `customer_id`, `card_type` |
-| merchants | `merchant_id`, `merchant_category`, `risk_band` |
-| transactions | `transaction_id`, `account_id`, `card_id`, `merchant_id`, `amount` |
-| fraud_events | `fraud_event_id`, `transaction_id`, `risk_score` |
-| cdc_customer_changes | `operation`, `before`, `after`, `event_timestamp`, `ingestion_timestamp` |
-
-### Healthcare
-
-**Tables**
-
-- `patients`
-- `providers`
-- `facilities`
-- `encounters`
-- `claims`
-- `prescriptions`
-- `lab_results`
-
-**Relationships**
-
-```text
-patients.patient_id       -> encounters.patient_id
-providers.provider_id     -> encounters.provider_id
-facilities.facility_id    -> encounters.facility_id
-encounters.encounter_id   -> claims.encounter_id
-encounters.encounter_id   -> lab_results.encounter_id
-patients.patient_id       -> prescriptions.patient_id
-providers.provider_id     -> prescriptions.provider_id
-```
-
-**Behavior**
-
-- chronic and high-risk patients generate more encounters
-- encounter type influences diagnosis group and billed amount
-- claims can be paid, pending, denied, or adjusted
-- lab abnormality is more common for high-risk and chronic patients
-
-### Telecom
-
-**Tables**
-
-- `customers`
-- `plans`
-- `devices`
-- `subscriptions`
-- `usage_events`
-- `invoices`
-- `support_tickets`
-
-**Relationships**
-
-```text
-customers.customer_id          -> subscriptions.customer_id
-plans.plan_id                  -> subscriptions.plan_id
-devices.device_id              -> subscriptions.device_id
-subscriptions.subscription_id  -> usage_events.subscription_id
-subscriptions.subscription_id  -> invoices.subscription_id
-subscriptions.subscription_id  -> support_tickets.subscription_id
-customers.customer_id          -> support_tickets.customer_id
-```
-
-**Behavior**
-
-- unlimited and premium plans generate more data usage
-- roaming and overage behavior influence invoices
-- high churn-risk customers create more support tickets
-- network and billing issues are useful for churn and service-quality demos
-
-### Logistics
-
-**Tables**
-
-- `shippers`
-- `warehouses`
-- `carriers`
-- `products`
-- `shipments`
-- `shipment_events`
-- `inventory_movements`
-
-**Relationships**
-
-```text
-shippers.shipper_id              -> shipments.shipper_id
-warehouses.warehouse_id          -> shipments.origin_warehouse_id
-warehouses.warehouse_id          -> shipments.destination_warehouse_id
-carriers.carrier_id              -> shipments.carrier_id
-products.product_id              -> shipments.product_id
-shipments.shipment_id            -> shipment_events.shipment_id
-warehouses.warehouse_id          -> inventory_movements.warehouse_id
-products.product_id              -> inventory_movements.product_id
-```
-
-**Behavior**
-
-- strategic shippers generate a large share of shipments
-- carrier service level influences delay probability
-- hazmat and heavy products cost more to ship
-- tracking events follow realistic shipment lifecycle states
-
-### SaaS
-
-**Tables**
-
-- `organizations`
-- `users`
-- `plans`
-- `subscriptions`
-- `features`
-- `usage_events`
-- `invoices`
-- `support_tickets`
-
-**Relationships**
-
-```text
-organizations.organization_id -> users.organization_id
-organizations.organization_id -> subscriptions.organization_id
-plans.plan_id                 -> subscriptions.plan_id
-organizations.organization_id -> usage_events.organization_id
-users.user_id                 -> usage_events.user_id
-features.feature_id           -> usage_events.feature_id
-subscriptions.subscription_id -> invoices.subscription_id
-organizations.organization_id -> support_tickets.organization_id
-users.user_id                 -> support_tickets.user_id
-```
-
-**Behavior**
-
-- enterprise organizations have more seats and usage
-- low health-score accounts create more support tickets
-- premium features are used more often by higher-tier customers
-- billing status and usage volume support churn and revenue analytics demos
-
-### Additional industry verticals
-
-These packs are designed for broad enterprise demos, testing, lakehouse examples, and benchmark data. They preserve primary-key/foreign-key consistency and include realistic table shapes for each vertical.
-
-| Domain | Tables | Useful for |
-| --- | --- | --- |
-| `insurance` | `customers`, `agents`, `policies`, `claims`, `premium_payments`, `risk_assessments`, `reinsurance_contracts` | P&C/life/health insurance demos, claims analytics, underwriting, payment testing |
-| `automotive` | `customers`, `dealers`, `vehicles`, `sales`, `service_appointments`, `warranty_claims`, `telematics_events` | EV, dealership, warranty, connected vehicle, and service lifecycle demos |
-| `energy` | `customers`, `sites`, `meters`, `rate_plans`, `usage_readings`, `outages`, `bills` | utilities, smart meter, outage, renewable/grid, water, and billing examples |
-| `manufacturing` | `suppliers`, `plants`, `products`, `work_orders`, `production_runs`, `quality_inspections`, `inventory_movements` | industrial IoT, quality, factory automation, inventory, and production analytics |
-| `media` | `users`, `content_titles`, `subscriptions`, `viewing_events`, `ad_campaigns`, `ad_impressions`, `game_sessions` | streaming, ads, gaming telemetry, sports/media engagement demos |
-| `public_sector` | `residents`, `agencies`, `programs`, `applications`, `cases`, `payments`, `service_requests` | government services, tax, benefits, public education, municipal operations |
-| `hospitality` | `customers`, `properties`, `rooms`, `reservations`, `stays`, `payments`, `reviews` | airlines/hotels/travel-style booking, payments, loyalty, and reviews |
-
-Example:
-
-```python
-from great_generator import generate_domain
-
-insurance = generate_domain("insurance", scale="small")
-claims = insurance["claims"]
-
-energy = generate_domain("energy", scale="tiny")
-readings = energy["usage_readings"]
-```
-
-## Export formats
-
-Supported formats:
-
-- `csv`
-- `json`
-- `parquet`
-- `delta`
-
-Outputs are written table-per-folder:
-
-```text
-synthetic_data/
-  ecommerce/
-    customers/
-    orders/
-    order_items/
-    payments/
-```
-
-For Spark/cloud export details, see [docs/CLOUD_DEPLOYMENT.md](docs/CLOUD_DEPLOYMENT.md).
-
-## Anomaly injection
-
-By default, generated data is relationally valid and clean enough for normal demos. Add anomalies only when you want to test resilience.
-
-```python
-data = generate_domain(
-    "ecommerce",
-    anomalies={
-        "null_rate": 0.02,
-        "duplicate_rate": 0.01,
-        "orphan_fk_rate": 0.001,
-        "late_arrival_rate": 0.02,
-        "out_of_order_rate": 0.01,
-        "outlier_rate": 0.005,
-        "negative_amount_rate": 0.001,
-        "invalid_status_rate": 0.001,
-    },
-)
-```
-
-Supported anomalies:
-
-- nulls
-- duplicates
-- orphan foreign keys
-- late-arriving records
-- out-of-order events
-- outliers
-- skew
-- negative amounts
-- invalid status codes
-
-## Schema-first sample generation
-
-Domain packs are the main value, but Great Generator also supports realistic sample generation from schemas you already have.
-
-This path is semantic-field based, not just Faker-based. Great Generator normalizes column names, handles abbreviations, looks at the declared data type, and then chooses an appropriate strategy. That means fields such as `emp_name`, `employee_name`, `cust_name`, `customer_name`, `memberName`, and `full_name` are all treated as name-like fields, while `age`, `salary`, `email_id`, `mobile_no`, `zip_code`, `created_at`, and `order_status` receive type-aware values.
-
-Bad placeholder-style output used to look like this:
-
-```text
-customer_name: customer_name_1, customer_name_2
-address: address_1, address_2
-age: 101, 102
-```
-
-Improved realistic output looks like this:
-
-```text
-customer_name: Ava Johnson, Liam Patel
-address: 1248 Maple Street, 742 Oak Avenue
-age: 29, 41
-```
-
-Return type follows the execution context:
-
-- Python, schema strings, and pandas inputs return pandas DataFrames by default.
-- Passing `spark=...`, `engine="spark"`, a PySpark DataFrame, or a PySpark `StructType` with an active SparkSession returns Spark DataFrames.
-- In Python Spark notebooks this is a PySpark DataFrame backed by Spark's JVM engine, so you can use normal Spark writers for CSV, Parquet, Delta, S3, ADLS, GCS, DBFS, and catalog workflows.
-
-### From a compact schema string
-
-```python
-from great_generator import generate_from_schema
-
-sample = generate_from_schema(
-    "customer_id string, cust_name string, email_id string, employee_age int, salary double",
-    rows=100,
-    domain="hr",
-)
-```
-
-For old placeholder-style values, opt out explicitly:
-
-```python
-sample = generate_from_schema("id int, name string", rows=10, realistic=False)
-```
-
-### From an empty pandas DataFrame with dtypes
-
-```python
-import pandas as pd
-from great_generator import generate_from_schema
-
-empty = pd.DataFrame({
-    "customer_id": pd.Series(dtype="int64"),
-    "customer_name": pd.Series(dtype="string"),
-    "score": pd.Series(dtype="float64"),
-    "created_at": pd.Series(dtype="datetime64[ns]"),
-})
-
-sample = generate_from_schema(empty, rows=1_000)
-```
-
-
-### From a Python schema dictionary
+Use Great Generator to create realistic, fake, non-production data directly from your schema for development, QA, SIT, UAT, sandboxes, ETL validation, analytics, demos, and data engineering workflows.
 
 ```python
 from great_generator import generate_from_schema
@@ -924,130 +23,659 @@ schema = {
     "customer_name": "string",
     "age": "int",
     "email": "string",
-    "phone_number": "string",
-    "created_at": "timestamp",
+    "address": "string",
+    "city": "string",
+    "state": "string",
+    "created_at": "datetime",
+    "account_status": "string",
 }
 
-customers = generate_from_schema(schema, rows=1_000)
+df = generate_from_schema(schema=schema, rows=1000)
+
+print(df.head())
 ```
 
-### Custom rules
+Great Generator is built for teams that already know their schema but cannot use production data in lower environments.
 
-Use `custom_rules` when you want to override inferred behavior.
+> Great Generator creates synthetic data. It does not anonymize, mask, de-identify, or transform production records. Always follow your organization's privacy, security, governance, and compliance policies.
+
+## Problem Statement
+
+Real projects need production-like data outside production. Copying production records into development, QA, SIT, UAT, sandbox, demo, or performance-testing environments is often restricted because of privacy, security, PII, PHI, PCI, internal policy, or data governance concerns.
+
+Teams still need realistic data to:
+
+- test ingestion and transformation pipelines
+- validate schemas, joins, and business rules
+- exercise APIs and application services
+- build dashboards and analytics models
+- test data quality controls and failure paths
+- run demonstrations, prototypes, and performance checks
+- onboard developers without sharing sensitive records
+
+Great Generator turns table-like schema definitions into usable Pandas or Spark DataFrames. You keep control of where those DataFrames are written.
+
+## Why Schema-Based Synthetic Data Matters
+
+Most engineering teams do not begin with a blank domain. They already have a contract: column names, data types, a DataFrame, a Spark schema, or a table definition. `generate_from_schema` uses that contract and semantic field inference to generate values that are more useful than type-correct placeholders.
+
+For example, these fields are recognized as name-like fields rather than generic strings:
+
+- `customer_name`
+- `cust_name`
+- `employee_name`
+- `emp_name`
+- `member_name`
+- `patient_name`
+
+The same semantic layer recognizes IDs, email addresses, phone numbers, addresses, ages, dates, monetary values, quantities, statuses, and common lifecycle relationships.
+
+## Who This Library Is For
+
+- **Data engineers** testing ETL, ELT, Spark, Delta, and lakehouse pipelines
+- **QA engineers** creating repeatable positive, negative, and edge-case datasets
+- **Application developers** testing APIs, databases, and integration contracts
+- **Analytics engineers** validating models, joins, dashboards, and SQL transformations
+- **Platform teams** provisioning safe lower-environment datasets
+- **Performance engineers** creating environment-appropriate volume tests
+- **Researchers and ML engineers** building reproducible prototypes without production records
+- **Students, speakers, and educators** using ready-made domain packs for learning and demos
+
+## What You Can Do
+
+- generate a realistic DataFrame from a schema
+- use plain Python mappings, Pandas schemas, compact DDL, or PySpark schemas
+- apply per-column ranges, categories, prefixes, patterns, weights, date windows, and null rates
+- inspect the semantic generation plan before generating data
+- validate generated values and cross-field consistency
+- return Pandas or Spark DataFrames for downstream writes
+- generate custom relational parent-child tables with valid keys
+- use prebuilt enterprise domain packs
+- simulate CDC records, anomalies, SCD2 history, dimensional models, and Data Vault models
+- export domain datasets to CSV, JSON, Parquet, and Delta
+
+## Installation
+
+```bash
+pip install great-generator
+```
+
+Optional Spark and Delta dependencies:
+
+```bash
+pip install "great-generator[spark]"
+pip install "great-generator[delta]"
+```
+
+Install with a hyphen and import with an underscore:
 
 ```python
+import great_generator
+```
+
+The base package supports Python 3.9 and later and installs Pandas, NumPy, PyArrow, and Faker. PySpark and Delta Lake remain optional.
+
+## Quick Start: Generate Data from Schema
+
+```python
+from great_generator import generate_from_schema
+
+schema = {
+    "customer_id": "string",
+    "customer_name": "string",
+    "age": "int",
+    "email": "string",
+    "address": "string",
+    "city": "string",
+    "state": "string",
+    "created_at": "datetime",
+    "account_status": "string",
+}
+
+df = generate_from_schema(schema=schema, rows=1000)
+```
+
+The default `realism="realistic"` mode produces name-like, email-like, address-like, date-aware, and business-oriented values when field semantics are recognized.
+
+Example shape:
+
+```text
+customer_id  customer_name  age  email                         city       state  account_status
+CUST000001   Ava Johnson    34   ava.johnson@example.com       Austin     Texas       Active
+CUST000002   Liam Patel     42   liam.patel@example.com        Seattle    Washington  Pending
+```
+
+Exact values vary. Pass an optional `seed` only when your test or experiment needs repeatable output.
+
+## Supported Schema Input Types
+
+The table below reflects the current implementation, not the long-term roadmap.
+
+| Schema Input Type | Example | Best For | Status |
+|---|---|---|---|
+| Plain Python mapping | `{"name": "string", "age": "int"}` | Fast schema-based generation | **Supported** |
+| Rich mapping with inline metadata | `{"age": {"type": "int", "min": 18}}` | Embedded business rules | **Partially supported** through separate `custom_rules`; inline metadata is planned |
+| Pandas dtype mapping | `df.dtypes.to_dict()` | Pandas and notebook workflows | **Supported** |
+| Pandas DataFrame schema | empty or populated `DataFrame` | Preserve Pandas column dtypes | **Supported** |
+| Compact DDL string | `"id int, name string"` | SQL-like and Spark-style definitions | **Supported** |
+| Full SQL `CREATE TABLE` DDL | `CREATE TABLE ...` | Database and warehouse teams | **Planned** |
+| PySpark `StructType` | `StructType([...])` | Databricks, Fabric, Synapse, EMR, Spark | **Supported** for common scalar types; nested complex generation is limited |
+| PySpark DataFrame | empty or existing Spark DataFrame | Infer schema and Spark session | **Supported** |
+| `TableSchema` | library schema object | Typed library extensions | **Supported** |
+| `DomainSchema` | library domain metadata | Multi-table schema generation | **Supported** |
+| JSON Schema | `{"type": "object", "properties": ...}` | APIs and data contracts | **Planned** |
+| YAML schema profile | `customer_schema.yml` | Reusable schema configurations | **Planned** |
+| Column-name list | `["name", "age", "email"]` | Very fast prototypes | **Planned** |
+| SQLAlchemy model | ORM class | Backend and database teams | **Planned** |
+| Pydantic model | `BaseModel` class | API contract workflows | **Planned** |
+| Dataclass | typed Python dataclass | Typed Python workflows | **Planned** |
+
+JSON, TOML, and simple YAML are currently supported for **dataset recipes** through `generate_from_recipe`, not as schema inputs to `generate_from_schema`.
+
+## Supported Schema Examples
+
+### 1. Plain Python Dictionary
+
+```python
+from great_generator import generate_from_schema
+
+schema = {
+    "employee_id": "string",
+    "emp_name": "string",
+    "email": "string",
+    "employee_age": "int",
+    "salary": "float",
+    "hire_date": "date",
+    "employment_status": "string",
+}
+
+employees = generate_from_schema(schema, rows=500, domain="hr")
+```
+
+### 2. Compact DDL String
+
+Compact column definitions are supported. A full `CREATE TABLE` statement is not yet accepted.
+
+```python
+from great_generator import generate_from_schema
+
 customers = generate_from_schema(
-    schema,
-    rows=1_000,
-    custom_rules={
-        "age": {"min": 25, "max": 55},
-        "customer_id": {"prefix": "CUST", "unique": True},
-        "status": {"values": ["Active", "Inactive"]},
-        "created_at": {"start": "2024-01-01", "end": "2024-12-31"},
-        "middle_name": {"null_rate": 0.50},
-        "priority": {"weighted_values": {"Low": 0.60, "Medium": 0.30, "High": 0.10}},
+    "customer_id string, customer_name string, age int, email string, balance decimal(12,2), created_at timestamp",
+    rows=1000,
+)
+```
+
+Spark-style `struct<...>` text is also accepted:
+
+```python
+df = generate_from_schema(
+    "struct<customer_id:string,customer_name:string,age:int,balance:double>",
+    rows=1000,
+)
+```
+
+### 3. Pandas dtype Mapping
+
+```python
+import pandas as pd
+
+from great_generator import generate_from_schema
+
+sample_df = pd.DataFrame(
+    {
+        "customer_id": pd.Series(dtype="string"),
+        "customer_name": pd.Series(dtype="string"),
+        "age": pd.Series(dtype="int64"),
+        "balance": pd.Series(dtype="float64"),
+        "created_at": pd.Series(dtype="datetime64[ns]"),
+    }
+)
+
+df = generate_from_schema(sample_df.dtypes.to_dict(), rows=1000)
+```
+
+### 4. Pandas DataFrame Schema
+
+Pass the DataFrame itself when you want Great Generator to infer and cast back to its dtypes:
+
+```python
+df = generate_from_schema(sample_df, rows=1000)
+```
+
+The input rows are not copied. The DataFrame is used as a schema source.
+
+### 5. PySpark StructType
+
+```python
+from pyspark.sql.types import (
+    DoubleType,
+    IntegerType,
+    StringType,
+    StructField,
+    StructType,
+    TimestampType,
+)
+
+from great_generator import generate_from_schema
+
+schema = StructType(
+    [
+        StructField("customer_id", StringType(), False),
+        StructField("customer_name", StringType(), True),
+        StructField("age", IntegerType(), True),
+        StructField("email", StringType(), True),
+        StructField("balance", DoubleType(), True),
+        StructField("created_at", TimestampType(), True),
+    ]
+)
+
+spark_df = generate_from_schema(schema=schema, rows=1000, engine="spark")
+```
+
+In a notebook or cluster with an active Spark session, `engine="spark"` resolves that session automatically. You can also pass `spark=spark` explicitly when no active session can be discovered.
+
+Current limitation: single-table Spark schema generation creates values locally and then creates a Spark DataFrame. Use environment-appropriate row counts. Native distributed generation for this API is planned; the built-in Spark domain engine already uses Spark-native generation paths.
+
+### 6. PySpark DataFrame Schema
+
+```python
+empty_spark_df = spark.createDataFrame([], schema)
+
+spark_df = generate_from_schema(empty_spark_df, rows=1000)
+```
+
+The input DataFrame supplies both the schema and Spark session. The returned value is a Spark DataFrame and supports normal Spark writers.
+
+### 7. Library TableSchema
+
+```python
+from great_generator import generate_from_schema
+from great_generator.schemas.models import ColumnSpec, TableSchema
+
+schema = TableSchema(
+    name="customers",
+    columns=(
+        ColumnSpec("customer_id", "string", nullable=False),
+        ColumnSpec("customer_name", "string"),
+        ColumnSpec("email", "string"),
+        ColumnSpec("age", "int"),
+    ),
+    primary_key="customer_id",
+)
+
+df = generate_from_schema(schema, rows=1000)
+```
+
+## Rich Business Rules with `custom_rules`
+
+Inline rich schema metadata is planned. Today, keep the type mapping simple and pass business rules separately:
+
+```python
+from great_generator import generate_from_schema
+
+schema = {
+    "customer_id": "string",
+    "customer_name": "string",
+    "age": "int",
+    "email": "string",
+    "balance": "float",
+    "account_status": "string",
+    "created_at": "datetime",
+}
+
+custom_rules = {
+    "customer_id": {"prefix": "CUST"},
+    "customer_name": {"type": "full_name"},
+    "age": {"min": 18, "max": 85},
+    "balance": {"min": 0, "max": 100000},
+    "account_status": {
+        "weighted_values": {
+            "Active": 0.70,
+            "Inactive": 0.15,
+            "Pending": 0.10,
+            "Closed": 0.05,
+        }
     },
+    "created_at": {"start": "2023-01-01", "end": "2024-12-31"},
+}
+
+df = generate_from_schema(
+    schema=schema,
+    rows=5000,
+    custom_rules=custom_rules,
 )
 ```
 
-### Domain presets
+Currently supported rule keys include:
 
-Domain presets influence status values, categories, ID prefixes, amount ranges, and other business choices.
+| Rule | Purpose |
+|---|---|
+| `type` | Override inferred semantic type, such as `full_name` |
+| `min`, `max` | Numeric or age bounds |
+| `values` | Allowed categorical values |
+| `weighted_values` | Weighted categories as a mapping or value-weight pairs |
+| `prefix` | Prefix generated ID-like fields |
+| `pattern` | Format strings using `{index}` |
+| `start`, `end` | Date generation window for date-like fields |
+| `null_rate` | Opt-in null rate for non-ID fields |
+| `unique` | Validation expectation; ID-like fields are generated uniquely by default |
+
+## Realistic Mode
+
+`realism="realistic"` is the default for `generate_from_schema`.
+
+| Column Name | Data Type | Typical Behavior |
+|---|---|---|
+| `customer_name`, `cust_name` | string | realistic full name |
+| `emp_name`, `employee_name` | string | realistic employee name |
+| `age`, `employee_age` | int | age-appropriate range |
+| `email`, `email_id` | string | email-like value |
+| `phone`, `mobile_no` | string | phone-like value |
+| `address`, `city`, `state` | string | address-oriented value |
+| `customer_id` | string | unique prefixed identifier |
+| `amount`, `salary`, `balance` | numeric | bounded business-oriented amount |
+| `created_at` | date or timestamp | historical value by default |
+| `updated_at` | date or timestamp | same as or after `created_at` |
+| `date_of_birth`, `dob` | date | non-future birth date |
+| `status`, `order_status` | string | recognizable status category |
+
+Realistic mode is designed to avoid obvious placeholder behavior such as `customer_name_1`, ages outside expected human ranges, future historical dates, or `updated_at` before `created_at`.
+
+Use placeholder mode when simple deterministic values are more useful than semantic realism:
 
 ```python
-banking = generate_from_schema(schema, rows=1_000, domain="banking")
-retail = generate_from_schema(schema, rows=1_000, domain="retail")
-hr = generate_from_schema(schema, rows=1_000, domain="hr")
+df = generate_from_schema(schema, rows=20, realism="placeholder")
 ```
 
-Supported preset names include `banking`, `retail`, `healthcare`, `insurance`, `hr`, and `education`.
+`realism="basic"` and `realism="simple"` are aliases for placeholder mode. `realism="clean"` is an alias for realistic mode.
 
-### Validate generated schema data
+## Data Quality and Edge Cases
 
-```python
-from great_generator import validate_generated_data
+Schema-generated data aims to be:
 
-result = validate_generated_data(customers, schema)
-assert result["passed"]
-print(result["summary"])
-```
+- fake and non-production
+- schema-aligned and type-correct
+- semantically meaningful where fields are recognized
+- logically consistent for supported cross-field rules
+- easy to validate and write downstream
 
-Validation checks practical quality rules such as email format, realistic age ranges, unique IDs, numeric ranges, future dates, date relationships, status-dependent nulls, and amount formulas where those fields exist.
+Supported clean-data behaviors include:
 
-You can also ask `generate_from_schema(...)` to return a report with the generated DataFrame:
+- name and email consistency when first and last name fields are present
+- realistic age ranges
+- age and date-of-birth alignment
+- historical dates for fields that should not be in the future
+- `updated_at >= created_at`
+- `end_date >= start_date`
+- `delivery_date >= order_date`
+- status-aware nulls for unpaid, undelivered, active-employment, and open-account states
+- unique non-null ID-like fields
+- positive quantities
+- total calculations from quantity, price, discount, and tax where recognized
 
-```python
-customers, report = generate_from_schema(
-    schema,
-    rows=1_000,
-    validate=True,
-    return_report=True,
-)
+### Explain the Generation Plan
 
-assert report["passed"]
-```
-
-### Explain the generation plan
-
-Use `explain_generation_plan(...)` when a schema has unfamiliar field names and you want to see how Great Generator will interpret them.
+Inspect semantic inference before generating data:
 
 ```python
 from great_generator import explain_generation_plan
 
-plan = explain_generation_plan({
-    "cust_nm": "string",
-    "emp_age": "int",
-    "txn_amt": "double",
-    "created_ts": "timestamp",
-})
+plan = explain_generation_plan(
+    {
+        "cust_nm": "string",
+        "email_addr": "string",
+        "txn_amt": "double",
+        "created_ts": "timestamp",
+    }
+)
 
-print(plan["semantic_coverage"])
-print(plan["fields"])
+for field in plan["fields"]:
+    print(field["column"], field["semantic_type"], field["confidence"])
 ```
 
-### From a PySpark StructType
+### Validate Generated Data
 
 ```python
-from pyspark.sql import types as T
-from great_generator import generate_from_schema
+from great_generator import generate_from_schema, validate_generated_data
 
-schema = T.StructType([
-    T.StructField("id", T.IntegerType(), False),
-    T.StructField("name", T.StringType(), True),
-    T.StructField("amount", T.DoubleType(), True),
-])
+df = generate_from_schema(schema, rows=1000, custom_rules=custom_rules)
+report = validate_generated_data(df, schema=schema, rules=custom_rules)
 
-spark_df = generate_from_schema(
+assert report["passed"], report["errors"]
+```
+
+Or return data and a report together:
+
+```python
+df, report = generate_from_schema(
     schema,
-    rows=10_000,
-    spark=spark,
+    rows=1000,
+    validate=True,
+    return_report=True,
 )
 ```
 
-### From a PySpark DataFrame
+Validation is local for Pandas results. Spark results currently return a note rather than collecting the distributed DataFrame for local validation.
 
-If you already have an empty or sample Spark DataFrame, pass it directly. Great Generator infers the schema and SparkSession, then returns a generated Spark DataFrame.
+## Writing Generated Data to Different Targets
+
+Great Generator returns DataFrames so you can use the writer already trusted by your application, notebook, database driver, or Spark platform.
+
+### Write Pandas Data to CSV, JSON, or Parquet
 
 ```python
-from great_generator import generate_from_schema
-
-source_df = spark.createDataFrame([], schema)
-
-df = generate_from_schema(source_df, rows=10_000)
-
-# Use normal Spark writers.
-df.write.mode("overwrite").csv("s3a://my-bucket/demo/customers_csv")
-df.write.mode("overwrite").parquet("s3a://my-bucket/demo/customers_parquet")
-df.write.format("delta").mode("overwrite").save("dbfs:/Volumes/catalog/schema/volume/customers_delta")
+df.to_csv("customers.csv", index=False)
+df.to_json("customers.json", orient="records", lines=True)
+df.to_parquet("customers.parquet", index=False)
 ```
 
-This path is intentionally lightweight and schema-aware. It creates realistic single-table sample rows from field semantics and data types. Use domain packs or `generate_relational(...)` when you need richer multi-table enterprise behavior, CDC, anomalies, and referential integrity.
+### Write a Spark DataFrame to Parquet or Delta Lake
 
-## Custom relational schema generation
+```python
+spark_df.write.mode("overwrite").parquet("/data/synthetic/customers")
 
-Use `generate_relational(...)` when you already know your tables and want Great Generator to create referentially valid data for them.
+spark_df.write.format("delta").mode("overwrite").save("/mnt/delta/customers")
+```
 
-This is different from single-table schema generation. You provide table names, schemas, row counts, and relationships. Great Generator returns one DataFrame per table.
+Delta support depends on a Delta-enabled Spark runtime or the `delta-spark` extra.
+
+### Write to a Databricks Table
+
+```python
+spark_df.write.format("delta").mode("overwrite").saveAsTable(
+    "dev.synthetic_customers"
+)
+```
+
+Typical Databricks paths include `dbfs:/...` and `/Volumes/<catalog>/<schema>/<volume>/...`, depending on workspace configuration.
+
+### Write to a Microsoft Fabric Lakehouse
+
+```python
+spark_df.write.format("delta").mode("overwrite").save(
+    "Tables/synthetic_customers"
+)
+```
+
+Use the path conventions and permissions configured for your Fabric workspace and lakehouse.
+
+### Write to Snowflake
+
+```python
+import os
+from sqlalchemy import create_engine
+
+engine = create_engine(os.environ["SNOWFLAKE_SQLALCHEMY_URL"])
+df.to_sql("SYNTHETIC_CUSTOMERS", con=engine, if_exists="replace", index=False)
+```
+
+Install and configure the appropriate Snowflake SQLAlchemy connector separately.
+
+### Write to Azure SQL or SQL Server
+
+```python
+import os
+from sqlalchemy import create_engine
+
+engine = create_engine(os.environ["SQLSERVER_SQLALCHEMY_URL"])
+df.to_sql("synthetic_customers", con=engine, if_exists="replace", index=False)
+```
+
+### Write to PostgreSQL
+
+```python
+import os
+from sqlalchemy import create_engine
+
+engine = create_engine(os.environ["POSTGRESQL_SQLALCHEMY_URL"])
+df.to_sql("synthetic_customers", con=engine, if_exists="replace", index=False)
+```
+
+### Write to SQLite
+
+```python
+from sqlalchemy import create_engine
+
+engine = create_engine("sqlite:///synthetic_data.db")
+df.to_sql("synthetic_customers", con=engine, if_exists="replace", index=False)
+```
+
+### Write to Cloud Storage
+
+Pandas can write cloud URLs when the matching filesystem package and authentication are configured:
+
+```python
+df.to_parquet("s3://my-bucket/synthetic/customers.parquet")
+df.to_parquet("gs://my-bucket/synthetic/customers.parquet")
+df.to_parquet(
+    "abfss://container@account.dfs.core.windows.net/synthetic/customers.parquet"
+)
+```
+
+Spark uses its runtime connectors and identity configuration:
+
+```python
+spark_df.write.mode("overwrite").parquet("s3a://my-bucket/synthetic/customers")
+spark_df.write.mode("overwrite").parquet("gs://my-bucket/synthetic/customers")
+spark_df.write.mode("overwrite").parquet(
+    "abfss://container@account.dfs.core.windows.net/synthetic/customers"
+)
+```
+
+Great Generator does not configure credentials, filesystem connectors, IAM roles, managed identities, service accounts, secrets, catalogs, or external locations. Use environment variables, managed identities, workload identities, or secret managers. Do not hardcode credentials.
+
+## Real-World Data Engineering Use Cases
+
+### Lower-Environment Data Generation
+
+Generate fake but realistic customer, account, order, claim, employee, transaction, or operational data for dev, QA, SIT, UAT, sandbox, and demo environments.
+
+### ETL and ELT Pipeline Testing
+
+Test ingestion, type handling, transformations, schema checks, data quality rules, and downstream loads without waiting for production extracts.
+
+### Lakehouse and Warehouse Testing
+
+Return DataFrames that can be written to Delta Lake, Databricks, Microsoft Fabric, Snowflake, Synapse, BigQuery, Redshift, PostgreSQL, SQL Server, or other supported targets using their normal connectors.
+
+### Data Model Validation
+
+Use `generate_from_schema` for individual tables or `generate_relational` for related tables. Test keys, joins, null behavior, facts, dimensions, and lifecycle logic.
+
+### Dashboard and BI Testing
+
+Create realistic datasets for Power BI, Tableau, Looker, notebooks, and internal analytics applications when production data cannot be shared.
+
+### API and Application Testing
+
+Generate DataFrame-backed payloads for API contracts, application services, integration tests, and database fixtures.
+
+### Performance and Volume Testing
+
+Great Generator is designed to support small to large datasets. It can generate one row to millions of rows depending on memory, compute, schema complexity, engine, and environment. For very large datasets, use chunking, test carefully, or use Spark-native domain generation. Do not treat a row-count setting as a performance guarantee.
+
+### AI and ML Experimentation
+
+Create starter datasets for feature engineering, model prototyping, tutorials, and demonstrations when real data is unavailable. Generated data is not a substitute for representative training data or formal statistical synthesis.
+
+## `generate_from_schema` API Reference
+
+Current signature:
+
+```python
+generate_from_schema(
+    schema,
+    rows=100,
+    seed=None,
+    engine="auto",
+    spark=None,
+    table_name="sample",
+    realism="realistic",
+    domain=None,
+    custom_rules=None,
+    realistic=None,
+    validate=False,
+    return_report=False,
+)
+```
+
+| Parameter | Description |
+|---|---|
+| `schema` | Supported schema object or definition |
+| `rows` | Integer row count for one table; mapping or integer for `DomainSchema` |
+| `seed` | Optional integer for reproducible generation |
+| `engine` | `"auto"`, `"pandas"`, or `"spark"` |
+| `spark` | Optional SparkSession when it cannot be inferred or discovered |
+| `table_name` | Logical name used for a single-table schema |
+| `realism` | `"realistic"` or `"placeholder"`, including documented aliases |
+| `domain` | Optional semantic preset such as `banking`, `retail`, `healthcare`, `insurance`, `hr`, or `education` |
+| `custom_rules` | Per-column semantic, range, category, pattern, date, prefix, and null rules |
+| `realistic` | Backward-compatible boolean override; prefer `realism` in new code |
+| `validate` | Run post-generation validation where supported |
+| `return_report` | Return `(data, report)` instead of only data |
+
+Return behavior:
+
+- Python mappings, compact DDL, Pandas inputs, and `TableSchema` return a Pandas DataFrame by default.
+- `engine="spark"`, an explicit SparkSession, or a PySpark DataFrame returns a Spark DataFrame.
+- A PySpark `StructType` returns Spark when an active or explicit SparkSession is available; otherwise auto mode resolves to Pandas.
+- `DomainSchema` returns a dictionary of table-name to DataFrame.
+
+## `generate_domain`: Prebuilt Learning and Demo Datasets
+
+Use domain packs when you want a complete ready-made dataset rather than data shaped around your own schema.
+
+```python
+from great_generator import generate_domain, list_domains
+
+print(list_domains())
+
+data = generate_domain("ecommerce", scale="small")
+
+customers = data["customers"]
+orders = data["orders"]
+order_items = data["order_items"]
+```
+
+Available domain packs include ecommerce, banking, healthcare, insurance, telecom, automotive, energy, manufacturing, logistics, media, public sector, hospitality, and SaaS.
+
+Domain packs include relationships and domain behaviors. They are useful for demonstrations, tutorials, SQL learning, architecture prototypes, benchmarks, and examples where the user does not already have a schema.
+
+## `generate_from_schema` vs `generate_domain`
+
+| Use Case | Recommended Function | Why |
+|---|---|---|
+| I already have a table schema | `generate_from_schema` | Uses your actual structure |
+| I need lower-environment test data | `generate_from_schema` | Aligns generated fields to the expected contract |
+| I need data for ETL or QA testing | `generate_from_schema` | Matches pipeline input columns and types |
+| I have several related custom tables | `generate_relational` | Adds primary-key and foreign-key relationships |
+| I need a quick enterprise demo dataset | `generate_domain` | Prebuilt related tables are immediately available |
+| I am learning SQL or data modeling | `generate_domain` | Domain packs provide understandable examples |
+| I need data for my project's schema | `generate_from_schema` | This is the primary industry workflow |
+
+For industry projects, start with `generate_from_schema`. For ready-made learning and demos, use `generate_domain`.
+
+## Custom Relational Schemas
 
 ```python
 from great_generator import generate_relational
@@ -1055,297 +683,93 @@ from great_generator import generate_relational
 data = generate_relational(
     tables={
         "customers": {
-            "schema": "customer_id int primary key, name string, segment string",
-            "rows": 100000,
+            "schema": "customer_id int primary key, customer_name string, email string",
+            "rows": 1000,
         },
         "orders": {
-            "schema": "order_id int primary key, customer_id int, order_date date, amount double",
-            "rows": 1000000,
-        },
-        "payments": {
-            "schema": "payment_id int primary key, order_id int, status string, paid_amount double",
-            "rows": 1000000,
+            "schema": "order_id int primary key, customer_id int references customers.customer_id, order_amount double, order_date date",
+            "rows": 5000,
         },
     },
-    relationships=[
-        "orders.customer_id -> customers.customer_id",
-        "payments.order_id -> orders.order_id",
-    ],
+    engine="pandas",
 )
 
-customers = data["customers"]
-orders = data["orders"]
-payments = data["payments"]
+customers_df = data["customers"]
+orders_df = data["orders"]
 ```
 
-You can also define relationships inline:
+The dictionary output keeps each table as a DataFrame. Write each table using Pandas, Spark, database, or cloud APIs without forcing a storage decision inside the generator.
 
-```python
-data = generate_relational(
-    tables={
-        "customers": "customer_id int primary key, name string, segment string",
-        "orders": (
-            "order_id int primary key, "
-            "customer_id int references customers.customer_id, "
-            "amount double"
-        ),
-    },
-    rows={
-        "customers": 100000,
-        "orders": 1000000,
-    },
-)
-```
+## Additional Capabilities
 
-### DataFrame-first output
+| Capability | API |
+|---|---|
+| CDC records | `generate_cdc` |
+| Controlled anomalies | `generate_domain(..., anomalies=...)` |
+| SCD2 history | `generate_history` |
+| Dimensional facts and dimensions | `generate_dimensional_model` |
+| Data Vault hubs, links, and satellites | `generate_data_vault_model` |
+| JSON, TOML, and simple YAML recipes | `generate_from_recipe` |
+| CSV, JSON, Parquet, Delta convenience exports | `export_data` or `generate_domain(..., output_format=...)` |
 
-Great Generator returns DataFrames first. Exporting is optional.
+See the [documentation site](https://ravikiranpagidi.github.io/great-generator/), [Wiki](https://github.com/ravikiranpagidi/great-generator/wiki), and [`docs/`](docs/) for focused guides.
 
-That gives users full control over where the data goes:
+## Planned Schema Input Types
 
-```python
-data = generate_relational(...)
+The following are roadmap items and are not accepted by `generate_from_schema` today:
 
-customers = data["customers"]
-orders = data["orders"]
-```
+- inline rich schema metadata
+- full dialect-aware SQL `CREATE TABLE` parsing
+- JSON Schema and JSON Schema files
+- YAML schema profiles
+- column-name-only lists with type inference
+- SQLAlchemy models
+- Pydantic models
+- Python dataclasses
+- richer nested Spark and JSON structures
+- Spark-native distributed generation for arbitrary schemas
 
-For pandas:
-
-```python
-customers.to_csv("customers.csv", index=False)
-orders.to_parquet("orders.parquet")
-orders.to_json("orders.json", orient="records")
-```
-
-For Spark:
-
-```python
-data = generate_relational(
-    tables={
-        "customers": {
-            "schema": "customer_id int primary key, name string",
-            "rows": 100000,
-        },
-        "orders": {
-            "schema": "order_id int primary key, customer_id int references customers.customer_id",
-            "rows": 1000000,
-        },
-    },
-    engine="spark",
-)
-
-customers = data["customers"]
-orders = data["orders"]
-
-customers.write.mode("overwrite").parquet("s3a://bucket/demo/customers")
-orders.write.format("delta").mode("overwrite").save("dbfs:/Volumes/catalog/schema/volume/orders")
-orders.write.mode("overwrite").saveAsTable("demo.orders")
-```
-
-In Spark notebooks, `engine="spark"` tries to use the active SparkSession. In scripts or local PySpark applications, pass `spark=your_spark_session` if there is no active session.
-
-Optional export helpers still work:
-
-```python
-data = generate_relational(
-    tables={...},
-    relationships=[...],
-    output_path="./synthetic/custom",
-    output_format="parquet",
-)
-```
-
-The important design point: generation and writing are separate. Great Generator creates the DataFrames, then users can write to CSV, JSON, Parquet, Delta, database tables, catalog tables, cloud storage, or any destination their pandas or Spark runtime supports.
-
-## CDC simulation
-
-```python
-from great_generator import generate_cdc
-
-cdc = generate_cdc(
-    domain="banking",
-    table="customers",
-    rows=10_000,
-    operations=["insert", "update", "delete"],
-    late_arrival_rate=0.02,
-    duplicate_rate=0.005,
-)
-```
-
-CDC output includes:
-
-- `operation`
-- `before`
-- `after`
-- `event_timestamp`
-- `ingestion_timestamp`
-- `sequence_number`
-- `source_system`
-- `late_arriving`
-- `duplicate`
-
-## Reproducibility
-
-The examples above omit reproducibility options so the first path stays simple. Stable outputs are still supported for tests, demos, benchmarks, and research through the optional reproducibility argument in the public API.
-
-## Scale profiles
-
-| Scale | Intended use |
-| --- | --- |
-| `tiny` | README examples and unit tests |
-| `small` | local development |
-| `medium` | notebook demos |
-| `large` | Spark and performance work |
-
-Override any table:
-
-```python
-generate_domain(
-    "ecommerce",
-    rows={
-        "customers": 100_000,
-        "orders": 1_000_000,
-        "order_items": 3_000_000,
-    },
-)
-```
-
-## Architecture overview
-
-```mermaid
-flowchart TD
-    A["Domain Pack or User Schema"] --> B["Relationship Graph"]
-    B --> C["Key Registry"]
-    C --> D["Distribution Helpers"]
-    D --> E["Realistic Value Generator"]
-    E --> F["CDC / Anomaly Layer"]
-    F --> G["Pandas / Spark Engine"]
-    G --> H["CSV / JSON / Parquet / Delta Export"]
-```
-
-- **Domain packs** encode tables, columns, relationships, and realistic behavior.
-- **Custom relational schemas** let users bring their own tables, row counts, primary keys, and foreign keys.
-- **Relationship graph** keeps parent tables ahead of children.
-- **Key registry** guarantees valid foreign-key sampling.
-- **Distribution helpers** provide skew, seasonality, payroll, and weighted behavior.
-- **Realistic value generator** enriches descriptive fields with Faker-backed pandas values and Spark-native deterministic expressions.
-- **Engines** separate local pandas generation from optional Spark generation.
-- **Exporters** write table-per-folder CSV, JSON, Parquet, and Delta outputs.
-- **CDC generator** creates event-style changes for pipeline validation.
-- **Anomaly injector** adds opt-in quality problems after clean generation and can emit labeled ground truth.
-- **History generator** creates SCD2 tables for snapshot, merge, and time-travel demos.
-- **Model generators** create dimensional facts/dimensions and Data Vault hubs/links/satellites.
-- **Recipe runner** turns JSON, TOML, or simple YAML recipe files into reproducible datasets.
-
-## Public API
-
-```python
-from great_generator import (
-    export_data,
-    generate_cdc,
-    generate_data_vault_model,
-    generate_dimensional_model,
-    generate_domain,
-    generate_from_recipe,
-    generate_from_schema,
-    generate_history,
-    generate_relational,
-    get_domain_schema,
-    list_domains,
-    validate_generated_data,
-)
-```
-
-Common parameters:
-
-- `domain`: built-in domain pack such as `banking`, `ecommerce`, `healthcare`, `telecom`, or `saas`
-- `engine`: `"pandas"`, `"spark"`, or `"auto"` for schema generation
-- `scale`: `"tiny"`, `"small"`, `"medium"`, or `"large"`
-- `realism`: `"realistic"` for demo-ready values or `"placeholder"` for simple deterministic values
-- `seed`: optional integer for reproducible output
-- `anomalies`: opt-in data quality problems such as nulls, duplicates, orphan keys, late records, outliers, and invalid statuses
-- `return_labels`: optional anomaly answer-key table for pandas outputs
-- `history`: optional history mode, currently `"scd2"` for pandas domain generation
-- `output_path` / `output_format`: optional convenience exports; returned DataFrames can also be written by users directly
-
-## Documentation
-
-Start with the public documentation site: [Great Generator Docs](https://ravikiranpagidi.github.io/great-generator/). It is the demo-friendly front door for installation, examples, platforms, DataFrame-first output, and links to deeper guides.
-
-For detailed guides, design concepts, and contributor documentation, also see the [GitHub Wiki](https://github.com/ravikiranpagidi/great-generator/wiki).
-
-Recommended Wiki starting points:
-
-- [Quickstart](https://github.com/ravikiranpagidi/great-generator/wiki/Quickstart)
-- [Realistic Value Generation](https://github.com/ravikiranpagidi/great-generator/wiki/Realistic-Value-Generation)
-- [Supported Domains](https://github.com/ravikiranpagidi/great-generator/wiki/Supported-Domains)
-- [Faker vs Great Generator](https://github.com/ravikiranpagidi/great-generator/wiki/Faker-vs-Great-Generator)
-- [Adding a New Domain Pack](https://github.com/ravikiranpagidi/great-generator/wiki/Adding-a-New-Domain-Pack)
-
-Repository docs:
-
-- [Demo guide](docs/DEMO_GUIDE.md)
-- [Quickstart](docs/QUICKSTART.md)
-- [API reference](docs/API_REFERENCE.md)
-- [Domain packs](docs/DOMAIN_PACKS.md)
-- [Realistic values](docs/REALISTIC_VALUES.md)
-- [Spark and Delta](docs/SPARK_AND_DELTA.md)
-- [CDC simulation](docs/CDC.md)
-- [Anomaly injection](docs/ANOMALIES.md)
-- [Advanced capabilities](docs/ADVANCED_CAPABILITIES.md)
-- [Benchmarks](docs/BENCHMARKS.md)
-- [PyPI release checklist](docs/PYPI_RELEASE.md)
-- [GitHub Pages setup](docs/GITHUB_PAGES.md)
+Tracking these as explicit roadmap items keeps the current API trustworthy while leaving a clear path for contributors.
 
 ## Limitations
 
-- Generated data is synthetic; it is not transformed production data.
-- This is not a privacy-preserving transformation toolkit.
-- It is not a replacement for full statistical synthetic modeling.
-- Spark throughput still depends on your cluster.
-- Remote Spark exports depend on the cluster's filesystem connectors, credentials, and cloud IAM setup.
-- Delta export depends on runtime support: Databricks Runtime or a Spark session configured for Delta Lake.
-- Legacy DBFS root and mounts are not the recommended long-term Databricks storage pattern.
-- Spark export helpers do not configure cloud credentials, attach storage, or register catalog tables for you.
-- Generic `generate_from_schema(...)` supports DDL strings, empty pandas DataFrames, TableSchema, DomainSchema, PySpark StructType inputs, and PySpark DataFrame inputs. It returns pandas by default and Spark DataFrames when a Spark context is provided or inferred, but domain packs provide the richer realism.
-- Dimensional and Data Vault model generation is intentionally generated from domain packs. For custom warehouse modeling, start with `generate_relational(...)` and shape the result in your own modeling layer.
-
-## Benchmarks
-
-See [docs/BENCHMARKS.md](docs/BENCHMARKS.md) and `benchmarks/benchmark_pandas_generation.py` for a lightweight local benchmark harness. Larger Spark and Delta benchmark numbers will depend on cluster size, storage, and runtime configuration.
+- Generated data is synthetic and may not reproduce every rule or distribution in a real system.
+- The library does not provide privacy guarantees or transform production data.
+- Semantic inference depends on recognizable field names and declared data types. Use `custom_rules` when intent is ambiguous.
+- Single-table Spark schema generation currently creates values locally before creating a Spark DataFrame.
+- Nested complex Spark types have limited generation support.
+- Cloud storage and database access require separate connectors, credentials, permissions, and runtime configuration.
+- Domain packs are engineered simulations, not statistical models fitted to source data.
 
 ## Roadmap
 
-- More realistic domain-specific value generation
-- Additional industry domain packs
-- Spark-scale benchmark results
-- Delta Lake write examples
-- More CDC simulation patterns
-- Data quality rule generation
-- Great Expectations / Soda integration examples
-- Databricks and Microsoft Fabric demo notebooks
-- Searchable documentation site improvements
-- JSON-native generation with `generate_json_from_schema(...)`
-- Optional catalog registration helpers
-
-## Community and support
-
-- Use [GitHub Discussions](https://github.com/ravikiranpagidi/great-generator/discussions) for usage questions, ideas, demos, and show-and-tell posts.
-- Use [Issues](https://github.com/ravikiranpagidi/great-generator/issues) for bugs, scoped feature requests, domain-pack proposals, and realistic-value improvements.
-- Please do not report security issues in public issues or discussions. See [SECURITY.md](SECURITY.md).
+Priorities include richer schema ingestion, nested contracts, native distributed schema generation, stronger generation manifests and quality reports, additional domain packs, streaming output, and expanded lifecycle behavior. See [`docs/OPEN_SOURCE_STRATEGY.md`](docs/OPEN_SOURCE_STRATEGY.md) and the [Wiki roadmap](https://github.com/ravikiranpagidi/great-generator/wiki/Roadmap).
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md), run the test suite, and include focused tests for user-visible behavior.
 
-## Release and security
+```bash
+python -m pip install -e ".[dev]"
+pytest
+ruff check .
+black --check .
+```
 
-- Changelog: [CHANGELOG.md](CHANGELOG.md)
-- Security policy: [SECURITY.md](SECURITY.md)
-- PyPI release checklist: [docs/PYPI_RELEASE.md](docs/PYPI_RELEASE.md)
+## Author
 
-## Project philosophy
+Created and maintained by Ravi Kiran Pagidi.
 
-The point is not merely to create fake rows. The point is to create synthetic systems that let engineers rehearse reality safely.
+- [PyPI](https://pypi.org/project/great-generator/)
+- [GitHub](https://github.com/ravikiranpagidi/great-generator)
+- [Documentation](https://ravikiranpagidi.github.io/great-generator/)
+- [Wiki](https://github.com/ravikiranpagidi/great-generator/wiki)
+- [Contact](mailto:ravikiran.pagidi@gmail.com)
 
+## Disclaimer
+
+Great Generator helps teams create fake, non-production synthetic data. It does not guarantee compliance, privacy preservation, statistical equivalence, or fitness for a regulated use case. Review generated data and follow your organization's data governance, privacy, security, and compliance requirements.
+
+## License
+
+[MIT](LICENSE)

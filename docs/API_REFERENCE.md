@@ -1,5 +1,30 @@
 # API Reference
 
+## `generate_from_schema(...)`
+
+The primary API for generating a DataFrame from a schema you already have.
+
+```python
+generate_from_schema(
+    schema,
+    rows=100,
+    seed=None,
+    engine="auto",
+    spark=None,
+    table_name="sample",
+    realism="realistic",
+    domain=None,
+    custom_rules=None,
+    realistic=None,
+    validate=False,
+    return_report=False,
+)
+```
+
+Supported inputs are plain mappings, Pandas dtype mappings, Pandas DataFrames, compact DDL strings, PySpark `StructType`, PySpark DataFrames, `TableSchema`, and `DomainSchema`.
+
+See [SCHEMA_INPUTS.md](SCHEMA_INPUTS.md) for the exact support matrix and limitations.
+
 ## `generate_domain(...)`
 
 Generates a built-in enterprise domain pack and returns a dictionary of DataFrames.
@@ -21,7 +46,7 @@ Important parameters:
 data = generate_domain("ecommerce", scale="small", realism="realistic", seed=42)
 ```
 
-## `generate_from_schema(...)`
+## Schema generation details
 
 Generates a single DataFrame or domain-shaped dictionary from schema metadata. Single-table schema generation is semantic-field based: it normalizes column names, expands common abbreviations, combines column-name intent with data type, and generates realistic values where possible.
 

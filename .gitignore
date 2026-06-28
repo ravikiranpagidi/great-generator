@@ -12,3 +12,4 @@ _publish_clone/
 .coverage
 coverage.xml
 htmlcov/
+outputs/

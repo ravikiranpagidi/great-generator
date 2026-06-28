@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Great Generator | Synthetic enterprise data for Pandas, Spark, testing, demos, and research</title>
-  <meta name="description" content="Great Generator is a developer-first Python library for realistic synthetic enterprise data across Pandas, Spark, relational domains, schema-first generation, CDC, anomalies, and lakehouse demos." />
+  <title>Great Generator | Realistic synthetic data from your schema</title>
+  <meta name="description" content="Generate realistic synthetic data from schema definitions for lower environments, data engineering, QA, Pandas, Spark, and pipeline testing." />
   <meta name="keywords" content="synthetic data, pandas, pyspark, spark, databricks, faker alternative, test data, enterprise data, CDC, data quality, lakehouse, delta lake" />
   <meta property="og:title" content="Great Generator" />
-  <meta property="og:description" content="Developer-first synthetic enterprise data for Pandas, Spark, testing, demos, benchmarking, learning, and research." />
+  <meta property="og:description" content="Have a schema but no safe test data? Generate realistic synthetic DataFrames for lower environments, testing, and data engineering." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://ravikiranpagidi.github.io/great-generator/" />
   <link rel="stylesheet" href="assets/site.css" />
@@ -34,46 +34,50 @@
   <main id="main">
     <section class="hero" id="top">
       <div class="hero-copy">
-        <p class="eyebrow">Synthetic enterprise data, built for developers</p>
-        <h1>Generate realistic data systems, not just fake values.</h1>
+        <p class="eyebrow">Schema-driven synthetic data for engineering teams</p>
+        <h1>Have a schema but no safe test data?</h1>
         <p class="lede">
-          Great Generator creates useful synthetic datasets for Pandas, Spark, lakehouse demos,
-          pipeline testing, benchmarking, SQL learning, data quality validation, and research.
+          Great Generator creates realistic, fake, non-production data from your schema for
+          lower environments, pipeline testing, QA, analytics, Pandas, and Spark.
         </p>
         <div class="hero-actions">
           <a class="button primary" href="#quickstart">Start in 30 seconds</a>
           <a class="button secondary" href="https://github.com/ravikiranpagidi/great-generator">View repository</a>
         </div>
         <p class="positioning">
-          Faker gives fake values. Great Generator gives a believable enterprise data system.
+          Your schema in. Realistic test data out.
         </p>
       </div>
       <div class="hero-card" aria-label="Example code">
         <div class="code-window">
           <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
-          <pre><code>from great_generator import generate_domain
+          <pre><code>from great_generator import generate_from_schema
 
-data = generate_domain("ecommerce", scale="small")
+schema = {
+    "customer_id": "string",
+    "customer_name": "string",
+    "email": "string",
+    "age": "int",
+    "created_at": "datetime",
+}
 
-customers = data["customers"]
-orders = data["orders"]
-order_items = data["order_items"]</code></pre>
+df = generate_from_schema(schema, rows=1000)</code></pre>
         </div>
       </div>
     </section>
 
     <section class="signal-grid" aria-label="Key outcomes">
       <article>
-        <strong>Domain-aware</strong>
-        <span>Ecommerce, banking, healthcare, telecom, insurance, logistics, SaaS, and more.</span>
+        <strong>Schema-first</strong>
+        <span>Start from mappings, Pandas dtypes, compact DDL, or PySpark schemas.</span>
       </article>
       <article>
         <strong>DataFrame-first</strong>
         <span>Return Pandas or Spark DataFrames, then write to any destination your runtime supports.</span>
       </article>
       <article>
-        <strong>Schema-first</strong>
-        <span>Generate realistic values from DDL strings, pandas frames, Spark schemas, and mapping schemas.</span>
+        <strong>Semantically realistic</strong>
+        <span>Recognize names, IDs, contacts, dates, amounts, statuses, and lifecycle relationships.</span>
       </article>
       <article>
         <strong>Enterprise-ready</strong>
@@ -84,11 +88,11 @@ order_items = data["order_items"]</code></pre>
     <section class="section" id="why">
       <div class="section-heading">
         <p class="eyebrow">Why it exists</p>
-        <h2>Realistic test data is harder than it should be.</h2>
+        <h2>Lower environments need useful data without production records.</h2>
         <p>
-          Teams need data that looks familiar enough for demos, tests, notebooks, POCs, prototypes,
-          Spark jobs, SQL models, and research. Value generators are useful, but they do not give you
-          relationships, business behavior, late records, anomalies, schema realism, or lakehouse-friendly outputs.
+          Teams already have schemas, table contracts, and pipeline definitions, but production records may be
+          unavailable or restricted. Great Generator turns those schemas into realistic synthetic DataFrames for
+          development, QA, analytics, demonstrations, and pipeline testing.
         </p>
       </div>
       <div class="compare">
@@ -121,19 +125,22 @@ order_items = data["order_items"]</code></pre>
     <section class="section" id="quickstart">
       <div class="section-heading">
         <p class="eyebrow">Quickstart</p>
-        <h2>Useful in one import.</h2>
-        <p>Use domain packs when you want a ready-made enterprise dataset with tables that fit together.</p>
+        <h2>Start from the schema you already have.</h2>
+        <p>Use schema generation for real project structures. Domain packs remain available for ready-made demos and learning.</p>
       </div>
       <div class="example-grid" id="examples">
         <article class="example-card">
-          <h3>Generate an ecommerce domain</h3>
-          <pre><code>from great_generator import generate_domain
+          <h3>Generate from a Python schema</h3>
+          <pre><code>from great_generator import generate_from_schema
 
-data = generate_domain("ecommerce", scale="small")
+schema = {
+    "customer_id": "string",
+    "customer_name": "string",
+    "email": "string",
+    "age": "int",
+}
 
-customers = data["customers"]
-orders = data["orders"]
-payments = data["payments"]</code></pre>
+df = generate_from_schema(schema, rows=1000)</code></pre>
         </article>
         <article class="example-card">
           <h3>Generate banking CDC records</h3>
@@ -280,6 +287,7 @@ usage.write.mode("overwrite").format("delta").save(
         <h2>Guides for demos, implementation, and release-readiness.</h2>
       </div>
       <div class="doc-grid">
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SCHEMA_INPUTS.md"><strong>Schema inputs</strong><span>Current support matrix, examples, and limitations.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/QUICKSTART.md"><strong>Quickstart</strong><span>Install, import, generate, inspect, and export.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/API_REFERENCE.md"><strong>API reference</strong><span>Main public APIs and usage patterns.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/REALISTIC_VALUES.md"><strong>Realistic values</strong><span>Semantic field detection and generation quality.</span></a>
@@ -297,7 +305,7 @@ usage.write.mode("overwrite").format("delta").save(
         <p class="eyebrow">Author</p>
         <h2>Created and maintained by Ravi Kiran Pagidi.</h2>
         <p>
-          Great Generator is an open-source Python library for developers, data engineers, analytics engineers, researchers, students, and teams building realistic data demos and tests.
+          Great Generator is an open-source Python library for developers, data engineers, QA teams, analytics engineers, and platform teams that need realistic lower-environment data without production records.
         </p>
       </div>
       <div class="link-panel">
