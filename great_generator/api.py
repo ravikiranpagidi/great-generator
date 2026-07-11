@@ -16,6 +16,7 @@ from great_generator.exporters.csv_exporter import export_csv
 from great_generator.exporters.delta_exporter import export_delta
 from great_generator.exporters.json_exporter import export_json
 from great_generator.exporters.parquet_exporter import export_parquet
+from great_generator.planning import ColumnTags, GenerationPlan, RealismReport
 from great_generator.recipes import generate_from_recipe as _generate_from_recipe
 from great_generator.schemas.generation import (
     active_spark_session,
@@ -31,6 +32,64 @@ from great_generator.schemas.relational import relational_schema_from_specs
 from great_generator.schemas.semantic import explain_generation_plan as _explain_generation_plan
 from great_generator.schemas.semantic import validate_generated_data as _validate_generated_data
 from great_generator.utils.validation import validate_engine, validate_output_format
+
+
+def infer_generation_plan(
+    schema: Any,
+    *,
+    advisor: str = "none",
+    hints: dict | None = None,
+    cache_path: str | Path = ".gg_cache/",
+    refresh_cache: bool = False,
+) -> GenerationPlan:
+    """Create an editable generation plan for a schema."""
+
+    from great_generator.advisors.registry import get_advisor
+
+    selected = get_advisor(advisor, cache_path=cache_path, refresh_cache=refresh_cache)
+    return selected.propose_plan(schema, hints=hints)
+
+
+def tag_schema(
+    schema: Any,
+    *,
+    advisor: str = "none",
+    include_pii_classification: bool = True,
+    include_business_semantics: bool = True,
+    samples: dict | None = None,
+    cache_path: str | Path = ".gg_cache/",
+    refresh_cache: bool = False,
+) -> ColumnTags:
+    """Create editable column tags for a schema."""
+
+    from great_generator.advisors.registry import get_advisor
+
+    hints = {
+        "include_pii_classification": bool(include_pii_classification),
+        "include_business_semantics": bool(include_business_semantics),
+    }
+    sample_payload = dict(samples or {})
+    if hints:
+        sample_payload["_tagging_options"] = hints
+    selected = get_advisor(advisor, cache_path=cache_path, refresh_cache=refresh_cache)
+    return selected.tag_columns(schema, samples=sample_payload)
+
+
+def review_realism(
+    data: Any,
+    plan: GenerationPlan,
+    *,
+    advisor: str = "none",
+    sample_size: int = 500,
+    cache_path: str | Path = ".gg_cache/",
+) -> RealismReport:
+    """Review a generated sample against a generation plan."""
+
+    from great_generator.advisors.registry import get_advisor
+
+    selected = get_advisor(advisor, cache_path=cache_path, refresh_cache=False)
+    sample = _sample_for_realism_review(data, sample_size=sample_size)
+    return selected.review_sample(sample, plan=plan, sample_size=sample_size)
 
 
 def list_domains() -> list[str]:
@@ -416,6 +475,7 @@ def generate_from_schema(
     realism: str = "realistic",
     domain: str | None = None,
     custom_rules: Mapping[str, Mapping[str, Any]] | None = None,
+    plan: GenerationPlan | None = None,
     realistic: bool | None = None,
     validate: bool = False,
     return_report: bool = False,
@@ -432,6 +492,7 @@ def generate_from_schema(
     - PySpark ``DataFrame``: returns a Spark DataFrame and infers its SparkSession.
     """
 
+    generation_rules = _rules_with_plan(custom_rules, plan)
     effective_realism = (
         "realistic" if realistic is True else "placeholder" if realistic is False else realism
     )
@@ -461,14 +522,14 @@ def generate_from_schema(
             return _maybe_attach_report(
                 spark_tables,
                 schema=schema,
-                rules=custom_rules,
+                rules=generation_rules,
                 validate=validate,
                 return_report=return_report,
             )
         return _maybe_attach_report(
             generated,
             schema=schema,
-            rules=custom_rules,
+            rules=generation_rules,
             validate=validate,
             return_report=return_report,
         )
@@ -488,12 +549,13 @@ def generate_from_schema(
             table_name=table_name,
             realism=effective_realism,
             domain=domain,
-            custom_rules=custom_rules,
+            custom_rules=generation_rules,
+            plan=plan,
         )
         return _maybe_attach_report(
             spark_frame,
             schema=schema,
-            rules=custom_rules,
+            rules=generation_rules,
             validate=validate,
             return_report=return_report,
         )
@@ -504,12 +566,13 @@ def generate_from_schema(
         table_name=table_name,
         realism=effective_realism,
         domain=domain,
-        custom_rules=custom_rules,
+        custom_rules=generation_rules,
+        plan=plan,
     )
     return _maybe_attach_report(
         pandas_frame,
         schema=schema,
-        rules=custom_rules,
+        rules=generation_rules,
         validate=validate,
         return_report=return_report,
     )
@@ -598,3 +661,39 @@ def _has_spark_context(schema: Any, spark: Any | None) -> bool:
     if is_pyspark_dataframe(schema):
         return True
     return is_pyspark_struct_type(schema) and active_spark_session() is not None
+
+
+def _rules_with_plan(
+    custom_rules: Mapping[str, Mapping[str, Any]] | None,
+    plan: GenerationPlan | None,
+) -> dict[str, dict[str, Any]] | None:
+    if plan is None:
+        return {str(key): dict(value) for key, value in (custom_rules or {}).items()} or None
+    rules = plan.to_custom_rules()
+    for key, value in (custom_rules or {}).items():
+        merged = dict(rules.get(str(key), {}))
+        merged.update(dict(value))
+        rules[str(key)] = merged
+    return rules
+
+
+def _sample_for_realism_review(data: Any, sample_size: int) -> dict[str, Any]:
+    if isinstance(data, pd.DataFrame):
+        return {"sample": data.head(sample_size).to_dict(orient="records")}
+    if isinstance(data, Mapping):
+        return {
+            str(name): _sample_value_for_review(value, sample_size) for name, value in data.items()
+        }
+    return {"sample": _sample_value_for_review(data, sample_size)}
+
+
+def _sample_value_for_review(value: Any, sample_size: int) -> Any:
+    if isinstance(value, pd.DataFrame):
+        return value.head(sample_size).to_dict(orient="records")
+    if hasattr(value, "limit") and hasattr(value, "toPandas"):
+        return value.limit(sample_size).toPandas().to_dict(orient="records")
+    if isinstance(value, list):
+        return value[:sample_size]
+    if isinstance(value, tuple):
+        return list(value[:sample_size])
+    return value

@@ -6,6 +6,14 @@ This project follows semantic versioning once public releases begin.
 
 ## Unreleased
 
+### Added
+
+- AI advisor layer for design-time schema understanding, column tagging, and realism review. Opt-in. Deterministic path unchanged.
+- Advisors: NoOp default, Anthropic, Ollama. OpenAI and llama.cpp stubs.
+- `GenerationPlan` and `ColumnTags` as inspectable, editable JSON artifacts.
+- Manifest enrichment recording advisor contribution.
+- New extras: `[ai]`, `[anthropic]`, `[openai]`, `[ollama]`, `[llamacpp]`.
+
 ## 0.1.5 - 2026-06-28
 
 Schema-first documentation and Spark database integration release.

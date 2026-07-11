@@ -58,19 +58,21 @@ def generate_single_table_pandas(
     realism: str = "placeholder",
     domain: str | None = None,
     custom_rules: Mapping[str, Mapping[str, Any]] | None = None,
+    plan: Any | None = None,
 ) -> pd.DataFrame:
     """Generate a pandas DataFrame from a single-table schema input."""
 
     realism = normalize_realism_mode(realism)
     validate_realism(realism)
     table, source = normalize_single_table_schema(schema, table_name=table_name)
-    if realism == "realistic":
+    effective_rules = _rules_with_plan(custom_rules, plan)
+    if realism == "realistic" or plan is not None:
         frame = generate_semantic_table(
             table,
             rows=rows,
             seed=seed,
             domain=domain,
-            custom_rules=custom_rules,
+            custom_rules=effective_rules,
         )
     else:
         rng = get_rng(seed, f"schema:{table.name}")
@@ -93,6 +95,7 @@ def generate_single_table_spark(
     realism: str = "placeholder",
     domain: str | None = None,
     custom_rules: Mapping[str, Mapping[str, Any]] | None = None,
+    plan: Any | None = None,
 ) -> Any:
     """Generate a Spark DataFrame from a single-table schema input."""
 
@@ -108,6 +111,7 @@ def generate_single_table_spark(
         realism=realism,
         domain=domain,
         custom_rules=custom_rules,
+        plan=plan,
     )
     source_schema = source.schema if is_pyspark_dataframe(source) else source
 
@@ -316,6 +320,22 @@ def _domain_row_counts(schema: DomainSchema, rows: Mapping[str, int] | int) -> M
         return rows
     count = int(rows)
     return {table_name: count for table_name in schema.tables}
+
+
+def _rules_with_plan(
+    custom_rules: Mapping[str, Mapping[str, Any]] | None,
+    plan: Any | None,
+) -> Mapping[str, Mapping[str, Any]] | None:
+    if plan is None:
+        return custom_rules
+    if not hasattr(plan, "to_custom_rules"):
+        raise TypeError("plan must be a GenerationPlan created by infer_generation_plan.")
+    rules = dict(plan.to_custom_rules())
+    for key, value in (custom_rules or {}).items():
+        merged = dict(rules.get(str(key), {}))
+        merged.update(dict(value))
+        rules[str(key)] = merged
+    return rules
 
 
 def _infer_primary_key(columns: Any) -> str | None:

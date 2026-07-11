@@ -223,6 +223,7 @@ data["transactions"].write.mode("overwrite").parquet(
         <article><h3>Dimensional models</h3><p>Create facts and dimensions for analytics engineering, SQL modeling, BI demos, and warehouse examples.</p></article>
         <article><h3>Data Vault models</h3><p>Create hubs, links, and satellites for enterprise architecture demos and modeling experiments.</p></article>
         <article><h3>Quality checks</h3><p>Explain generation plans and validate generated schema data for semantic consistency.</p></article>
+        <article><h3>Advisor artifacts</h3><p>Optionally create editable JSON plans and column tags before deterministic generation.</p></article>
         <article><h3>Recipes and CLI</h3><p>Package repeatable data generation scenarios as files or run them from the command line.</p></article>
       </div>
     </section>
@@ -294,6 +295,8 @@ usage.write.mode("overwrite").format("delta").save(
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/DOMAIN_PACKS.md"><strong>Domain packs</strong><span>Supported industry domains and table layouts.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SPARK_AND_DELTA.md"><strong>Spark and Delta</strong><span>Cluster usage, large data, and lakehouse outputs.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SPARK_DATABASE_WRITES.md"><strong>Spark database writes</strong><span>Databricks and PySpark writes to Snowflake and Azure SQL.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/advisors.md"><strong>Advisor layer</strong><span>Optional schema planning, column tagging, caching, and offline Ollama usage.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/plans.md"><strong>Plans and tags</strong><span>GenerationPlan, ColumnTags, and RealismReport artifact reference.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CLOUD_DEPLOYMENT.md"><strong>Cloud deployment</strong><span>AWS, Azure, GCP, Databricks, and storage guidance.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CDC.md"><strong>CDC</strong><span>Change data capture style events.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/ANOMALIES.md"><strong>Anomalies</strong><span>Data quality problems for testing tools and pipelines.</span></a>

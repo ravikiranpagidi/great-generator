@@ -12,7 +12,10 @@ from .api import (
     generate_history,
     generate_relational,
     get_domain_schema,
+    infer_generation_plan,
     list_domains,
+    review_realism,
+    tag_schema,
     validate_generated_data,
 )
 
@@ -28,7 +31,10 @@ __all__ = [
     "generate_history",
     "generate_relational",
     "get_domain_schema",
+    "infer_generation_plan",
     "list_domains",
+    "review_realism",
+    "tag_schema",
     "validate_generated_data",
 ]
 

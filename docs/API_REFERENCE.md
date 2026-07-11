@@ -15,6 +15,7 @@ generate_from_schema(
     realism="realistic",
     domain=None,
     custom_rules=None,
+    plan=None,
     realistic=None,
     validate=False,
     return_report=False,
@@ -82,10 +83,67 @@ Important optional parameters:
 
 - `domain`: optional preset such as `banking`, `retail`, `healthcare`, `insurance`, `hr`, or `education`
 - `custom_rules`: per-column overrides for values, min/max ranges, semantic type, prefixes, uniqueness, and date ranges
+- `plan`: optional `GenerationPlan` from `infer_generation_plan(...)`
 - `realistic`: set `False` for older placeholder-style values
 - `realism`: string mode, `"realistic"` or `"placeholder"`; `"clean"` maps to realistic, `"basic"` and `"simple"` map to placeholder
 - `validate`: optional post-generation data quality check
 - `return_report`: return `(dataframe, report)` when you want the validation report with the generated data
+
+## Advisor APIs
+
+Advisors are optional and run before generation. They produce JSON artifacts that can be inspected, edited, saved, and reused.
+
+```python
+from great_generator import generate_from_schema, infer_generation_plan
+
+schema = "customer_id int, customer_name string, email string"
+plan = infer_generation_plan(schema, advisor="none")
+df = generate_from_schema(schema, rows=1000, plan=plan)
+```
+
+### `infer_generation_plan(...)`
+
+Creates a `GenerationPlan` for a schema.
+
+```python
+infer_generation_plan(
+    schema,
+    advisor="none",
+    hints=None,
+    cache_path=".gg_cache/",
+    refresh_cache=False,
+)
+```
+
+### `tag_schema(...)`
+
+Creates `ColumnTags` for PII class, business semantic, and suggested masking.
+
+```python
+tag_schema(
+    schema,
+    advisor="none",
+    samples=None,
+    cache_path=".gg_cache/",
+    refresh_cache=False,
+)
+```
+
+### `review_realism(...)`
+
+Reviews a generated sample against a `GenerationPlan`.
+
+```python
+review_realism(
+    data,
+    plan,
+    advisor="none",
+    sample_size=500,
+    cache_path=".gg_cache/",
+)
+```
+
+`advisor="none"` is always offline and never reads API keys.
 
 ## `generate_relational(...)`
 

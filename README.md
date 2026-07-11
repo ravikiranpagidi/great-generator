@@ -94,6 +94,21 @@ The same semantic layer recognizes IDs, email addresses, phone numbers, addresse
 - simulate CDC records, anomalies, SCD2 history, dimensional models, and Data Vault models
 - export domain datasets to CSV, JSON, Parquet, and Delta
 
+## AI advisor layer
+
+Great Generator includes an optional advisor layer for design-time help with schema understanding, column tagging, and realism review. Advisors do not generate row data. They produce JSON artifacts, such as a `GenerationPlan` or `ColumnTags`, that you can inspect, edit, save, and review before generation.
+
+Generation remains deterministic. Given the same schema, plan, seed, and arguments, the generated output stays the same. The default is `advisor="none"`, which makes no model calls, reads no API keys, and works without network access.
+
+```python
+from great_generator import generate_from_schema, infer_generation_plan
+
+plan = infer_generation_plan("customer_id int, customer_name string", advisor="none")
+df = generate_from_schema("customer_id int, customer_name string", rows=100, plan=plan)
+```
+
+Online and offline advisors are separate from generation. Anthropic and Ollama are supported in this layer, while OpenAI and llama.cpp are reserved as clear stubs for later implementation. See [docs/advisors.md](docs/advisors.md) for offline Ollama usage, caching, prompt safety, and plan review. Advisor contribution can also be recorded in manifest metadata for auditability.
+
 ## Installation
 
 ```bash
@@ -105,6 +120,14 @@ Optional Spark and Delta dependencies:
 ```bash
 pip install "great-generator[spark]"
 pip install "great-generator[delta]"
+```
+
+Optional advisor dependencies:
+
+```bash
+pip install "great-generator[ai]"
+pip install "great-generator[anthropic]"
+pip install "great-generator[ollama]"
 ```
 
 Install with a hyphen and import with an underscore:
@@ -709,6 +732,7 @@ generate_from_schema(
     realism="realistic",
     domain=None,
     custom_rules=None,
+    plan=None,
     realistic=None,
     validate=False,
     return_report=False,
@@ -726,6 +750,7 @@ generate_from_schema(
 | `realism` | `"realistic"` or `"placeholder"`, including documented aliases |
 | `domain` | Optional semantic preset such as `banking`, `retail`, `healthcare`, `insurance`, `hr`, or `education` |
 | `custom_rules` | Per-column semantic, range, category, pattern, date, prefix, and null rules |
+| `plan` | Optional `GenerationPlan` from `infer_generation_plan(...)`; generation consumes the plan deterministically |
 | `realistic` | Backward-compatible boolean override; prefer `realism` in new code |
 | `validate` | Run post-generation validation where supported |
 | `return_report` | Return `(data, report)` instead of only data |
