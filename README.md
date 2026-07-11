@@ -109,6 +109,18 @@ df = generate_from_schema("customer_id int, customer_name string", rows=100, pla
 
 Online and offline advisors are separate from generation. Anthropic and Ollama are supported in this layer, while OpenAI and llama.cpp are reserved as clear stubs for later implementation. See [docs/advisors.md](docs/advisors.md) for offline Ollama usage, caching, prompt safety, and plan review. Advisor contribution can also be recorded in manifest metadata for auditability.
 
+## Release Highlights
+
+| Version | Release focus | What changed |
+|---|---|---|
+| 0.1.6 | AI advisor planning layer | Added optional design-time advisors for schema understanding, column tagging, and realism review. Added editable `GenerationPlan` and `ColumnTags` JSON artifacts, cached Anthropic and Ollama advisor calls, offline NoOp defaults, manifest metadata, and deterministic `plan=` support in `generate_from_schema`. |
+| 0.1.5 | Schema-first docs and Spark database writes | Repositioned schema generation as the primary workflow. Added a schema input support matrix, Databricks and PySpark examples for Snowflake and Azure SQL, and documentation site updates. |
+| 0.1.4 | PyPI author presentation | Added a PyPI-friendly Author section with project links. |
+| 0.1.3 | PyPI metadata visibility | Updated package metadata so PyPI shows author and maintainer details more clearly. |
+| 0.1.2 | Schema realism quality | Added semantic-field based schema generation, custom rules, validation reports, and realistic schema defaults. |
+| 0.1.1 | Advanced generation APIs | Added anomaly labels, SCD2 history, recipes, CLI, dimensional models, and Data Vault models. |
+| 0.1.0 | Initial public release | Added package identity, domain packs, Pandas and Spark engines, exports, CDC, anomalies, schema generation, and relational generation. |
+
 ## Installation
 
 ```bash

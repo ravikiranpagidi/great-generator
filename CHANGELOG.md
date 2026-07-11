@@ -4,7 +4,23 @@ All notable changes to this project will be documented here.
 
 This project follows semantic versioning once public releases begin.
 
+## Release summary
+
+| Version | Date | Release focus | Main changes |
+|---|---:|---|---|
+| 0.1.6 | 2026-07-11 | AI advisor planning layer | Optional design-time advisors, editable plans and tags, advisor cache, manifest metadata, and deterministic `plan=` support for schema generation |
+| 0.1.5 | 2026-06-28 | Schema-first docs and Spark database writes | Schema-first README, support matrix, Databricks and PySpark examples for Snowflake and Azure SQL, and documentation site updates |
+| 0.1.4 | 2026-06-21 | PyPI author presentation | Author section and project links for PyPI |
+| 0.1.3 | 2026-06-21 | PyPI metadata visibility | Package metadata updates for author and maintainer visibility |
+| 0.1.2 | 2026-06-21 | Schema realism quality | Semantic-field generation, custom rules, validation reports, and realistic schema defaults |
+| 0.1.1 | 2026-06-20 | Advanced generation APIs | Anomaly labels, SCD2 history, recipes, CLI, dimensional models, and Data Vault models |
+| 0.1.0 | 2026-06-19 | Initial public release | Package identity, domain packs, Pandas and Spark engines, exports, CDC, anomalies, schema generation, and relational generation |
+
 ## Unreleased
+
+## 0.1.6 - 2026-07-11
+
+AI advisor planning release.
 
 ### Added
 
@@ -13,6 +29,15 @@ This project follows semantic versioning once public releases begin.
 - `GenerationPlan` and `ColumnTags` as inspectable, editable JSON artifacts.
 - Manifest enrichment recording advisor contribution.
 - New extras: `[ai]`, `[anthropic]`, `[openai]`, `[ollama]`, `[llamacpp]`.
+
+### Changed
+
+- `generate_from_schema(...)` now accepts an optional `plan=` argument. Existing behavior is unchanged when `plan=None`.
+- README and API docs now describe the advisor layer, offline Ollama usage, caching, prompt safety, and plan review.
+
+### Fixed
+
+- Added a prompt package marker so advisor prompt files load correctly on Python 3.9.
 
 ## 0.1.5 - 2026-06-28
 
