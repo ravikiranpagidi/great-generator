@@ -288,7 +288,7 @@ def test_full_create_table_ddl_generates_one_pandas_dataframe_with_semantics():
 
 
 def test_multi_table_contract_can_generate_existing_simple_relationships():
-    contract = parse_ddl("""
+    ddl = """
         CREATE TABLE customers (customer_id BIGINT PRIMARY KEY, customer_name STRING);
         CREATE TABLE orders (
           order_id BIGINT PRIMARY KEY,
@@ -296,7 +296,8 @@ def test_multi_table_contract_can_generate_existing_simple_relationships():
           order_amount DECIMAL(10,2),
           FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
         )
-        """)
+        """
+    contract = parse_ddl(ddl)
 
     data = generate_from_schema(
         contract, rows={"customers": 4, "orders": 10}, realism="placeholder"
