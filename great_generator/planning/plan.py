@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from great_generator.schemas.models import DomainSchema, TableSchema
+from great_generator.schemas.models import ContractSchema, DomainSchema, TableSchema
 
 PLAN_VERSION = "1.0"
 VALID_SOURCES = {"advisor", "user_edit", "default"}
@@ -341,6 +341,10 @@ def schema_fingerprint(schema: Any) -> str:
 def canonical_schema(schema: Any) -> dict[str, Any]:
     """Return a stable JSON-safe schema description."""
 
+    if isinstance(schema, ContractSchema):
+        from great_generator.contracts.canonical import canonical_contract_dict
+
+        return canonical_contract_dict(schema)
     if isinstance(schema, DomainSchema):
         return {
             "kind": "domain",
@@ -364,6 +368,21 @@ def canonical_schema(schema: Any) -> dict[str, Any]:
 
 
 def schema_columns(schema: Any) -> list[dict[str, Any]]:
+    if isinstance(schema, ContractSchema):
+        contract_rows: list[dict[str, Any]] = []
+        for table_name, table in sorted(schema.tables.items(), key=lambda item: item[0]):
+            for column in table.columns:
+                contract_rows.append(
+                    {
+                        "table": table_name,
+                        "column": table_name + "." + column.name,
+                        "name": column.name,
+                        "dtype": column.dtype,
+                        "nullable": column.nullable,
+                        "description": column.description,
+                    }
+                )
+        return contract_rows
     if isinstance(schema, DomainSchema):
         rows: list[dict[str, Any]] = []
         for table_name, table in sorted(schema.tables.items(), key=lambda item: item[0]):

@@ -22,9 +22,50 @@ generate_from_schema(
 )
 ```
 
-Supported inputs are plain mappings, Pandas dtype mappings, Pandas DataFrames, compact DDL strings, PySpark `StructType`, PySpark DataFrames, `TableSchema`, and `DomainSchema`.
+Supported inputs are plain mappings, Pandas dtype mappings, Pandas DataFrames, compact DDL strings, parsed SQL DDL `ContractSchema` objects, PySpark `StructType`, PySpark DataFrames, `TableSchema`, and `DomainSchema`.
 
-See [SCHEMA_INPUTS.md](SCHEMA_INPUTS.md) for the exact support matrix and limitations.
+See [SCHEMA_INPUTS.md](SCHEMA_INPUTS.md) and [CONTRACTS_AND_DDL.md](CONTRACTS_AND_DDL.md) for the exact support matrix and limitations.
+
+## `parse_ddl(...)`
+
+Parses one or more SQL `CREATE TABLE` statements into a canonical `ContractSchema`. This is the contract-first entry point when your source of truth is database, warehouse, lakehouse, Spark, or Databricks DDL.
+
+```python
+from great_generator import generate_from_schema, parse_ddl
+
+ddl = """
+CREATE TABLE sales.customers (
+  customer_id BIGINT PRIMARY KEY,
+  customer_name STRING NOT NULL,
+  email VARCHAR(120) UNIQUE
+);
+
+CREATE TABLE sales.orders (
+  order_id BIGINT PRIMARY KEY,
+  customer_id BIGINT NOT NULL,
+  amount DECIMAL(12, 2),
+  FOREIGN KEY (customer_id) REFERENCES sales.customers(customer_id)
+)
+"""
+
+contract = parse_ddl(ddl, dialect="databricks", strict=True)
+print(contract.fingerprint())
+
+customers = generate_from_schema(contract.tables["sales.customers"], rows=1000)
+```
+
+Signature:
+
+```python
+parse_ddl(
+    ddl_text,
+    dialect="ansi",
+    strict=True,
+    name="ddl_contract",
+)
+```
+
+Supported dialect values are `"ansi"`, `"spark"`, and `"databricks"` for the documented subset. Strict mode raises `ContractParseError` for unsupported contract-affecting syntax. Permissive mode returns warnings only when the base contract can still be represented safely. Unknown type conversion and malformed keys remain errors.
 
 ## `generate_domain(...)`
 
@@ -54,12 +95,14 @@ Generates a single DataFrame or domain-shaped dictionary from schema metadata. S
 Supported inputs:
 
 - compact DDL strings such as `"id int, name string"`
+- SQL `CREATE TABLE` contracts created with `parse_ddl(...)`
 - Python mappings such as `{ "customer_name": "string", "age": "int" }`
 - empty pandas DataFrames with dtypes
 - PySpark `StructType`
 - PySpark DataFrames
 - `TableSchema`
 - `DomainSchema`
+- one-table or multi-table `ContractSchema`
 
 ```python
 df = generate_from_schema(

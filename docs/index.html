@@ -69,7 +69,7 @@ df = generate_from_schema(schema, rows=1000)</code></pre>
     <section class="signal-grid" aria-label="Key outcomes">
       <article>
         <strong>Schema-first</strong>
-        <span>Start from mappings, Pandas dtypes, compact DDL, or PySpark schemas.</span>
+        <span>Start from mappings, Pandas dtypes, compact DDL, full SQL DDL, or PySpark schemas.</span>
       </article>
       <article>
         <strong>DataFrame-first</strong>
@@ -167,6 +167,20 @@ df = generate_from_schema(
 )</code></pre>
         </article>
         <article class="example-card">
+          <h3>Parse full SQL DDL</h3>
+          <pre><code>from great_generator import generate_from_schema, parse_ddl
+
+contract = parse_ddl("""
+CREATE TABLE customers (
+  customer_id BIGINT PRIMARY KEY,
+  customer_name STRING,
+  email STRING
+)
+""", dialect="databricks")
+
+df = generate_from_schema(contract, rows=1000)</code></pre>
+        </article>
+        <article class="example-card">
           <h3>Generate banking CDC records</h3>
           <pre><code>from great_generator import generate_cdc
 
@@ -214,6 +228,7 @@ data["transactions"].write.mode("overwrite").parquet(
       <div class="feature-grid">
         <article><h3>Prebuilt domains</h3><p>Generate complete industry datasets with related tables and realistic business behavior.</p></article>
         <article><h3>Referential integrity</h3><p>Parent tables are generated before child tables, with valid primary keys and foreign keys by default.</p></article>
+        <article><h3>Contract-first DDL</h3><p>Parse SQL CREATE TABLE DDL into canonical contracts with keys, relationships, stable hashes, and diagnostics.</p></article>
         <article><h3>Semantic schema generation</h3><p>Name-like, date-like, amount-like, status-like, ID-like, and domain-specific fields are detected from column names.</p></article>
         <article><h3>Pandas and Spark</h3><p>Return the right DataFrame type for your engine, then write through native DataFrame APIs.</p></article>
         <article><h3>Export helpers</h3><p>CSV, JSON, Parquet, and Delta convenience exports with table-per-folder output.</p></article>
@@ -295,6 +310,7 @@ usage.write.mode("overwrite").format("delta").save(
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/DOMAIN_PACKS.md"><strong>Domain packs</strong><span>Supported industry domains and table layouts.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SPARK_AND_DELTA.md"><strong>Spark and Delta</strong><span>Cluster usage, large data, and lakehouse outputs.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SPARK_DATABASE_WRITES.md"><strong>Spark database writes</strong><span>Databricks and PySpark writes to Snowflake and Azure SQL.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CONTRACTS_AND_DDL.md"><strong>Contracts and DDL</strong><span>Canonical contracts, parse_ddl, stable hashes, and SQL CREATE TABLE examples.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/advisors.md"><strong>Advisor layer</strong><span>Optional schema planning, column tagging, caching, and offline Ollama usage.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/plans.md"><strong>Plans and tags</strong><span>GenerationPlan, ColumnTags, and RealismReport artifact reference.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CLOUD_DEPLOYMENT.md"><strong>Cloud deployment</strong><span>AWS, Azure, GCP, Databricks, and storage guidance.</span></a>

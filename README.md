@@ -113,6 +113,7 @@ Online and offline advisors are separate from generation. Anthropic and Ollama a
 
 | Version | Release focus | What changed |
 |---|---|---|
+| Unreleased | Contract-first SQL DDL ingestion | Added canonical contracts, `parse_ddl(...)`, stable contract hashing, structured parser diagnostics, and tested ANSI/Spark/Databricks `CREATE TABLE` ingestion for the documented subset. |
 | 0.1.6 | AI advisor planning layer | Added optional design-time advisors for schema understanding, column tagging, and realism review. Added editable `GenerationPlan` and `ColumnTags` JSON artifacts, cached Anthropic and Ollama advisor calls, offline NoOp defaults, manifest metadata, and deterministic `plan=` support in `generate_from_schema`. |
 | 0.1.5 | Schema-first docs and Spark database writes | Repositioned schema generation as the primary workflow. Added a schema input support matrix, Databricks and PySpark examples for Snowflake and Azure SQL, and documentation site updates. |
 | 0.1.4 | PyPI author presentation | Added a PyPI-friendly Author section with project links. |
@@ -148,7 +149,7 @@ Install with a hyphen and import with an underscore:
 import great_generator
 ```
 
-The base package supports Python 3.9 and later and installs Pandas, NumPy, PyArrow, and Faker. PySpark and Delta Lake remain optional.
+The base package supports Python 3.9 and later and installs Pandas, NumPy, PyArrow, Faker, and SQLGlot for SQL DDL parsing. PySpark and Delta Lake remain optional.
 
 ## Quick Start: Generate Data from Schema
 
@@ -227,7 +228,7 @@ The table below reflects the current implementation, not the long-term roadmap.
 | Pandas dtype mapping | `df.dtypes.to_dict()` | Pandas and notebook workflows | **Supported** |
 | Pandas DataFrame schema | empty or populated `DataFrame` | Preserve Pandas column dtypes | **Supported** |
 | Compact DDL string | `"id int, name string"` | SQL-like and Spark-style definitions | **Supported** |
-| Full SQL `CREATE TABLE` DDL | `CREATE TABLE ...` | Database and warehouse teams | **Planned** |
+| Full SQL `CREATE TABLE` DDL | `CREATE TABLE ...` | Database, warehouse, lakehouse, and contract-first teams | **Supported** for documented ANSI, Spark, and Databricks subset |
 | PySpark `StructType` | `StructType([...])` | Databricks, Fabric, Synapse, EMR, Spark | **Supported** for common scalar types; nested complex generation is limited |
 | PySpark DataFrame | empty or existing Spark DataFrame | Infer schema and Spark session | **Supported** |
 | `TableSchema` | library schema object | Typed library extensions | **Supported** |
@@ -263,7 +264,7 @@ employees = generate_from_schema(schema, rows=500, domain="hr")
 
 ### 2. Compact DDL String
 
-Compact column definitions are supported. A full `CREATE TABLE` statement is not yet accepted.
+Compact column definitions are supported when you want a fast one-table schema without table-level SQL metadata. Use full `CREATE TABLE` DDL when you want a canonical contract with table names, keys, constraints, and parser diagnostics.
 
 ```python
 from great_generator import generate_from_schema
@@ -283,7 +284,83 @@ df = generate_from_schema(
 )
 ```
 
-### 3. Pandas dtype Mapping
+### 3. Full SQL `CREATE TABLE` DDL
+
+Use `parse_ddl` when your source of truth is database, warehouse, lakehouse, or Spark SQL DDL. It returns a canonical contract that preserves table names, column order, normalized types, primary keys, foreign keys, unique constraints, checks, defaults, comments, and selected Spark/Databricks storage metadata.
+
+```python
+from great_generator import generate_from_schema, parse_ddl
+
+ddl = """
+CREATE TABLE sales.customers (
+  customer_id BIGINT PRIMARY KEY,
+  customer_name STRING NOT NULL,
+  email VARCHAR(120) UNIQUE,
+  signup_date DATE,
+  created_at TIMESTAMP DEFAULT current_timestamp()
+);
+
+CREATE TABLE sales.orders (
+  order_id BIGINT PRIMARY KEY,
+  customer_id BIGINT NOT NULL,
+  order_amount DECIMAL(12, 2),
+  order_date DATE,
+  CONSTRAINT fk_orders_customers
+    FOREIGN KEY (customer_id) REFERENCES sales.customers(customer_id)
+)
+"""
+
+contract = parse_ddl(ddl, dialect="databricks")
+print(contract.fingerprint())
+print(contract.tables["sales.orders"].foreign_keys[0].parent_table)
+```
+
+For one-table DDL, you can generate directly from the parsed contract:
+
+```python
+customer_contract = parse_ddl(
+    """
+    CREATE TABLE customers (
+      customer_id BIGINT PRIMARY KEY,
+      customer_name STRING,
+      email STRING,
+      signup_date DATE
+    )
+    """,
+    dialect="databricks",
+)
+
+df = generate_from_schema(customer_contract, rows=1000)
+```
+
+For multiple related tables, parsing support is complete for the documented constraint metadata. Existing simple single-column relationships can generate through `generate_from_schema(contract, rows={...})`; composite-key and cyclic relational generation are parsed today and planned for a later relational milestone.
+
+Supported DDL subset today:
+
+| Construct | Status | Notes |
+|---|---|---|
+| One or more `CREATE TABLE` statements | Supported | Non-table statements are rejected |
+| Schema-qualified names | Supported | Unquoted identifiers are normalized to lowercase; quoted identifiers preserve case and spaces |
+| Scalar SQL, Spark, Databricks types | Supported | `INT`, `BIGINT`, `STRING`, `VARCHAR`, `DECIMAL`, `DOUBLE`, `BOOLEAN`, `DATE`, `TIMESTAMP`, `TIMESTAMP_NTZ`, `BINARY` |
+| Inline and table primary keys | Supported | Single and composite metadata is preserved |
+| Inline and table foreign keys | Supported | Single, composite, multiple, and self-referencing metadata is preserved |
+| Unique constraints | Supported | Inline and table-level |
+| Check constraints | Supported as metadata | Used for contract visibility, not row-level enforcement yet |
+| Defaults and comments | Supported as metadata | Preserved for inspection and planning |
+| `USING DELTA`, `PARTITIONED BY` | Supported as metadata | Useful in Databricks/Spark contracts |
+| Identity/generated columns, CTAS, unsupported types | Explicit diagnostics | Strict mode fails; permissive mode only warns when safe |
+
+```python
+from great_generator.contracts import ContractParseError
+
+try:
+    contract = parse_ddl(ddl, dialect="databricks", strict=True)
+except ContractParseError as exc:
+    for diagnostic in exc.diagnostics:
+        print(diagnostic.construct, diagnostic.message)
+```
+
+### 4. Pandas dtype Mapping
 
 ```python
 import pandas as pd
@@ -303,7 +380,7 @@ sample_df = pd.DataFrame(
 df = generate_from_schema(sample_df.dtypes.to_dict(), rows=1000)
 ```
 
-### 4. Pandas DataFrame Schema
+### 5. Pandas DataFrame Schema
 
 Pass the DataFrame itself when you want Great Generator to infer and cast back to its dtypes:
 
@@ -313,7 +390,7 @@ df = generate_from_schema(sample_df, rows=1000)
 
 The input rows are not copied. The DataFrame is used as a schema source.
 
-### 5. PySpark StructType
+### 6. PySpark StructType
 
 ```python
 from pyspark.sql.types import (
@@ -345,7 +422,7 @@ In a notebook or cluster with an active Spark session, `engine="spark"` resolves
 
 Current limitation: single-table Spark schema generation creates values locally and then creates a Spark DataFrame. Use environment-appropriate row counts. Native distributed generation for this API is planned; the built-in Spark domain engine already uses Spark-native generation paths.
 
-### 6. PySpark DataFrame Schema
+### 7. PySpark DataFrame Schema
 
 ```python
 empty_spark_df = spark.createDataFrame([], schema)
@@ -355,7 +432,7 @@ spark_df = generate_from_schema(empty_spark_df, rows=1000)
 
 The input DataFrame supplies both the schema and Spark session. The returned value is a Spark DataFrame and supports normal Spark writers.
 
-### 7. Library TableSchema
+### 8. Library TableSchema
 
 ```python
 from great_generator import generate_from_schema
@@ -753,7 +830,7 @@ generate_from_schema(
 
 | Parameter | Description |
 |---|---|
-| `schema` | Supported schema object or definition |
+| `schema` | Supported schema object or definition, including a parsed `ContractSchema` from `parse_ddl(...)` |
 | `rows` | Integer row count for one table; mapping or integer for `DomainSchema` |
 | `seed` | Optional integer for reproducible generation |
 | `engine` | `"auto"`, `"pandas"`, or `"spark"` |
@@ -769,10 +846,10 @@ generate_from_schema(
 
 Return behavior:
 
-- Python mappings, compact DDL, Pandas inputs, and `TableSchema` return a Pandas DataFrame by default.
+- Python mappings, compact DDL, one-table SQL DDL contracts, Pandas inputs, and `TableSchema` return a Pandas DataFrame by default.
 - `engine="spark"`, an explicit SparkSession, or a PySpark DataFrame returns a Spark DataFrame.
 - A PySpark `StructType` returns Spark when an active or explicit SparkSession is available; otherwise auto mode resolves to Pandas.
-- `DomainSchema` returns a dictionary of table-name to DataFrame.
+- `DomainSchema` and multi-table `ContractSchema` inputs return a dictionary of table-name to DataFrame.
 
 ## Later: `generate_domain` for Prebuilt Learning and Demo Datasets
 
@@ -827,7 +904,6 @@ See the [documentation site](https://ravikiranpagidi.github.io/great-generator/)
 The following are roadmap items and are not accepted by `generate_from_schema` today:
 
 - inline rich schema metadata
-- full dialect-aware SQL `CREATE TABLE` parsing
 - JSON Schema and JSON Schema files
 - YAML schema profiles
 - column-name-only lists with type inference
@@ -835,6 +911,7 @@ The following are roadmap items and are not accepted by `generate_from_schema` t
 - Pydantic models
 - Python dataclasses
 - richer nested Spark and JSON structures
+- additional contract inputs such as JSON Schema, dbt schema files, Avro, OpenAPI, and catalog metadata
 - Spark-native distributed generation for arbitrary schemas
 
 Tracking these as explicit roadmap items keeps the current API trustworthy while leaving a clear path for contributors.
@@ -846,6 +923,8 @@ Tracking these as explicit roadmap items keeps the current API trustworthy while
 - Semantic inference depends on recognizable field names and declared data types. Use `custom_rules` when intent is ambiguous.
 - Single-table Spark schema generation currently creates values locally before creating a Spark DataFrame.
 - Nested complex Spark types have limited generation support.
+- Full SQL DDL ingestion supports the documented ANSI, Spark, and Databricks subset. It does not claim complete coverage for every database dialect.
+- Composite and cyclic relationship metadata is parsed from DDL, but complete relational generation for those advanced cases is planned for a later milestone.
 - Cloud storage and database access require separate connectors, credentials, permissions, and runtime configuration.
 - Domain packs are engineered simulations, not statistical models fitted to source data.
 

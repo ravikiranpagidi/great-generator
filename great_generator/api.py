@@ -27,7 +27,7 @@ from great_generator.schemas.generation import (
     is_pyspark_struct_type,
     normalize_single_table_schema,
 )
-from great_generator.schemas.models import DomainSchema, TableSchema
+from great_generator.schemas.models import ContractSchema, DomainSchema, TableSchema
 from great_generator.schemas.relational import relational_schema_from_specs
 from great_generator.schemas.semantic import explain_generation_plan as _explain_generation_plan
 from great_generator.schemas.semantic import validate_generated_data as _validate_generated_data
@@ -106,6 +106,20 @@ def get_domain_schema(domain: str) -> DomainSchema:
     except KeyError as exc:
         raise ValueError(f"Unknown domain '{domain}'. Available domains: {list_domains()}") from exc
     return module.schema()
+
+
+def parse_ddl(
+    ddl_text: str,
+    *,
+    dialect: str | None = "ansi",
+    strict: bool = True,
+    name: str = "ddl_contract",
+) -> ContractSchema:
+    """Parse SQL CREATE TABLE DDL into a canonical contract."""
+
+    from great_generator.contracts.ddl import parse_ddl as _parse_ddl
+
+    return _parse_ddl(ddl_text, dialect=dialect, strict=strict, name=name)
 
 
 def generate_domain(
@@ -466,7 +480,7 @@ def generate_data_vault_model(
 
 
 def generate_from_schema(
-    schema: DomainSchema | TableSchema | pd.DataFrame | str | Any,
+    schema: ContractSchema | DomainSchema | TableSchema | pd.DataFrame | str | Any,
     rows: Mapping[str, int] | int = 100,
     seed: int | None = None,
     engine: str = "auto",
@@ -503,6 +517,42 @@ def generate_from_schema(
     else:
         validate_engine(engine)
         resolved_engine = engine
+
+    if isinstance(schema, str) and _looks_like_create_table_ddl(schema):
+        schema = parse_ddl(schema, dialect="ansi", strict=True, name=table_name)
+
+    if isinstance(schema, ContractSchema):
+        if len(schema.tables) == 1 and not isinstance(rows, Mapping):
+            table = next(iter(schema.tables.values()))
+            return generate_from_schema(
+                table,
+                rows=int(rows),
+                seed=seed,
+                engine=resolved_engine,
+                spark=spark,
+                table_name=table.name,
+                realism=effective_realism,
+                domain=domain,
+                custom_rules=custom_rules,
+                plan=plan,
+                validate=validate,
+                return_report=return_report,
+            )
+        domain_schema = schema.to_domain_schema()
+        return generate_from_schema(
+            domain_schema,
+            rows=rows,
+            seed=seed,
+            engine=resolved_engine,
+            spark=spark,
+            table_name=table_name,
+            realism=effective_realism,
+            domain=domain,
+            custom_rules=custom_rules,
+            plan=plan,
+            validate=validate,
+            return_report=return_report,
+        )
 
     if isinstance(schema, DomainSchema):
         generated = generate_domain_schema_pandas(schema, rows=rows, seed=seed)
@@ -580,23 +630,39 @@ def generate_from_schema(
 
 def validate_generated_data(
     records: Any,
-    schema: TableSchema | Mapping[str, str] | str | pd.DataFrame | None = None,
+    schema: ContractSchema | TableSchema | Mapping[str, str] | pd.DataFrame | str | None = None,
     rules: Mapping[str, Mapping[str, Any]] | None = None,
     strict: bool = False,
 ) -> dict[str, Any]:
     """Validate generated schema data for common semantic quality checks."""
 
-    return _validate_generated_data(records, schema=schema, rules=rules, strict=strict)
+    schema_for_validation: TableSchema | Mapping[str, str] | str | pd.DataFrame | None
+    if isinstance(schema, ContractSchema):
+        schema_for_validation = (
+            next(iter(schema.tables.values())) if len(schema.tables) == 1 else None
+        )
+    else:
+        schema_for_validation = schema
+    return _validate_generated_data(
+        records, schema=schema_for_validation, rules=rules, strict=strict
+    )
 
 
 def explain_generation_plan(
-    schema: TableSchema | Mapping[str, str] | str | pd.DataFrame | Any,
+    schema: ContractSchema | TableSchema | Mapping[str, str] | pd.DataFrame | str | Any,
     realism: str = "realistic",
     custom_rules: Mapping[str, Mapping[str, Any]] | None = None,
     table_name: str = "sample",
 ) -> dict[str, Any]:
     """Explain the semantic generation plan for a single-table schema."""
 
+    if isinstance(schema, ContractSchema):
+        if len(schema.tables) != 1:
+            raise ValueError(
+                "explain_generation_plan expects a one-table contract. "
+                "Pass one table from contract.tables for multi-table contracts."
+            )
+        schema = next(iter(schema.tables.values()))
     table, _ = normalize_single_table_schema(schema, table_name=table_name)
     return _explain_generation_plan(
         table,
@@ -630,9 +696,9 @@ def _validation_report_for_result(
         passed = True
         for table_name, frame in result.items():
             if isinstance(frame, pd.DataFrame):
-                table_schema = (
-                    schema.tables.get(table_name) if isinstance(schema, DomainSchema) else None
-                )
+                table_schema = None
+                if isinstance(schema, (DomainSchema, ContractSchema)):
+                    table_schema = schema.tables.get(table_name)
                 table_report = _validate_generated_data(frame, schema=table_schema, rules=rules)
                 table_reports[table_name] = table_report
                 passed = passed and bool(table_report["passed"])
@@ -661,6 +727,13 @@ def _has_spark_context(schema: Any, spark: Any | None) -> bool:
     if is_pyspark_dataframe(schema):
         return True
     return is_pyspark_struct_type(schema) and active_spark_session() is not None
+
+
+def _looks_like_create_table_ddl(value: str) -> bool:
+    normalized = " ".join(value.strip().lower().split())
+    return normalized.startswith("create table ") or normalized.startswith(
+        "create or replace table "
+    )
 
 
 def _rules_with_plan(

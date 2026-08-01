@@ -12,7 +12,7 @@ import pandas as pd
 
 from great_generator.core.realism import normalize_realism_mode, validate_realism
 from great_generator.relationships.graph import topological_sort
-from great_generator.schemas.models import ColumnSpec, DomainSchema, TableSchema
+from great_generator.schemas.models import ColumnSpec, ContractSchema, DomainSchema, TableSchema
 from great_generator.schemas.semantic import generate_semantic_table
 from great_generator.utils.random import get_rng
 
@@ -122,16 +122,33 @@ def generate_single_table_spark(
 
 
 def normalize_single_table_schema(
-    schema: TableSchema | pd.DataFrame | str | Mapping[str, str] | Any,
+    schema: ContractSchema | TableSchema | pd.DataFrame | str | Mapping[str, str] | Any,
     table_name: str = "sample",
 ) -> tuple[TableSchema, Any]:
     """Normalize supported single-table schema inputs to TableSchema metadata."""
 
+    if isinstance(schema, ContractSchema):
+        if len(schema.tables) != 1:
+            raise TypeError(
+                "A ContractSchema with multiple tables cannot be normalized as a single table. "
+                "Pass one table from contract.tables or use generate_from_schema(contract)."
+            )
+        return next(iter(schema.tables.values())), schema
     if isinstance(schema, TableSchema):
         return schema, schema
     if isinstance(schema, pd.DataFrame):
         return table_schema_from_pandas(schema, table_name=table_name), schema
     if isinstance(schema, str):
+        if _looks_like_create_table_ddl(schema):
+            from great_generator.contracts.ddl import parse_ddl
+
+            contract = parse_ddl(schema, name=table_name)
+            if len(contract.tables) != 1:
+                raise TypeError(
+                    "A multi-table CREATE TABLE DDL contract cannot be normalized as a single "
+                    "table. Use parse_ddl(...) or generate_from_schema(contract)."
+                )
+            return next(iter(contract.tables.values())), contract
         return table_schema_from_ddl(schema, table_name=table_name), schema
     if isinstance(schema, Mapping):
         return table_schema_from_mapping(schema, table_name=table_name), schema
@@ -460,6 +477,13 @@ def _strip_nullability(dtype: str) -> str:
         if index != -1:
             return dtype[:index].strip()
     return dtype.strip()
+
+
+def _looks_like_create_table_ddl(value: str) -> bool:
+    normalized = " ".join(value.strip().lower().split())
+    return normalized.startswith("create table ") or normalized.startswith(
+        "create or replace table "
+    )
 
 
 def _records_for_spark_schema(frame: pd.DataFrame, schema: Any) -> list[dict[str, Any]]:

@@ -8,6 +8,7 @@ This project follows semantic versioning once public releases begin.
 
 | Version | Date | Release focus | Main changes |
 |---|---:|---|---|
+| Unreleased | TBD | Contract-first SQL DDL ingestion | Canonical contracts, `parse_ddl(...)`, stable contract hashing, structured parser diagnostics, and documented ANSI/Spark/Databricks `CREATE TABLE` subset |
 | 0.1.6 | 2026-07-11 | AI advisor planning layer | Optional design-time advisors, editable plans and tags, advisor cache, manifest metadata, and deterministic `plan=` support for schema generation |
 | 0.1.5 | 2026-06-28 | Schema-first docs and Spark database writes | Schema-first README, support matrix, Databricks and PySpark examples for Snowflake and Azure SQL, and documentation site updates |
 | 0.1.4 | 2026-06-21 | PyPI author presentation | Author section and project links for PyPI |
@@ -17,6 +18,25 @@ This project follows semantic versioning once public releases begin.
 | 0.1.0 | 2026-06-19 | Initial public release | Package identity, domain packs, Pandas and Spark engines, exports, CDC, anomalies, schema generation, and relational generation |
 
 ## Unreleased
+
+### Added
+
+- Added `ContractSchema` as a canonical contract container for schema-qualified multi-table metadata.
+- Added stable canonical contract serialization and SHA-256 contract fingerprints.
+- Added `parse_ddl(...)` for SQL `CREATE TABLE` ingestion using SQLGlot.
+- Added structured DDL parser diagnostics with strict and permissive parsing modes.
+- Added support for the documented ANSI, Spark, and Databricks scalar DDL subset, including primary keys, composite keys, foreign keys, composite foreign keys, unique constraints, check constraints, defaults, comments, and selected Databricks/Spark metadata.
+- Added generation integration so one-table parsed DDL contracts can generate DataFrames through `generate_from_schema(...)`.
+- Added contract and DDL documentation, ADRs, an example, and parser tests.
+
+### Changed
+
+- Extended existing `ColumnSpec`, `TableSchema`, `DomainSchema`, and `ForeignKey` models without removing their existing public constructors.
+- Updated planning and no-op advisor paths to understand `ContractSchema`.
+
+### Deferred
+
+- Full composite-key and cyclic relational generation is deferred to a later relational milestone. M1A parses that metadata but does not claim complete generation strategy support for those advanced cases.
 
 ## 0.1.6 - 2026-07-11
 

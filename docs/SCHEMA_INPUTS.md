@@ -9,14 +9,14 @@
 | Plain Python mapping | Supported | Values are data types, for example `{"age": "int"}` |
 | Pandas dtype mapping | Supported | `df.dtypes.to_dict()` can be passed directly |
 | Pandas DataFrame | Supported | Empty and populated frames can provide column names and dtypes |
-| Compact DDL | Supported | Column list such as `"id int, name string"`; not a full SQL statement |
+| Compact DDL | Supported | Column list such as `"id int, name string"` for fast one-table generation |
 | Spark `struct<...>` text | Supported | Parsed as compact DDL |
 | PySpark `StructType` | Supported | Common scalar fields are preserved; requires an active or explicit SparkSession for Spark output |
 | PySpark DataFrame | Supported | Schema and SparkSession are inferred from the input |
 | `TableSchema` | Supported | Native typed schema object |
 | `DomainSchema` | Supported | Returns a dictionary of generated tables |
 | Rich inline metadata mapping | Partially supported | Put metadata in `custom_rules` today; inline field objects are planned |
-| Full SQL `CREATE TABLE` | Planned | Dialect-aware DDL parsing is not implemented |
+| Full SQL `CREATE TABLE` | Supported | Use `parse_ddl(...)` for the documented ANSI, Spark, and Databricks subset |
 | JSON Schema | Planned | JSON recipe files are a separate feature |
 | YAML schema profile | Planned | Simple YAML dataset recipes are supported, not YAML schema inputs |
 | Column-name list | Planned | Types are currently required |
@@ -71,7 +71,49 @@ df = generate_from_schema(
 )
 ```
 
-Supported compact forms include `name type`, `name:type`, and Spark-style `struct<name:type,...>`. Full `CREATE TABLE` statements are not accepted.
+Supported compact forms include `name type`, `name:type`, and Spark-style `struct<name:type,...>`. Compact DDL is intentionally lightweight and does not carry table-level metadata. Use full SQL DDL when you need keys, constraints, schema-qualified names, or canonical hashing.
+
+## Full SQL CREATE TABLE DDL
+
+Use `parse_ddl` when your contract is SQL DDL rather than a compact column list. The parser uses SQLGlot and supports the documented ANSI, Spark, and Databricks subset.
+
+```python
+from great_generator import generate_from_schema, parse_ddl
+
+contract = parse_ddl(
+    """
+    CREATE TABLE sales.customers (
+      customer_id BIGINT PRIMARY KEY,
+      customer_name STRING NOT NULL,
+      email VARCHAR(120) UNIQUE,
+      created_at TIMESTAMP DEFAULT current_timestamp()
+    )
+    """,
+    dialect="databricks",
+)
+
+df = generate_from_schema(contract, rows=1000)
+```
+
+For multiple tables, `parse_ddl` returns a `ContractSchema` containing each table keyed by its qualified name. Simple single-column relationships can generate through the existing relational path. Composite and cyclic relationships are parsed as metadata today, with full advanced relational generation planned separately.
+
+```python
+contract = parse_ddl(
+    """
+    CREATE TABLE customers (customer_id BIGINT PRIMARY KEY, customer_name STRING);
+    CREATE TABLE orders (
+      order_id BIGINT PRIMARY KEY,
+      customer_id BIGINT NOT NULL,
+      amount DECIMAL(12, 2),
+      FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+    )
+    """
+)
+
+data = generate_from_schema(contract, rows={"customers": 1000, "orders": 5000})
+```
+
+`strict=True` fails on unsupported contract-affecting syntax. `strict=False` can return warnings only when keys, relationships, nullability, and type conversion are still safe.
 
 ## PySpark StructType
 
@@ -115,9 +157,9 @@ Supported rules are `type`, `min`, `max`, `values`, `weighted_values`, `prefix`,
 
 ## Output behavior
 
-- Mapping, compact DDL, Pandas, and `TableSchema` inputs return a Pandas DataFrame by default.
+- Mapping, compact DDL, one-table SQL DDL contracts, Pandas, and `TableSchema` inputs return a Pandas DataFrame by default.
 - Spark context or `engine="spark"` returns a Spark DataFrame.
 - A PySpark DataFrame carries its own schema and Spark session.
-- `DomainSchema` returns a dictionary of table-name to DataFrame.
+- `DomainSchema` and multi-table `ContractSchema` inputs return a dictionary of table-name to DataFrame.
 
 The returned DataFrame remains yours to write to CSV, JSON, Parquet, Delta, a database, or cloud storage.

@@ -78,6 +78,7 @@ dependencies = [
   "pandas>=1.5",
   "pyarrow>=12.0",
   "faker>=25.0.0",
+  "sqlglot>=25.0.0",
 ]
 
 [project.optional-dependencies]
