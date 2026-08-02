@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+title: "Great Generator"
+message: "If Great Generator supports your demo, research, teaching, testing, or engineering work, please cite it."
+type: software
+authors:
+  - family-names: "Pagidi"
+    given-names: "Ravi Kiran"
+    email: "ravikiran.pagidi@gmail.com"
+repository-code: "https://github.com/ravikiranpagidi/great-generator"
+url: "https://ravikiranpagidi.github.io/great-generator/"
+abstract: "Developer-first synthetic data generation for schema-driven, relational, domain, Pandas, and Spark workflows."
+keywords:
+  - synthetic-data
+  - data-engineering
+  - pandas
+  - spark
+  - data-quality
+  - test-data
+  - relational-data
+license: MIT
+version: "0.1.6"
+date-released: "2026-07-11"

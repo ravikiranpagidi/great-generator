@@ -13,7 +13,7 @@
 
 **Have a schema but no safe test data?**
 
-Use Great Generator to create realistic, fake, non-production data directly from your schema for development, QA, SIT, UAT, sandboxes, ETL validation, analytics, demos, and data engineering workflows.
+Use Great Generator to create realistic, synthetic, non-production data directly from your schema for development, QA, SIT, UAT, sandboxes, ETL validation, analytics, demos, and data engineering workflows.
 
 ```python
 from great_generator import generate_from_schema
@@ -90,6 +90,8 @@ The same semantic layer recognizes IDs, email addresses, phone numbers, addresse
 - validate generated values and cross-field consistency
 - return Pandas or Spark DataFrames for downstream writes
 - generate custom relational parent-child tables with valid keys
+- generate dimensional/star-schema examples from SQL DDL contracts
+- save generation manifests for reproducibility and provenance
 - use prebuilt enterprise domain packs
 - simulate CDC records, anomalies, SCD2 history, dimensional models, and Data Vault models
 - export domain datasets to CSV, JSON, Parquet, and Delta
@@ -113,7 +115,7 @@ Online and offline advisors are separate from generation. Anthropic and Ollama a
 
 | Version | Release focus | What changed |
 |---|---|---|
-| Unreleased | Contract-first SQL DDL ingestion | Added canonical contracts, `parse_ddl(...)`, stable contract hashing, structured parser diagnostics, and tested ANSI/Spark/Databricks `CREATE TABLE` ingestion for the documented subset. |
+| Unreleased | Contract-first SQL DDL ingestion and launch hardening | Added canonical contracts, `parse_ddl(...)`, stable contract hashing, structured parser diagnostics, a runnable retail star-schema example, generation manifest guidance, determinism docs, benchmark methodology, and citation metadata. |
 | 0.1.6 | AI advisor planning layer | Added optional design-time advisors for schema understanding, column tagging, and realism review. Added editable `GenerationPlan` and `ColumnTags` JSON artifacts, cached Anthropic and Ollama advisor calls, offline NoOp defaults, manifest metadata, and deterministic `plan=` support in `generate_from_schema`. |
 | 0.1.5 | Schema-first docs and Spark database writes | Repositioned schema generation as the primary workflow. Added a schema input support matrix, Databricks and PySpark examples for Snowflake and Azure SQL, and documentation site updates. |
 | 0.1.4 | PyPI author presentation | Added a PyPI-friendly Author section with project links. |
@@ -121,6 +123,16 @@ Online and offline advisors are separate from generation. Anthropic and Ollama a
 | 0.1.2 | Schema realism quality | Added semantic-field based schema generation, custom rules, validation reports, and realistic schema defaults. |
 | 0.1.1 | Advanced generation APIs | Added anomaly labels, SCD2 history, recipes, CLI, dimensional models, and Data Vault models. |
 | 0.1.0 | Initial public release | Added package identity, domain packs, Pandas and Spark engines, exports, CDC, anomalies, schema generation, and relational generation. |
+
+## Useful Guides
+
+- [Schema inputs](docs/SCHEMA_INPUTS.md)
+- [SQL contracts and DDL](docs/CONTRACTS_AND_DDL.md)
+- [Determinism and reproducibility](docs/DETERMINISM.md)
+- [Generation manifest](docs/GENERATION_MANIFEST.md)
+- [Provenance and safety notes](docs/PROVENANCE.md)
+- [Benchmark methodology](docs/BENCHMARKS.md)
+- [Spark and database writes](docs/SPARK_DATABASE_WRITES.md)
 
 ## Installation
 
@@ -216,6 +228,27 @@ orders_df.to_parquet("orders.parquet", index=False)
 ```
 
 Select `engine="spark"` in a Spark notebook to receive Spark DataFrames instead of Pandas DataFrames.
+
+## Flagship Example: Retail Star Schema from SQL DDL
+
+If you want a demo that feels closer to an analytics engineering or lakehouse workload, start with the retail star-schema example:
+
+```bash
+python examples/06-retail-star-schema/generate.py
+python examples/06-retail-star-schema/validate.py
+```
+
+It parses a SQL DDL contract, generates related dimension and fact tables, applies deterministic retail behavior, validates primary keys and foreign keys, writes table-per-folder outputs, and creates a generation manifest.
+
+```text
+dim_customer
+dim_product
+dim_store
+dim_date
+fact_sales
+```
+
+See [`examples/06-retail-star-schema`](examples/06-retail-star-schema/README.md).
 
 ## Supported Schema Input Types
 

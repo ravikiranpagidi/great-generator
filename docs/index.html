@@ -37,7 +37,7 @@
         <p class="eyebrow">Schema-driven synthetic data for engineering teams</p>
         <h1>Have a schema but no safe test data?</h1>
         <p class="lede">
-          Great Generator creates realistic, fake, non-production data from your schema for
+          Great Generator creates realistic, synthetic, non-production data from your schema for
           lower environments, pipeline testing, QA, analytics, Pandas, and Spark.
         </p>
         <div class="hero-actions">
@@ -310,8 +310,12 @@ usage.write.mode("overwrite").format("delta").save(
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/DOMAIN_PACKS.md"><strong>Domain packs</strong><span>Supported industry domains and table layouts.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SPARK_AND_DELTA.md"><strong>Spark and Delta</strong><span>Cluster usage, large data, and lakehouse outputs.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SPARK_DATABASE_WRITES.md"><strong>Spark database writes</strong><span>Databricks and PySpark writes to Snowflake and Azure SQL.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CONTRACTS_AND_DDL.md"><strong>Contracts and DDL</strong><span>Canonical contracts, parse_ddl, stable hashes, and SQL CREATE TABLE examples.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/advisors.md"><strong>Advisor layer</strong><span>Optional schema planning, column tagging, caching, and offline Ollama usage.</span></a>
+          <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CONTRACTS_AND_DDL.md"><strong>Contracts and DDL</strong><span>Canonical contracts, parse_ddl, stable hashes, and SQL CREATE TABLE examples.</span></a>
+          <a href="https://github.com/ravikiranpagidi/great-generator/tree/main/examples/06-retail-star-schema"><strong>Retail star-schema example</strong><span>Runnable DDL-to-dimensions-and-fact demo with validation and manifest output.</span></a>
+          <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/DETERMINISM.md"><strong>Determinism</strong><span>How seeds, schemas, engines, and sorting affect reproducible generated data.</span></a>
+          <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/GENERATION_MANIFEST.md"><strong>Generation manifest</strong><span>Provenance metadata for generated tables, validation, and advisor context.</span></a>
+          <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/BENCHMARKS.md"><strong>Benchmark methodology</strong><span>Transparent, environment-specific benchmarking guidance.</span></a>
+          <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/advisors.md"><strong>Advisor layer</strong><span>Optional schema planning, column tagging, caching, and offline Ollama usage.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/plans.md"><strong>Plans and tags</strong><span>GenerationPlan, ColumnTags, and RealismReport artifact reference.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CLOUD_DEPLOYMENT.md"><strong>Cloud deployment</strong><span>AWS, Azure, GCP, Databricks, and storage guidance.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CDC.md"><strong>CDC</strong><span>Change data capture style events.</span></a>

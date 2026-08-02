@@ -36,6 +36,27 @@ python -m twine check dist/*
 - Exporters, schema utilities, and documentation examples
 - Bug fixes with regression tests
 
+## Contribution tracks
+
+Choose one focused track per pull request when possible:
+
+| Track | Good examples | Required proof |
+|---|---|---|
+| Schema realism | semantic aliases, better column inference, safer defaults | tests showing realistic values are generated for multiple column names |
+| Relational generation | primary-key/foreign-key behavior, DDL contracts, star-schema examples | relationship-integrity tests |
+| Spark and storage | Spark DataFrame output, partitioning, cloud path docs, Delta examples | optional Spark tests or clear runtime notes |
+| Data quality | validation examples, anomaly labels, quality-tool examples | tests or runnable docs examples |
+| Documentation | demos, recipes, migration guides, benchmark notes | commands that were run or screenshots when relevant |
+| Domain packs | new industry domains or richer existing domains | table, column, relationship, and seed-reproducibility tests |
+
+## Reproducibility expectations
+
+- Use `seed` in tests and examples when exact reproducibility matters.
+- Document whether an example is Pandas-local, Spark-local, or cluster Spark.
+- Do not claim a fixed maximum row count or throughput unless it was tested in the target environment.
+- Include a generation manifest or enough parameters for another user to reproduce the run.
+- Keep examples synthetic-only. Do not add real customer, employee, patient, payment, or production records.
+
 ## Adding a domain pack
 
 A good domain pack should include:
@@ -61,6 +82,10 @@ Add reusable business values to `great_generator/core/reference_values.py` when 
 - Add Microsoft Fabric demo using generated Parquet data
 - Add more healthcare provider and facility reference values
 - Add tests for realistic optional-null distribution
+- Add Pandera validation examples for schema-generated Pandas data
+- Add chunked Pandas write examples for large local datasets
+- Add Spark catalog-registration examples for Databricks and Fabric
+- Add issue templates for domain packs, realism rules, and examples
 
 ## Releases
 

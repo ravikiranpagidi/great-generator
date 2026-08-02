@@ -126,6 +126,7 @@ packages = ["great_generator", "enterprise_synth"]
 [tool.hatch.build.targets.sdist]
 include = [
   "/CHANGELOG.md",
+  "/CITATION.cff",
   "/CODE_OF_CONDUCT.md",
   "/CONTRIBUTING.md",
   "/LICENSE",

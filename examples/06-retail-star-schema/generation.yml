@@ -1,0 +1,16 @@
+﻿# Example generation recipe for the retail star-schema demo.
+# The Python example includes a tiny built-in parser for this file so no YAML
+# dependency is required.
+
+dataset_name: retail_star_schema
+engine: pandas
+seed: 2026
+realism: realistic
+output_path: outputs/retail_star_schema
+output_format: parquet
+rows:
+  dim_customer: 1000
+  dim_product: 250
+  dim_store: 50
+  dim_date: 365
+  fact_sales: 25000

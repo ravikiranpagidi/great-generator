@@ -8,7 +8,7 @@ This project follows semantic versioning once public releases begin.
 
 | Version | Date | Release focus | Main changes |
 |---|---:|---|---|
-| Unreleased | TBD | Contract-first SQL DDL ingestion | Canonical contracts, `parse_ddl(...)`, stable contract hashing, structured parser diagnostics, and documented ANSI/Spark/Databricks `CREATE TABLE` subset |
+| Unreleased | TBD | Contract-first SQL DDL ingestion and launch hardening | Canonical contracts, `parse_ddl(...)`, stable contract hashing, structured parser diagnostics, documented ANSI/Spark/Databricks `CREATE TABLE` subset, a runnable retail star-schema example, generation manifests, determinism docs, benchmark methodology, and citation metadata |
 | 0.1.6 | 2026-07-11 | AI advisor planning layer | Optional design-time advisors, editable plans and tags, advisor cache, manifest metadata, and deterministic `plan=` support for schema generation |
 | 0.1.5 | 2026-06-28 | Schema-first docs and Spark database writes | Schema-first README, support matrix, Databricks and PySpark examples for Snowflake and Azure SQL, and documentation site updates |
 | 0.1.4 | 2026-06-21 | PyPI author presentation | Author section and project links for PyPI |
@@ -28,11 +28,16 @@ This project follows semantic versioning once public releases begin.
 - Added support for the documented ANSI, Spark, and Databricks scalar DDL subset, including primary keys, composite keys, foreign keys, composite foreign keys, unique constraints, check constraints, defaults, comments, and selected Databricks/Spark metadata.
 - Added generation integration so one-table parsed DDL contracts can generate DataFrames through `generate_from_schema(...)`.
 - Added contract and DDL documentation, ADRs, an example, and parser tests.
+- Added a runnable retail star-schema example with DDL, deterministic business rules, relationship validation, Spark/Databricks usage notes, and manifest output.
+- Added a general `build_generation_manifest(...)` helper for lightweight provenance metadata.
+- Added determinism, provenance, benchmark methodology, recipe-authoring, and data-quality integration design documentation.
+- Added `CITATION.cff` for research, teaching, and demo citation workflows.
 
 ### Changed
 
 - Extended existing `ColumnSpec`, `TableSchema`, `DomainSchema`, and `ForeignKey` models without removing their existing public constructors.
 - Updated planning and no-op advisor paths to understand `ContractSchema`.
+- Improved the local Pandas benchmark harness with selected cases, repeat runs, environment metadata, and optional JSON output.
 
 ### Deferred
 

@@ -1,0 +1,31 @@
+﻿{
+  "manifest_version": "1.0",
+  "dataset_name": "retail_star_schema",
+  "engine": "pandas",
+  "seed": 2026,
+  "schema_fingerprint": "sha256:example",
+  "real_data_ingested": false,
+  "parameters": {
+    "realism": "realistic",
+    "rows": {
+      "dim_customer": 1000,
+      "dim_product": 250,
+      "dim_store": 50,
+      "dim_date": 365,
+      "fact_sales": 25000
+    }
+  },
+  "tables": {
+    "dim_customer": {"row_count": 1000, "columns": ["customer_key", "customer_id", "customer_name", "email", "customer_segment", "signup_date"]},
+    "dim_product": {"row_count": 250, "columns": ["product_key", "product_id", "product_name", "category", "unit_price"]},
+    "dim_store": {"row_count": 50, "columns": ["store_key", "store_id", "store_name", "region"]},
+    "dim_date": {"row_count": 365, "columns": ["date_key", "calendar_date", "fiscal_year", "month_name"]},
+    "fact_sales": {"row_count": 25000, "columns": ["sales_key", "customer_key", "product_key", "store_key", "date_key", "quantity", "gross_amount", "discount_amount", "net_amount"]}
+  },
+  "validation": {
+    "primary_keys_unique": true,
+    "foreign_keys_valid": true,
+    "fact_amounts_reconciled": true
+  },
+  "warnings": []
+}
