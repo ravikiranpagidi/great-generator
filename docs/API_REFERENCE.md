@@ -19,6 +19,10 @@ generate_from_schema(
     realistic=None,
     validate=False,
     return_report=False,
+    required_values=None,
+    partition_by=None,
+    target_selectivity=None,
+    query_profile=None,
 )
 ```
 
@@ -131,6 +135,10 @@ Important optional parameters:
 - `realism`: string mode, `"realistic"` or `"placeholder"`; `"clean"` maps to realistic, `"basic"` and `"simple"` map to placeholder
 - `validate`: optional post-generation data quality check
 - `return_report`: return `(dataframe, report)` when you want the validation report with the generated data
+- `required_values`: optional query-aware values that must appear in generated columns
+- `partition_by`: optional query-aware partition values or custom counts for one column
+- `target_selectivity`: optional approximate ratios for specific filter values
+- `query_profile`: optional reusable mapping containing query-aware options
 
 ## Advisor APIs
 
@@ -202,6 +210,27 @@ data = generate_relational(
     realism="realistic",
 )
 ```
+
+Query-aware relational generation also accepts table-qualified `required_values`, a mapping-style `partition_by`, `target_selectivity`, `ensure_join_coverage`, and `query_profile`.
+
+```python
+data = generate_relational(
+    tables=tables,
+    required_values={
+        "dim_member.region": ["SOUTH"],
+        "dim_product.product_type": ["CHECKING", "SAVINGS"],
+    },
+    partition_by={
+        "table": "fact_interaction",
+        "column": "business_date",
+        "values": ["2026-01-01", "2026-01-02"],
+        "distribution": "balanced",
+    },
+    ensure_join_coverage=True,
+)
+```
+
+See [QUERY_AWARE_GENERATION.md](QUERY_AWARE_GENERATION.md) for details and limitations.
 
 ## `generate_cdc(...)`
 
@@ -283,6 +312,26 @@ result = validate_generated_data(df, schema)
 ```
 
 Returns a dictionary with `passed`, `errors`, `warnings`, and `summary`.
+
+## `validate_query_coverage(...)`
+
+Validates query-aware coverage after generation.
+
+```python
+from great_generator import validate_query_coverage
+
+report = validate_query_coverage(
+    data=df,
+    required_values={"region": ["SOUTH"]},
+    partition_by={
+        "column": "business_date",
+        "values": ["2026-01-01", "2026-01-02"],
+    },
+    target_selectivity={"region": {"SOUTH": 0.25}},
+)
+```
+
+The report includes required-value status, partition coverage, partition counts, selectivity actuals and targets, join coverage status, warnings, and an overall `passed` flag.
 
 ## `explain_generation_plan(...)`
 

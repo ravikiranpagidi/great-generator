@@ -88,6 +88,7 @@ The same semantic layer recognizes IDs, email addresses, phone numbers, addresse
 - apply per-column ranges, categories, prefixes, patterns, weights, date windows, and null rates
 - inspect the semantic generation plan before generating data
 - validate generated values and cross-field consistency
+- generate query-aware data with required values, partition dates, selectivity, and join coverage
 - return Pandas or Spark DataFrames for downstream writes
 - generate custom relational parent-child tables with valid keys
 - generate dimensional/star-schema examples from SQL DDL contracts
@@ -115,7 +116,7 @@ Online and offline advisors are separate from generation. Anthropic and Ollama a
 
 | Version | Release focus | What changed |
 |---|---|---|
-| Unreleased | Contract-first SQL DDL ingestion and launch hardening | Added canonical contracts, `parse_ddl(...)`, stable contract hashing, structured parser diagnostics, a runnable retail star-schema example, generation manifest guidance, determinism docs, benchmark methodology, and citation metadata. |
+| Unreleased | Contract-first SQL DDL ingestion, query-aware generation, and launch hardening | Added canonical contracts, `parse_ddl(...)`, optional query-aware required values, partitioning, selectivity, relational join coverage, a runnable retail star-schema example, generation manifest guidance, determinism docs, benchmark methodology, and citation metadata. |
 | 0.1.6 | AI advisor planning layer | Added optional design-time advisors for schema understanding, column tagging, and realism review. Added editable `GenerationPlan` and `ColumnTags` JSON artifacts, cached Anthropic and Ollama advisor calls, offline NoOp defaults, manifest metadata, and deterministic `plan=` support in `generate_from_schema`. |
 | 0.1.5 | Schema-first docs and Spark database writes | Repositioned schema generation as the primary workflow. Added a schema input support matrix, Databricks and PySpark examples for Snowflake and Azure SQL, and documentation site updates. |
 | 0.1.4 | PyPI author presentation | Added a PyPI-friendly Author section with project links. |
@@ -128,6 +129,7 @@ Online and offline advisors are separate from generation. Anthropic and Ollama a
 
 - [Schema inputs](docs/SCHEMA_INPUTS.md)
 - [SQL contracts and DDL](docs/CONTRACTS_AND_DDL.md)
+- [Query-aware generation](docs/QUERY_AWARE_GENERATION.md)
 - [Determinism and reproducibility](docs/DETERMINISM.md)
 - [Generation manifest](docs/GENERATION_MANIFEST.md)
 - [Provenance and safety notes](docs/PROVENANCE.md)
@@ -228,6 +230,35 @@ orders_df.to_parquet("orders.parquet", index=False)
 ```
 
 Select `engine="spark"` in a Spark notebook to receive Spark DataFrames instead of Pandas DataFrames.
+
+## Query-aware generation
+
+Great Generator can create synthetic data that contains the values, partition dates, and join paths needed by your SQL queries. This helps teams test SQL logic, partition pruning, joins, aggregations, and environment-specific performance behavior without using production data.
+
+All query-aware options are optional. Existing generation behavior is unchanged unless you provide `required_values`, `partition_by`, `target_selectivity`, `ensure_join_coverage`, or `query_profile`.
+
+```python
+df = generate_from_schema(
+    schema=schema,
+    rows=100_000,
+    required_values={
+        "region": ["SOUTH"],
+        "product_type": ["CHECKING", "SAVINGS"],
+    },
+    partition_by={
+        "column": "business_date",
+        "values": ["2026-01-01", "2026-01-02", "2026-01-03"],
+        "distribution": "balanced",
+    },
+    target_selectivity={
+        "region": {"SOUTH": 0.25},
+    },
+)
+```
+
+For relational datasets, use table-qualified columns and `ensure_join_coverage=True` when fact rows must join to required dimension values.
+
+See [Query-Aware Generation](docs/QUERY_AWARE_GENERATION.md).
 
 ## Flagship Example: Retail Star Schema from SQL DDL
 

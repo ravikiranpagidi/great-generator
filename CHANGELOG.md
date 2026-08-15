@@ -8,7 +8,7 @@ This project follows semantic versioning once public releases begin.
 
 | Version | Date | Release focus | Main changes |
 |---|---:|---|---|
-| Unreleased | TBD | Contract-first SQL DDL ingestion and launch hardening | Canonical contracts, `parse_ddl(...)`, stable contract hashing, structured parser diagnostics, documented ANSI/Spark/Databricks `CREATE TABLE` subset, a runnable retail star-schema example, generation manifests, determinism docs, benchmark methodology, and citation metadata |
+| Unreleased | TBD | Contract-first SQL DDL ingestion, query-aware generation, and launch hardening | Canonical contracts, `parse_ddl(...)`, stable contract hashing, structured parser diagnostics, documented ANSI/Spark/Databricks `CREATE TABLE` subset, optional query-aware generation, a runnable retail star-schema example, generation manifests, determinism docs, benchmark methodology, and citation metadata |
 | 0.1.6 | 2026-07-11 | AI advisor planning layer | Optional design-time advisors, editable plans and tags, advisor cache, manifest metadata, and deterministic `plan=` support for schema generation |
 | 0.1.5 | 2026-06-28 | Schema-first docs and Spark database writes | Schema-first README, support matrix, Databricks and PySpark examples for Snowflake and Azure SQL, and documentation site updates |
 | 0.1.4 | 2026-06-21 | PyPI author presentation | Author section and project links for PyPI |
@@ -32,6 +32,12 @@ This project follows semantic versioning once public releases begin.
 - Added a general `build_generation_manifest(...)` helper for lightweight provenance metadata.
 - Added determinism, provenance, benchmark methodology, recipe-authoring, and data-quality integration design documentation.
 - Added `CITATION.cff` for research, teaching, and demo citation workflows.
+- Added optional query-aware generation for schema and relational data.
+- Added `required_values` support to ensure expected query filter values appear in generated data.
+- Added query-aware `partition_by` support for balanced and custom partition-date generation.
+- Added optional `target_selectivity` support for approximate filter-value ratios.
+- Added optional relational join coverage for fact and dimension query testing.
+- Added `validate_query_coverage(...)` for required-value, partition, selectivity, and join coverage reports.
 
 ### Changed
 

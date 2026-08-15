@@ -18,6 +18,7 @@ from .api import (
     review_realism,
     tag_schema,
     validate_generated_data,
+    validate_query_coverage,
 )
 
 __all__ = [
@@ -38,6 +39,7 @@ __all__ = [
     "review_realism",
     "tag_schema",
     "validate_generated_data",
+    "validate_query_coverage",
 ]
 
 __version__ = "0.1.6"

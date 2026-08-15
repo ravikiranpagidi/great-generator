@@ -17,6 +17,15 @@ from great_generator.exporters.delta_exporter import export_delta
 from great_generator.exporters.json_exporter import export_json
 from great_generator.exporters.parquet_exporter import export_parquet
 from great_generator.planning import ColumnTags, GenerationPlan, RealismReport
+from great_generator.query_aware import (
+    apply_query_aware_pandas,
+    apply_query_aware_relational_pandas,
+    has_query_aware_options,
+    normalize_query_profile,
+)
+from great_generator.query_aware.validation import (
+    validate_query_coverage as _validate_query_coverage,
+)
 from great_generator.recipes import generate_from_recipe as _generate_from_recipe
 from great_generator.schemas.generation import (
     active_spark_session,
@@ -218,12 +227,16 @@ def generate_relational(
     anomalies: Mapping[str, float] | None = None,
     output_path: str | Path | None = None,
     output_format: str | None = None,
-    partition_by: list[str] | None = None,
+    partition_by: list[str] | Mapping[str, Any] | None = None,
     mode: str = "overwrite",
     writer_options: Mapping[str, str] | None = None,
     num_partitions: int | None = None,
     partition_strategy: str = "repartition",
     return_labels: bool = False,
+    required_values: Mapping[str, Any] | None = None,
+    target_selectivity: Mapping[str, Mapping[str, float]] | None = None,
+    ensure_join_coverage: bool = False,
+    query_profile: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Generate a user-defined relational dataset and return table-name DataFrames.
 
@@ -238,6 +251,23 @@ def generate_relational(
     validate_output_format(output_format)
     realism = normalize_realism_mode(realism)
     validate_realism(realism)
+    query_partition_by = partition_by if isinstance(partition_by, Mapping) else None
+    export_partition_by = partition_by if not isinstance(partition_by, Mapping) else None
+    query_aware_enabled = has_query_aware_options(
+        required_values=required_values,
+        partition_by=query_partition_by,
+        target_selectivity=target_selectivity,
+        query_profile=query_profile,
+        ensure_join_coverage=ensure_join_coverage,
+    )
+    profile = normalize_query_profile(
+        required_values=required_values,
+        partition_by=query_partition_by,
+        target_selectivity=target_selectivity,
+        query_profile=query_profile,
+        ensure_join_coverage=ensure_join_coverage,
+    )
+
     schema, row_counts = relational_schema_from_specs(
         tables=tables,
         rows=rows,
@@ -256,7 +286,20 @@ def generate_relational(
             realism=realism,
             return_labels=return_labels,
         )
+        if query_aware_enabled:
+            data = apply_query_aware_relational_pandas(
+                data,
+                schema,
+                profile,
+                seed=seed,
+            )
     else:
+        if query_aware_enabled:
+            raise ValueError(
+                "Query-aware generation for generate_relational currently supports "
+                "engine='pandas'. Generate pandas data first or omit query-aware options "
+                "for Spark generation."
+            )
         if return_labels:
             raise ValueError("return_labels is currently supported for the pandas engine only.")
         from great_generator.engines.spark_engine import generate_domain as generate_with_spark
@@ -279,7 +322,7 @@ def generate_relational(
             output_path=output_path,
             output_format=output_format,
             engine=engine,
-            partition_by=partition_by,
+            partition_by=export_partition_by,
             mode=mode,
             writer_options=writer_options,
             num_partitions=num_partitions,
@@ -369,6 +412,29 @@ def generate_cdc(
         late_arrival_rate=late_arrival_rate,
         duplicate_rate=duplicate_rate,
         seed=seed,
+    )
+
+
+def validate_query_coverage(
+    data: Any,
+    *,
+    required_values: Mapping[str, Any] | None = None,
+    partition_by: Mapping[str, Any] | None = None,
+    target_selectivity: Mapping[str, Mapping[str, float]] | None = None,
+    relationships: list[str | Mapping[str, str]] | None = None,
+    ensure_join_coverage: bool = False,
+    query_profile: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Validate Query-Aware Generation coverage for generated data."""
+
+    return _validate_query_coverage(
+        data=data,
+        required_values=required_values,
+        partition_by=partition_by,
+        target_selectivity=target_selectivity,
+        relationships=relationships,
+        ensure_join_coverage=ensure_join_coverage,
+        query_profile=query_profile,
     )
 
 
@@ -493,6 +559,10 @@ def generate_from_schema(
     realistic: bool | None = None,
     validate: bool = False,
     return_report: bool = False,
+    required_values: Mapping[str, Any] | None = None,
+    partition_by: Mapping[str, Any] | None = None,
+    target_selectivity: Mapping[str, Mapping[str, float]] | None = None,
+    query_profile: Mapping[str, Any] | None = None,
 ) -> dict[str, pd.DataFrame] | pd.DataFrame | Any | tuple[Any, dict[str, Any]]:
     """Generate sample data from domain metadata, DataFrames, DDL strings, or Spark schemas.
 
@@ -512,6 +582,18 @@ def generate_from_schema(
     )
     effective_realism = normalize_realism_mode(effective_realism)
     validate_realism(effective_realism)
+    query_aware_enabled = has_query_aware_options(
+        required_values=required_values,
+        partition_by=partition_by,
+        target_selectivity=target_selectivity,
+        query_profile=query_profile,
+    )
+    profile = normalize_query_profile(
+        required_values=required_values,
+        partition_by=partition_by,
+        target_selectivity=target_selectivity,
+        query_profile=query_profile,
+    )
     if engine == "auto":
         resolved_engine = "spark" if _has_spark_context(schema, spark) else "pandas"
     else:
@@ -537,6 +619,10 @@ def generate_from_schema(
                 plan=plan,
                 validate=validate,
                 return_report=return_report,
+                required_values=required_values,
+                partition_by=partition_by,
+                target_selectivity=target_selectivity,
+                query_profile=query_profile,
             )
         domain_schema = schema.to_domain_schema()
         return generate_from_schema(
@@ -552,6 +638,10 @@ def generate_from_schema(
             plan=plan,
             validate=validate,
             return_report=return_report,
+            required_values=required_values,
+            partition_by=partition_by,
+            target_selectivity=target_selectivity,
+            query_profile=query_profile,
         )
 
     if isinstance(schema, DomainSchema):
@@ -562,7 +652,20 @@ def generate_from_schema(
             generated = apply_realism_pandas(
                 generated, schema, seed=seed, realism=effective_realism
             )
+        if query_aware_enabled:
+            generated = apply_query_aware_relational_pandas(
+                generated,
+                schema,
+                profile,
+                seed=seed,
+            )
         if resolved_engine == "spark":
+            if query_aware_enabled:
+                raise ValueError(
+                    "Query-aware generation for multi-table schema inputs currently "
+                    "supports pandas output. Use engine='pandas' or omit query-aware "
+                    "options for Spark output."
+                )
             spark_session = spark or active_spark_session()
             if spark_session is None:
                 raise ValueError("Spark schema generation requires a SparkSession via spark=...")
@@ -591,6 +694,12 @@ def generate_from_schema(
         raise ValueError("rows must be greater than or equal to zero.")
 
     if resolved_engine == "spark":
+        if query_aware_enabled:
+            raise ValueError(
+                "Query-aware generation for generate_from_schema currently supports "
+                "pandas output. Use engine='pandas' or omit query-aware options for "
+                "Spark output."
+            )
         spark_frame = generate_single_table_spark(
             schema,
             rows=row_count,
@@ -619,6 +728,14 @@ def generate_from_schema(
         custom_rules=generation_rules,
         plan=plan,
     )
+    if query_aware_enabled:
+        table, _source = normalize_single_table_schema(schema, table_name=table_name)
+        pandas_frame = apply_query_aware_pandas(
+            pandas_frame,
+            table,
+            profile,
+            seed=seed,
+        )
     return _maybe_attach_report(
         pandas_frame,
         schema=schema,
