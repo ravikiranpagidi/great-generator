@@ -304,6 +304,12 @@ pre {
   color: #e6edf7;
 }
 
+.install-grid pre {
+  background: var(--code);
+  border-color: rgba(15, 23, 42, 0.85);
+  color: #e6edf7;
+}
+
 .code-window {
   border-radius: 18px;
   overflow: hidden;
@@ -329,6 +335,7 @@ pre {
 }
 
 code {
+  color: inherit;
   font-family: var(--mono);
 }
 
