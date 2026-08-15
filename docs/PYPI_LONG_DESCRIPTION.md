@@ -1,10 +1,12 @@
 # great-generator
 
-Generate realistic synthetic data from schema definitions for data engineering, testing, analytics, and lower environments.
+Generate realistic synthetic data from schemas, SQL DDL, relationships, and generation plans for data engineering, testing, analytics, Spark, and lower environments.
 
 ## Why great-generator?
 
 Data teams often know their schema but cannot copy production records into development, QA, SIT, UAT, sandbox, demo, or performance environments. Great Generator creates fake, non-production data from table-like schemas so teams can test pipelines, applications, dashboards, and data models without depending on production extracts.
+
+Great Generator creates synthetic data. It does not anonymize, mask, de-identify, or transform production records.
 
 ## Main Feature: `generate_from_schema`
 
@@ -26,7 +28,46 @@ df = generate_from_schema(schema, rows=1000)
 
 Semantic field inference recognizes name-like fields, IDs, contact details, ages, dates, amounts, quantities, statuses, and common cross-field relationships.
 
-## Next: Generate Related Tables
+## SQL DDL Contracts
+
+```python
+from great_generator import generate_from_schema, parse_ddl
+
+ddl = """
+CREATE TABLE sales.customers (
+    customer_id BIGINT PRIMARY KEY,
+    customer_name STRING NOT NULL,
+    email VARCHAR(120) UNIQUE,
+    signup_date DATE,
+    balance DECIMAL(12,2)
+)
+"""
+
+contract = parse_ddl(ddl, dialect="databricks")
+df = generate_from_schema(contract, rows=1000)
+```
+
+`parse_ddl(...)` supports the documented ANSI, Spark, and Databricks `CREATE TABLE` subset. It preserves canonical contract metadata, parser diagnostics, stable fingerprints, column order, normalized types, keys, constraints, comments, defaults, and selected storage metadata where supported.
+
+## Query-Aware Generation
+
+```python
+df = generate_from_schema(
+    schema,
+    rows=10000,
+    required_values={"account_status": ["Active", "Pending"]},
+    partition_by={"event_date": {"start": "2026-01-01", "end": "2026-01-31"}},
+    target_selectivity={"account_status": {"Active": 0.70}},
+)
+```
+
+Query-aware generation helps synthetic data contain expected filter values, partition dates, selectivity targets, and join paths. It does not guarantee identical production performance because runtime depends on storage layout, table statistics, clustering, caching, concurrency, warehouse size, and engine configuration.
+
+## Optional Advisor Layer
+
+Advisors provide design-time schema understanding, column tagging, and realism review. They produce inspectable JSON artifacts such as `GenerationPlan` and `ColumnTags`. Advisors do not generate row data, and `advisor="none"` is the offline default.
+
+## Generate Related Tables
 
 ```python
 from great_generator import generate_relational
@@ -48,7 +89,7 @@ customers_df = data["customers"]
 orders_df = data["orders"]
 ```
 
-Use `generate_relational` for your own connected tables. Use prebuilt domains later when you need ready-made demonstration data.
+Use `generate_relational` for connected tables with valid keys. Use prebuilt domains when you need ready-made demonstration data.
 
 ## Installation
 
@@ -56,6 +97,15 @@ Use `generate_relational` for your own connected tables. Use prebuilt domains la
 pip install great-generator
 pip install "great-generator[spark]"
 pip install "great-generator[delta]"
+pip install "great-generator[ai]"
+pip install "great-generator[anthropic]"
+pip install "great-generator[ollama]"
+```
+
+Install with a hyphen. Import with an underscore:
+
+```python
+import great_generator
 ```
 
 ## Supported Schema Inputs
@@ -63,25 +113,11 @@ pip install "great-generator[delta]"
 - plain Python `{column: dtype}` mappings
 - Pandas dtype mappings and DataFrames
 - compact DDL strings such as `"id int, name string"`
+- documented SQL `CREATE TABLE` DDL through `parse_ddl(...)`
 - PySpark `StructType` and DataFrames
 - Great Generator `TableSchema` and `DomainSchema` objects
 
-Full SQL `CREATE TABLE`, JSON Schema, YAML schema profiles, SQLAlchemy, Pydantic, dataclass, and column-list inputs are planned rather than currently supported.
-
-## Custom Rules
-
-```python
-df = generate_from_schema(
-    schema,
-    rows=1000,
-    custom_rules={
-        "customer_id": {"prefix": "CUST"},
-        "age": {"min": 18, "max": 85},
-        "balance": {"min": 0, "max": 100000},
-        "account_status": {"values": ["Active", "Inactive", "Pending"]},
-    },
-)
-```
+JSON Schema, YAML schema profiles, SQLAlchemy, Pydantic, dataclass, and column-list inputs are planned rather than currently supported as direct schema inputs.
 
 ## Write Output Anywhere Your DataFrame Supports
 
@@ -104,9 +140,11 @@ Spark results support normal Spark writers for Parquet, Delta, Databricks tables
 - data quality and edge-case testing
 - prototypes, demos, research, and learning
 
-## Prebuilt Domains
+## Prebuilt Domains and Advanced APIs
 
-`generate_domain` provides ready-made related datasets for ecommerce, banking, healthcare, insurance, telecom, automotive, energy, manufacturing, logistics, media, public sector, hospitality, and SaaS. Use domains for demonstrations and learning; use `generate_from_schema` for your project's actual structures.
+`generate_domain` provides ready-made related datasets for ecommerce, banking, healthcare, insurance, telecom, automotive, energy, manufacturing, logistics, media, public sector, hospitality, and SaaS.
+
+Additional APIs support CDC records, controlled anomalies, SCD2 history, dimensional models, Data Vault models, recipes, CLI workflows, and CSV, JSON, Parquet, and Delta convenience exports.
 
 ## Disclaimer
 

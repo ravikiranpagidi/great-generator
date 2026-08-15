@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "great-generator"
-version = "0.1.6"
-description = "Generate realistic synthetic data from schemas for data engineering, QA, testing, Pandas, and Spark."
+version = "0.1.7"
+description = "Generate realistic synthetic data from schemas, SQL DDL, relationships, and generation plans for Pandas and Spark."
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"

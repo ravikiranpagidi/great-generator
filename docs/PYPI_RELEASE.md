@@ -7,7 +7,7 @@ Great Generator publishes to PyPI through GitHub Actions and PyPI Trusted Publis
 - PyPI project/package name: `great-generator`
 - Python import name: `great_generator`
 - GitHub repository: `ravikiranpagidi/great-generator`
-- Current release version: `0.1.0`
+- Current release version: `0.1.7`
 
 ## One-time PyPI Trusted Publisher setup
 
@@ -60,7 +60,7 @@ python -m twine check dist/*
 
 ```bash
 python -m venv .release-smoke
-.release-smoke\Scriptsctivate
+.release-smoke\Scripts\activate
 python -m pip install --upgrade pip
 python -m pip install dist\great_generator-*.whl
 python - <<'PY'
@@ -78,7 +78,7 @@ On macOS/Linux, activate with:
 source .release-smoke/bin/activate
 ```
 
-## Recommended first release flow
+## Recommended production release flow
 
 ### 1. Optional TestPyPI dry run
 
@@ -88,7 +88,7 @@ After it succeeds, test install from TestPyPI:
 
 ```bash
 python -m venv .testpypi-smoke
-.testpypi-smoke\Scriptsctivate
+.testpypi-smoke\Scripts\activate
 python -m pip install --upgrade pip
 python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ great-generator
 python - <<'PY'
@@ -105,12 +105,10 @@ PY
 Recommended path:
 
 1. Push all release-ready changes to `main`.
-2. Create a GitHub release with:
-   - Tag: `v0.1.0`
-   - Title: `Great Generator v0.1.0`
-   - Body: use `docs/RELEASE_0_1_0.md`
-3. Publish the GitHub release.
-4. GitHub Actions runs `.github/workflows/release-pypi.yml` and publishes to PyPI.
+2. Confirm the version has not already been published on PyPI.
+3. Create and push a version tag, for example `v0.1.7`.
+4. GitHub Actions runs `.github/workflows/release-pypi.yml` and publishes to PyPI through Trusted Publishing.
+5. Optionally create a GitHub release from the same tag using the matching release-notes document, such as `docs/RELEASE_0_1_7.md`.
 
 Alternative path:
 
@@ -122,7 +120,7 @@ After PyPI publish succeeds:
 
 ```bash
 python -m venv .pypi-smoke
-.pypi-smoke\Scriptsctivate
+.pypi-smoke\Scripts\activate
 python -m pip install --upgrade pip
 python -m pip install great-generator
 python - <<'PY'

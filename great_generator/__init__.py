@@ -42,4 +42,4 @@ __all__ = [
     "validate_query_coverage",
 ]
 
-__version__ = "0.1.6"
+__version__ = "0.1.7"

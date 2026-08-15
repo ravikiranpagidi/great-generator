@@ -116,7 +116,7 @@ Online and offline advisors are separate from generation. Anthropic and Ollama a
 
 | Version | Release focus | What changed |
 |---|---|---|
-| Unreleased | Contract-first SQL DDL ingestion, query-aware generation, and launch hardening | Added canonical contracts, `parse_ddl(...)`, optional query-aware required values, partitioning, selectivity, relational join coverage, a runnable retail star-schema example, generation manifest guidance, determinism docs, benchmark methodology, and citation metadata. |
+| 0.1.7 | SQL DDL contracts and query-aware generation | Added canonical contracts, `parse_ddl(...)`, optional query-aware required values, partitioning, selectivity, relational join coverage, a runnable retail star-schema example, generation manifest guidance, determinism docs, benchmark methodology, and citation metadata. |
 | 0.1.6 | AI advisor planning layer | Added optional design-time advisors for schema understanding, column tagging, and realism review. Added editable `GenerationPlan` and `ColumnTags` JSON artifacts, cached Anthropic and Ollama advisor calls, offline NoOp defaults, manifest metadata, and deterministic `plan=` support in `generate_from_schema`. |
 | 0.1.5 | Schema-first docs and Spark database writes | Repositioned schema generation as the primary workflow. Added a schema input support matrix, Databricks and PySpark examples for Snowflake and Azure SQL, and documentation site updates. |
 | 0.1.4 | PyPI author presentation | Added a PyPI-friendly Author section with project links. |

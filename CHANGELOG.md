@@ -8,7 +8,8 @@ This project follows semantic versioning once public releases begin.
 
 | Version | Date | Release focus | Main changes |
 |---|---:|---|---|
-| Unreleased | TBD | Contract-first SQL DDL ingestion, query-aware generation, and launch hardening | Canonical contracts, `parse_ddl(...)`, stable contract hashing, structured parser diagnostics, documented ANSI/Spark/Databricks `CREATE TABLE` subset, optional query-aware generation, a runnable retail star-schema example, generation manifests, determinism docs, benchmark methodology, and citation metadata |
+| Unreleased | TBD | Future improvements | No unreleased changes yet |
+| 0.1.7 | 2026-08-15 | SQL DDL contracts and query-aware generation | Canonical contracts, `parse_ddl(...)`, stable contract hashing, structured parser diagnostics, documented ANSI/Spark/Databricks `CREATE TABLE` subset, optional query-aware generation, a runnable retail star-schema example, generation manifests, determinism docs, benchmark methodology, and citation metadata |
 | 0.1.6 | 2026-07-11 | AI advisor planning layer | Optional design-time advisors, editable plans and tags, advisor cache, manifest metadata, and deterministic `plan=` support for schema generation |
 | 0.1.5 | 2026-06-28 | Schema-first docs and Spark database writes | Schema-first README, support matrix, Databricks and PySpark examples for Snowflake and Azure SQL, and documentation site updates |
 | 0.1.4 | 2026-06-21 | PyPI author presentation | Author section and project links for PyPI |
@@ -18,6 +19,12 @@ This project follows semantic versioning once public releases begin.
 | 0.1.0 | 2026-06-19 | Initial public release | Package identity, domain packs, Pandas and Spark engines, exports, CDC, anomalies, schema generation, and relational generation |
 
 ## Unreleased
+
+No unreleased changes yet.
+
+## 0.1.7 - 2026-08-15
+
+SQL DDL contracts and query-aware generation release.
 
 ### Added
 
@@ -43,7 +50,7 @@ This project follows semantic versioning once public releases begin.
 
 - Extended existing `ColumnSpec`, `TableSchema`, `DomainSchema`, and `ForeignKey` models without removing their existing public constructors.
 - Updated planning and no-op advisor paths to understand `ContractSchema`.
-- Improved the local Pandas benchmark harness with selected cases, repeat runs, environment metadata, and optional JSON output.
+- Improved the local Pandas benchmark runner with selected cases, repeat runs, environment metadata, and optional JSON output.
 
 ### Deferred
 
