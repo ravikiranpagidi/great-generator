@@ -3,13 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Great Generator | Realistic synthetic data from your schema</title>
-  <meta name="description" content="Generate realistic synthetic data from schema definitions for lower environments, data engineering, QA, Pandas, Spark, and pipeline testing." />
-  <meta name="keywords" content="synthetic data, pandas, pyspark, spark, databricks, faker alternative, test data, enterprise data, CDC, data quality, lakehouse, delta lake" />
-  <meta property="og:title" content="Great Generator" />
-  <meta property="og:description" content="Have a schema but no safe test data? Generate realistic synthetic DataFrames for lower environments, testing, and data engineering." />
+  <title>Great Generator | Schema-first synthetic data for data engineering and AI-ready testing</title>
+  <meta name="description" content="Great Generator creates synthetic non-production datasets from schemas, SQL DDL, relationships, and generation plans for QA, ETL testing, Spark, lakehouse demos, CDC, anomalies, and deterministic advisor-reviewed generation." />
+  <meta name="keywords" content="synthetic data, schema generation, SQL DDL, pandas, pyspark, spark, databricks, delta lake, CDC, anomaly injection, data quality, lakehouse, query-aware generation, test data" />
+  <meta property="og:title" content="Great Generator | Schema-first synthetic data for data engineering" />
+  <meta property="og:description" content="Generate realistic synthetic data from schemas, SQL DDL, relationships, and generation plans for testing, Spark, lakehouse demos, CDC, anomalies, and lower environments." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://ravikiranpagidi.github.io/great-generator/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Great Generator" />
+  <meta name="twitter:description" content="Schema-first synthetic data for QA, ETL testing, Spark, lakehouse demos, and deterministic advisor-reviewed generation." />
+  <link rel="canonical" href="https://ravikiranpagidi.github.io/great-generator/" />
   <link rel="stylesheet" href="assets/site.css" />
 </head>
 <body>
@@ -21,12 +25,16 @@
         <span>Great Generator</span>
       </a>
       <div class="nav-links">
-        <a href="#install">Install</a>
-        <a href="#examples">Examples</a>
-        <a href="#platforms">Platforms</a>
+        <a href="#top">Home</a>
+        <a href="#quickstart">Quickstart</a>
+        <a href="#schema-inputs">Schema Inputs</a>
+        <a href="#sql-ddl">SQL DDL</a>
+        <a href="#relational">Relational</a>
+        <a href="#spark-delta">Spark &amp; Delta</a>
+        <a href="#advisor">AI Advisor</a>
         <a href="#docs">Docs</a>
-        <a href="https://pypi.org/project/great-generator/">PyPI</a>
-        <a href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
+        <a class="nav-pill" href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
+        <a class="nav-pill primary" href="https://pypi.org/project/great-generator/">PyPI</a>
       </div>
     </nav>
   </header>
@@ -34,317 +42,431 @@
   <main id="main">
     <section class="hero" id="top">
       <div class="hero-copy">
-        <p class="eyebrow">Schema-driven synthetic data for engineering teams</p>
-        <h1>Have a schema but no safe test data?</h1>
-        <p class="lede">
-          Great Generator creates realistic, synthetic, non-production data from your schema for
-          lower environments, pipeline testing, QA, analytics, Pandas, and Spark.
-        </p>
+        <p class="eyebrow">Schema-first synthetic data for engineering teams</p>
+        <h1>Synthetic enterprise data from schemas, SQL DDL, and generation plans</h1>
+        <p class="lede">Great Generator helps data teams create realistic non-production datasets for development, QA, ETL testing, Spark pipelines, lakehouse demos, CDC, anomalies, relational models, and deterministic advisor-reviewed generation.</p>
+        <p class="safety-callout">Great Generator creates synthetic data. It does not anonymize, mask, de-identify, or transform production records.</p>
         <div class="hero-actions">
-          <a class="button primary" href="#quickstart">Start in 30 seconds</a>
-          <a class="button secondary" href="https://github.com/ravikiranpagidi/great-generator">View repository</a>
+          <a class="button primary" href="#quickstart">Get started</a>
+          <a class="button secondary" href="https://github.com/ravikiranpagidi/great-generator">View GitHub</a>
+          <a class="button secondary" href="#docs">Read docs</a>
+          <a class="button secondary" href="https://pypi.org/project/great-generator/">Install from PyPI</a>
         </div>
-        <p class="positioning">
-          Your schema in. Realistic test data out.
-        </p>
+        <div class="badges" aria-label="Supported capabilities">
+          <span>Schema-first</span>
+          <span>Pandas and Spark</span>
+          <span>SQL DDL</span>
+          <span>CDC and anomalies</span>
+          <span>Optional AI advisor</span>
+          <span>Deterministic generation</span>
+        </div>
       </div>
-      <div class="hero-card" aria-label="Example code">
+      <div class="hero-card" aria-label="Code examples">
+        <div class="code-tabs" aria-label="Example tabs">
+          <span class="active">Schema</span>
+          <span>SQL DDL</span>
+        </div>
         <div class="code-window">
-          <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
           <pre><code>from great_generator import generate_from_schema
 
-schema = {
-    "customer_id": "string",
-    "customer_name": "string",
-    "email": "string",
-    "age": "int",
-    "created_at": "datetime",
-}
+schema = """
+customer_id int,
+customer_name string,
+email string,
+signup_date date,
+account_status string,
+balance decimal(12,2)
+"""
 
-df = generate_from_schema(schema, rows=1000)</code></pre>
+df = generate_from_schema(schema=schema, rows=1000, seed=42)
+print(df.head())</code></pre>
         </div>
-      </div>
-    </section>
+        <div class="code-window secondary-code">
+          <pre><code>from great_generator import parse_ddl, generate_from_schema
 
-    <section class="signal-grid" aria-label="Key outcomes">
-      <article>
-        <strong>Schema-first</strong>
-        <span>Start from mappings, Pandas dtypes, compact DDL, full SQL DDL, or PySpark schemas.</span>
-      </article>
-      <article>
-        <strong>DataFrame-first</strong>
-        <span>Return Pandas or Spark DataFrames, then write to any destination your runtime supports.</span>
-      </article>
-      <article>
-        <strong>Semantically realistic</strong>
-        <span>Recognize names, IDs, contacts, dates, amounts, statuses, and lifecycle relationships.</span>
-      </article>
-      <article>
-        <strong>Enterprise-ready</strong>
-        <span>CDC, anomalies, referential data, dimensional models, Data Vault models, and exports.</span>
-      </article>
-    </section>
+ddl = """
+CREATE TABLE sales.customers (
+  customer_id BIGINT PRIMARY KEY,
+  customer_name STRING NOT NULL,
+  email VARCHAR(120) UNIQUE,
+  signup_date DATE,
+  balance DECIMAL(12,2)
+)
+"""
 
-    <section class="section" id="why">
-      <div class="section-heading">
-        <p class="eyebrow">Why it exists</p>
-        <h2>Lower environments need useful data without production records.</h2>
-        <p>
-          Teams already have schemas, table contracts, and pipeline definitions, but production records may be
-          unavailable or restricted. Great Generator turns those schemas into realistic synthetic DataFrames for
-          development, QA, analytics, demonstrations, and pipeline testing.
-        </p>
-      </div>
-      <div class="compare">
-        <div>
-          <h3>Compared with Faker</h3>
-          <p>Faker creates individual fake values. Great Generator creates complete datasets with relationships, behavior, and outputs that developers can use immediately.</p>
+contract = parse_ddl(ddl, dialect="databricks")
+df = generate_from_schema(contract, rows=1000, seed=42)</code></pre>
         </div>
-        <div>
-          <h3>Compared with heavy synthetic data platforms</h3>
-          <p>Great Generator is lightweight and developer-first. It is designed for fast starts, demos, pipelines, tests, and repeatable examples rather than statistical modeling of private source data.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="section split" id="install">
-      <div>
-        <p class="eyebrow">Install</p>
-        <h2>Simple package, optional Spark and Delta extras.</h2>
-        <p>
-          The base package stays local-friendly. Spark and Delta support are optional so users can install only what their environment needs.
-        </p>
-      </div>
-      <div class="code-stack">
-        <pre><code>pip install great-generator</code></pre>
-        <pre><code>pip install "great-generator[spark]"</code></pre>
-        <pre><code>pip install "great-generator[delta]"</code></pre>
       </div>
     </section>
 
     <section class="section" id="quickstart">
       <div class="section-heading">
-        <p class="eyebrow">Quickstart</p>
-        <h2>Start from the schema you already have.</h2>
-        <p>Use schema generation for real project structures. Domain packs remain available for ready-made demos and learning.</p>
+        <p class="eyebrow">Install</p>
+        <h2>Simple install. Optional extras when you need Spark, Delta, or advisors.</h2>
+        <p>Install with a hyphen. Import with an underscore.</p>
       </div>
-      <div class="example-grid" id="examples">
-        <article class="example-card">
-          <h3>Generate from a Python schema</h3>
-          <pre><code>from great_generator import generate_from_schema
+      <div class="install-grid">
+        <pre><code>pip install great-generator
+pip install "great-generator[spark]"
+pip install "great-generator[delta]"
+pip install "great-generator[ai]"
+pip install "great-generator[anthropic]"
+pip install "great-generator[ollama]"</code></pre>
+        <pre><code>import great_generator
 
-schema = {
-    "customer_id": "string",
-    "customer_name": "string",
-    "email": "string",
-    "age": "int",
-}
+from great_generator import generate_from_schema
 
-df = generate_from_schema(schema, rows=1000)</code></pre>
+df = generate_from_schema("id int, name string", rows=100)</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="new">
+      <div class="section-heading">
+        <p class="eyebrow">What is new</p>
+        <h2>The project has grown beyond simple schema samples.</h2>
+        <p>Recent work adds query-aware generation, SQL DDL contracts, advisor artifacts, and stronger launch documentation while keeping the base package lightweight.</p>
+      </div>
+      <div class="card-grid five">
+        <article>
+          <span class="card-kicker">Current</span>
+          <h3>Query-aware generation</h3>
+          <p>Generate synthetic data that contains required filter values, partition dates, selectivity targets, and relational join paths for SQL and pipeline tests.</p>
         </article>
-        <article class="example-card">
-          <h3>Generate related tables</h3>
-          <pre><code>from great_generator import generate_relational
-
-data = generate_relational(
-    tables={
-        "customers": "customer_id int primary key, customer_name string",
-        "orders": "order_id int primary key, customer_id int references customers.customer_id",
-    },
-    rows={"customers": 1000, "orders": 5000},
-)
-
-customers = data["customers"]
-orders = data["orders"]</code></pre>
+        <article>
+          <span class="card-kicker">Contracts</span>
+          <h3>SQL DDL ingestion</h3>
+          <p>Parse the documented ANSI, Spark, and Databricks `CREATE TABLE` subset into canonical contracts with stable fingerprints and parser diagnostics.</p>
         </article>
-        <article class="example-card">
-          <h3>Generate from a schema string</h3>
-          <pre><code>from great_generator import generate_from_schema
-
-df = generate_from_schema(
-    "customer_id int, customer_name string, signup_date date, annual_income double",
-    rows=100,
-)</code></pre>
+        <article>
+          <span class="card-kicker">Planning</span>
+          <h3>AI advisor layer</h3>
+          <p>Use optional design-time advisors for schema understanding, column tagging, and realism review. Advisors produce JSON artifacts; they do not generate row data.</p>
         </article>
-        <article class="example-card">
-          <h3>Parse full SQL DDL</h3>
-          <pre><code>from great_generator import generate_from_schema, parse_ddl
-
-contract = parse_ddl("""
-CREATE TABLE customers (
-  customer_id BIGINT PRIMARY KEY,
-  customer_name STRING,
-  email STRING
-)
-""", dialect="databricks")
-
-df = generate_from_schema(contract, rows=1000)</code></pre>
+        <article>
+          <span class="card-kicker">Repeatability</span>
+          <h3>Generation plans</h3>
+          <p>Inspect, edit, save, and reuse `GenerationPlan` and `ColumnTags`. The same schema, plan, seed, and arguments are designed to produce repeatable output.</p>
         </article>
-        <article class="example-card">
-          <h3>Generate banking CDC records</h3>
-          <pre><code>from great_generator import generate_cdc
-
-cdc = generate_cdc(
-    "banking",
-    table="customers",
-    rows=1000,
-    operations=["insert", "update", "delete"],
-    late_arrival_rate=0.02,
-)</code></pre>
+        <article>
+          <span class="card-kicker">Data systems</span>
+          <h3>Relational and lakehouse data</h3>
+          <p>Generate parent-child tables, CDC records, anomalies, SCD2 history, dimensional models, Data Vault-style examples, and Spark/Delta outputs.</p>
         </article>
       </div>
     </section>
 
-    <section class="section split" id="spark">
-      <div>
-        <p class="eyebrow">Spark and lakehouse</p>
-        <h2>Designed for notebooks, Databricks, and Spark clusters.</h2>
-        <p>
-          Use Spark mode when data should be generated as PySpark DataFrames and written with Spark-native writers.
-          This works with DBFS, ADLS, S3, GCS, HDFS, local paths, and catalog tables when those destinations are configured in your Spark environment.
-        </p>
+    <section class="section" id="workflows">
+      <div class="section-heading">
+        <p class="eyebrow">Core workflows</p>
+        <h2>Pick the API that matches your task.</h2>
       </div>
-      <div class="example-card compact">
-        <pre><code>from great_generator import generate_domain
-
-data = generate_domain(
-    "banking",
-    engine="spark",
-    scale="large",
-    spark=spark,
+      <div class="workflow-grid">
+        <article>
+          <h3>1. Generate from schema</h3>
+          <pre><code>df = generate_from_schema(schema, rows=1000)</code></pre>
+          <ul>
+            <li>Lower-environment data</li>
+            <li>QA and ETL testing</li>
+            <li>Analytics prototypes</li>
+            <li>API contract testing</li>
+          </ul>
+        </article>
+        <article>
+          <h3>2. Generate related tables</h3>
+          <pre><code>data = generate_relational(
+    tables={
+        "customers": {"schema": "customer_id int primary key, customer_name string", "rows": 1000},
+        "orders": {"schema": "order_id int primary key, customer_id int references customers.customer_id", "rows": 5000},
+    }
+)</code></pre>
+          <ul>
+            <li>Joins and referential integrity</li>
+            <li>Warehouse and lakehouse demos</li>
+            <li>Dimensional modeling</li>
+            <li>Integration tests</li>
+          </ul>
+        </article>
+        <article>
+          <h3>3. Parse SQL DDL</h3>
+          <pre><code>contract = parse_ddl(ddl, dialect="databricks")
+print(contract.fingerprint())</code></pre>
+          <ul>
+            <li>Database contracts</li>
+            <li>Warehouse schemas</li>
+            <li>Lakehouse table definitions</li>
+            <li>Repeatable schema parsing</li>
+          </ul>
+        </article>
+        <article>
+          <h3>4. Use an optional advisor</h3>
+          <pre><code>plan = infer_generation_plan(
+    "customer_id int, customer_name string, email string",
+    advisor="none"
 )
 
-data["transactions"].write.mode("overwrite").parquet(
-    "s3://your-bucket/demo/banking/transactions"
+df = generate_from_schema(
+    "customer_id int, customer_name string, email string",
+    rows=100,
+    plan=plan,
+    seed=42,
 )</code></pre>
+          <ul>
+            <li>Design-time review</li>
+            <li>Column tagging</li>
+            <li>Realism review</li>
+            <li>Auditable generation plans</li>
+          </ul>
+          <p class="note compact">`advisor="none"` is the default and does not call a model.</p>
+        </article>
       </div>
     </section>
 
     <section class="section" id="features">
       <div class="section-heading">
-        <p class="eyebrow">Features</p>
-        <h2>The first-release feature set is intentionally practical.</h2>
+        <p class="eyebrow">Feature set</p>
+        <h2>Practical capabilities for test data, demos, and engineering workflows.</h2>
       </div>
       <div class="feature-grid">
-        <article><h3>Prebuilt domains</h3><p>Generate complete industry datasets with related tables and realistic business behavior.</p></article>
-        <article><h3>Referential integrity</h3><p>Parent tables are generated before child tables, with valid primary keys and foreign keys by default.</p></article>
-        <article><h3>Contract-first DDL</h3><p>Parse SQL CREATE TABLE DDL into canonical contracts with keys, relationships, stable hashes, and diagnostics.</p></article>
-        <article><h3>Semantic schema generation</h3><p>Name-like, date-like, amount-like, status-like, ID-like, and domain-specific fields are detected from column names.</p></article>
-        <article><h3>Pandas and Spark</h3><p>Return the right DataFrame type for your engine, then write through native DataFrame APIs.</p></article>
-        <article><h3>Export helpers</h3><p>CSV, JSON, Parquet, and Delta convenience exports with table-per-folder output.</p></article>
-        <article><h3>Cloud paths</h3><p>Use local paths with Pandas and DBFS, ADLS, S3, GCS, HDFS, or mounted paths with Spark runtimes.</p></article>
-        <article><h3>CDC simulation</h3><p>Create insert, update, and delete records with event timestamps, ingestion timestamps, late arrival flags, and duplicates when configured.</p></article>
-        <article><h3>Anomaly injection</h3><p>Inject nulls, duplicates, orphan keys, late records, outliers, invalid statuses, and negative amounts for quality testing.</p></article>
-        <article><h3>Dimensional models</h3><p>Create facts and dimensions for analytics engineering, SQL modeling, BI demos, and warehouse examples.</p></article>
-        <article><h3>Data Vault models</h3><p>Create hubs, links, and satellites for enterprise architecture demos and modeling experiments.</p></article>
-        <article><h3>Quality checks</h3><p>Explain generation plans and validate generated schema data for semantic consistency.</p></article>
-        <article><h3>Advisor artifacts</h3><p>Optionally create editable JSON plans and column tags before deterministic generation.</p></article>
-        <article><h3>Recipes and CLI</h3><p>Package repeatable data generation scenarios as files or run them from the command line.</p></article>
+        <article><h3>Schema-first generation</h3><p>Generate synthetic DataFrames from mappings, DDL strings, DataFrames, Spark schemas, `TableSchema`, and domain schemas.</p></article>
+        <article><h3>SQL DDL parsing</h3><p>Use `parse_ddl(...)` for documented SQL `CREATE TABLE` contracts with stable fingerprints.</p></article>
+        <article><h3>Semantic field detection</h3><p>Recognize names, IDs, contacts, dates, amounts, statuses, quantities, and lifecycle fields from column names.</p></article>
+        <article><h3>Query-aware generation</h3><p>Include required filter values, partition dates, selectivity targets, and join paths when your tests need them.</p></article>
+        <article><h3>Relational generation</h3><p>Create parent-child tables with primary keys, foreign keys, and valid references by default.</p></article>
+        <article><h3>CDC simulation</h3><p>Generate insert, update, and delete style records with event timestamps and ingestion timestamps.</p></article>
+        <article><h3>Anomaly injection</h3><p>Add opt-in nulls, duplicates, orphan keys, late records, outliers, invalid statuses, and negative amounts for data quality tests.</p></article>
+        <article><h3>SCD2 history</h3><p>Create slowly changing dimension history tables for supported Pandas domain workflows.</p></article>
+        <article><h3>Dimensional models</h3><p>Generate facts and dimensions for analytics engineering, BI examples, and warehouse modeling demos.</p></article>
+        <article><h3>Data Vault models</h3><p>Create hubs, links, and satellites for architecture examples and modeling experiments.</p></article>
+        <article><h3>Pandas and Spark engines</h3><p>Use Pandas locally or Spark in runtimes such as Databricks, Fabric Spark, EMR, Glue, and Synapse Spark.</p></article>
+        <article><h3>Exports</h3><p>Use convenience exports for CSV, JSON, Parquet, and Delta, or write returned DataFrames with native APIs.</p></article>
+        <article><h3>Recipes and CLI</h3><p>Package repeatable generation scenarios as JSON, TOML, or simple YAML recipes and run them from the command line.</p></article>
+        <article><h3>Advisor artifacts</h3><p>Create optional `GenerationPlan`, `ColumnTags`, and realism review artifacts before deterministic generation.</p></article>
+        <article><h3>Manifest metadata</h3><p>Record generation parameters, tables, validation checks, schema fingerprints, and optional advisor contribution.</p></article>
       </div>
     </section>
 
-    <section class="section" id="platforms">
+    <section class="section" id="schema-inputs">
       <div class="section-heading">
-        <p class="eyebrow">Platforms</p>
-        <h2>Use the same library across local notebooks and cloud Spark environments.</h2>
+        <p class="eyebrow">Schema inputs</p>
+        <h2>Start from the contract you already have.</h2>
       </div>
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr><th>Environment</th><th>Recommended engine</th><th>Typical outputs</th><th>Notes</th></tr>
-          </thead>
+          <thead><tr><th>Input type</th><th>Example</th><th>Best for</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>Local Python</td><td>Pandas</td><td>DataFrame, CSV, JSON, Parquet</td><td>Best for unit tests, demos, tutorials, and small to medium local data.</td></tr>
-            <tr><td>Jupyter or Anaconda</td><td>Pandas</td><td>DataFrame, local files</td><td>Great for exploration and presentation demos.</td></tr>
-            <tr><td>Databricks</td><td>Spark</td><td>DataFrame, DBFS, ADLS, S3, Delta</td><td>Use paths and credentials already configured in the workspace.</td></tr>
-            <tr><td>EMR, Glue, Synapse, Fabric, Dataproc</td><td>Spark</td><td>DataFrame, object storage, Parquet, Delta where available</td><td>Use Spark-native writes for cloud storage and catalog targets.</td></tr>
-            <tr><td>Research and benchmarking</td><td>Pandas or Spark</td><td>Repeatable DataFrames and files</td><td>Use explicit row counts and document your environment for reproducibility.</td></tr>
+            <tr><td>Plain Python mapping</td><td>`{"name": "string", "age": "int"}`</td><td>Fast schema-based generation</td><td><strong>Supported</strong></td></tr>
+            <tr><td>Rich mapping and custom rules</td><td>`custom_rules={"age": {"min": 18}}`</td><td>Business ranges, categories, patterns, and null rates</td><td><strong>Supported through `custom_rules`</strong></td></tr>
+            <tr><td>Pandas dtype mapping</td><td>`df.dtypes.to_dict()`</td><td>Pandas and notebook workflows</td><td><strong>Supported</strong></td></tr>
+            <tr><td>Pandas DataFrame schema</td><td>Empty or populated `DataFrame`</td><td>Preserve Pandas column names and dtypes</td><td><strong>Supported</strong></td></tr>
+            <tr><td>Compact DDL string</td><td>`"id int, name string"`</td><td>SQL-like quick starts</td><td><strong>Supported</strong></td></tr>
+            <tr><td>Full SQL `CREATE TABLE` DDL</td><td>`parse_ddl(ddl, dialect="databricks")`</td><td>Contracts from databases, warehouses, Spark, and lakehouse tables</td><td><strong>Supported for documented subset</strong></td></tr>
+            <tr><td>PySpark `StructType`</td><td>`StructType([...])`</td><td>Spark notebook schemas</td><td><strong>Supported</strong></td></tr>
+            <tr><td>PySpark DataFrame</td><td>Empty or populated Spark DataFrame</td><td>Use an existing Spark schema</td><td><strong>Supported</strong></td></tr>
+            <tr><td>`TableSchema`</td><td>`TableSchema(name="customers", ...)`</td><td>Library-native schema metadata</td><td><strong>Supported</strong></td></tr>
+            <tr><td>`DomainSchema`</td><td>Multi-table schema metadata</td><td>Relational and domain-shaped datasets</td><td><strong>Supported</strong></td></tr>
+            <tr><td>JSON Schema</td><td>`schema.json`</td><td>Application contracts</td><td><strong>Planned</strong></td></tr>
+            <tr><td>YAML schema profile</td><td>`schema.yml`</td><td>Reusable schema configs</td><td><strong>Planned</strong></td></tr>
+            <tr><td>Pydantic model</td><td>`BaseModel`</td><td>API model contracts</td><td><strong>Planned</strong></td></tr>
+            <tr><td>Dataclass</td><td>`@dataclass`</td><td>Python application models</td><td><strong>Planned</strong></td></tr>
           </tbody>
         </table>
       </div>
-      <p class="note">
-        Scale guidance: Great Generator is designed to support small to large datasets. It can be used to generate datasets ranging from one row to millions of rows, depending on the user environment and memory or compute setup. For very large datasets, chunking or Spark-native generation is recommended.
-      </p>
     </section>
 
-    <section class="section" id="write-anywhere">
-      <div class="section-heading">
-        <p class="eyebrow">DataFrame-first output</p>
-        <h2>Return the data first, then write wherever you need it.</h2>
-        <p>
-          Great Generator does not force a storage decision. Functions return a DataFrame or a dictionary of table-name DataFrames. Users can inspect, transform, validate, join, visualize, or write using normal Pandas and Spark APIs.
-        </p>
+    <section class="section split" id="query-aware">
+      <div>
+        <p class="eyebrow">Query-aware generation</p>
+        <h2>Generate data that your SQL query can actually match.</h2>
+        <p>Query-aware generation creates synthetic data that contains the required values, partition dates, and join paths your SQL queries expect.</p>
+        <p>All query-aware options are optional. Existing behavior is unchanged unless users provide `required_values`, `partition_by`, `target_selectivity`, `ensure_join_coverage`, or `query_profile`.</p>
+        <p class="note">Query-aware generation helps synthetic data match expected query values, partition dates, and join paths. It does not guarantee identical production performance because file layout, table statistics, clustering, caching, concurrency, warehouse size, and query engine configuration also affect runtime.</p>
+        <p class="note">Current query-aware shaping is implemented for Pandas generation paths. Spark-native query-aware generation is planned; Spark users can continue using existing Spark generation paths and normal Spark writers.</p>
       </div>
-      <div class="example-grid">
-        <article class="example-card">
-          <h3>Pandas write options</h3>
-          <pre><code>data = generate_domain("healthcare")
-
-patients = data["patients"]
-patients.to_csv("patients.csv", index=False)
-patients.to_json("patients.json", orient="records")
-patients.to_parquet("patients.parquet")</code></pre>
-        </article>
-        <article class="example-card">
-          <h3>Spark write options</h3>
-          <pre><code>data = generate_domain("telecom", engine="spark", spark=spark)
-
-usage = data["usage_events"]
-usage.write.mode("overwrite").format("delta").save(
-    "abfss://container@account.dfs.core.windows.net/demo/usage"
+      <pre><code>df = generate_from_schema(
+    schema=schema,
+    rows=100000,
+    required_values={
+        "region": ["SOUTH"],
+        "product_type": ["CHECKING", "SAVINGS"],
+    },
+    partition_by={
+        "column": "business_date",
+        "values": ["2026-01-01", "2026-01-02"],
+        "distribution": "balanced",
+    },
+    target_selectivity={"region": {"SOUTH": 0.25}},
 )</code></pre>
-        </article>
+    </section>
+
+    <section class="section split" id="sql-ddl">
+      <div>
+        <p class="eyebrow">SQL DDL and contracts</p>
+        <h2>Contract-first schema generation from documented SQL DDL.</h2>
+        <p>Use `parse_ddl(...)` to parse documented SQL `CREATE TABLE` DDL into canonical contracts with stable fingerprints, table names, column order, normalized types, keys, relationships, constraints, comments, defaults, and selected Spark/Databricks metadata where supported.</p>
+        <p class="note">The parser supports a documented subset of ANSI, Spark, and Databricks DDL. Unsupported syntax should produce clear diagnostics rather than silent assumptions.</p>
+      </div>
+      <pre><code>from great_generator import parse_ddl, generate_from_schema
+
+contract = parse_ddl(ddl, dialect="databricks", strict=True)
+print(contract.fingerprint())
+
+df = generate_from_schema(contract, rows=1000, seed=42)</code></pre>
+    </section>
+
+    <section class="section" id="advisor">
+      <div class="section-heading">
+        <p class="eyebrow">Optional AI advisor layer</p>
+        <h2>Design-time advice, deterministic row generation.</h2>
+        <p>The advisor layer can propose a generation plan, tag columns, and review a sample for realism. Advisors do not generate row data. Generation remains deterministic because the generator consumes inspectable JSON artifacts, not model output at row-generation time.</p>
+      </div>
+      <div class="flow" aria-label="Advisor flow">
+        <span>schema</span><span>advisor</span><span>plan</span><span>review</span><span>generation</span><span>data</span>
+      </div>
+      <div class="table-wrap compact-table">
+        <table>
+          <thead><tr><th>Advisor</th><th>Status</th><th>Network</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>none</td><td>default</td><td>none</td><td>No API key, no model call.</td></tr>
+            <tr><td>Anthropic</td><td>optional</td><td>online</td><td>Requires advisor extra and API key.</td></tr>
+            <tr><td>Ollama</td><td>optional</td><td>local</td><td>Supports offline local model use.</td></tr>
+            <tr><td>OpenAI</td><td>stub/planned</td><td>online</td><td>Reserved interface; not listed as active advisor support.</td></tr>
+            <tr><td>llama.cpp</td><td>stub/planned</td><td>local</td><td>Reserved interface; not listed as active advisor support.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section split" id="relational">
+      <div>
+        <p class="eyebrow">Relational and lakehouse workflows</p>
+        <h2>Generate connected tables, history, CDC, and modeling examples.</h2>
+        <p>Great Generator supports parent-child tables, primary keys and foreign keys, fact and dimension examples, CDC simulation, anomaly injection, SCD2 history, dimensional models, Data Vault-style examples, and Spark/Delta output.</p>
+        <p>Returned DataFrames stay in your control, so you can write to files, catalogs, databases, or cloud storage through native Pandas and Spark APIs.</p>
+      </div>
+      <div class="code-stack">
+        <pre><code>data = generate_relational(tables=tables, seed=42)
+
+customers = data["customers"]
+orders = data["orders"]</code></pre>
+        <pre><code>data = generate_domain("banking", history="scd2")
+cdc = generate_cdc("banking", table="customers", rows=1000)</code></pre>
+      </div>
+    </section>
+
+    <section class="section split" id="spark-delta">
+      <div>
+        <p class="eyebrow">Spark, Delta, and cloud paths</p>
+        <h2>Use the same package locally and in Spark notebooks.</h2>
+        <p>Generate Pandas or Spark DataFrames and write through normal runtime APIs. Pandas can write local CSV, JSON, and Parquet. Spark can write to DBFS, ADLS, S3, GCS, HDFS, mounted paths, Parquet, Delta, and configured database connectors.</p>
+      </div>
+      <div class="code-stack">
+        <pre><code>df.to_parquet("customers.parquet", index=False)</code></pre>
+        <pre><code>spark_df.write.mode("overwrite").parquet("s3://bucket/demo/customers")
+spark_df.write.format("delta").mode("overwrite").save("dbfs:/tmp/demo_delta")</code></pre>
+      </div>
+    </section>
+
+    <section class="section" id="trust">
+      <div class="section-heading">
+        <p class="eyebrow">Trust, safety, and determinism</p>
+        <h2>Repeatable generated data without production-record transformation.</h2>
+        <p>Great Generator separates design-time advice from row generation. Advisor outputs are saved as JSON artifacts. The generator consumes those artifacts deterministically. This keeps test data repeatable and makes plan review possible before data is generated.</p>
+      </div>
+      <div class="trust-grid">
+        <article><h3>Deterministic path</h3><p>Same schema, plan, seed, and arguments should produce the same output for repeatable tests and demos.</p></article>
+        <article><h3>Offline default</h3><p>`advisor="none"` is the default. It does not call a model, read API keys, or require network access.</p></article>
+        <article><h3>JSON artifacts</h3><p>Plans, tags, reports, and manifests can be reviewed, edited, saved, and committed with your project.</p></article>
+        <article><h3>Synthetic boundary</h3><p>The library creates synthetic data. It does not anonymize, mask, de-identify, or transform production records.</p></article>
       </div>
     </section>
 
     <section class="section" id="docs">
       <div class="section-heading">
         <p class="eyebrow">Documentation</p>
-        <h2>Guides for demos, implementation, and release-readiness.</h2>
+        <h2>Guides for quick starts, implementation, demos, and releases.</h2>
       </div>
       <div class="doc-grid">
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SCHEMA_INPUTS.md"><strong>Schema inputs</strong><span>Current support matrix, examples, and limitations.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/QUICKSTART.md"><strong>Quickstart</strong><span>Install, import, generate, inspect, and export.</span></a>
-          <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/API_REFERENCE.md"><strong>API reference</strong><span>Main public APIs and usage patterns.</span></a>
-          <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/REALISTIC_VALUES.md"><strong>Realistic values</strong><span>Semantic field detection and generation quality.</span></a>
-          <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/QUERY_AWARE_GENERATION.md"><strong>Query-aware generation</strong><span>Required values, partitions, selectivity, join coverage, and coverage reports.</span></a>
-          <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/DOMAIN_PACKS.md"><strong>Domain packs</strong><span>Supported industry domains and table layouts.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SPARK_AND_DELTA.md"><strong>Spark and Delta</strong><span>Cluster usage, large data, and lakehouse outputs.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SPARK_DATABASE_WRITES.md"><strong>Spark database writes</strong><span>Databricks and PySpark writes to Snowflake and Azure SQL.</span></a>
-          <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CONTRACTS_AND_DDL.md"><strong>Contracts and DDL</strong><span>Canonical contracts, parse_ddl, stable hashes, and SQL CREATE TABLE examples.</span></a>
-          <a href="https://github.com/ravikiranpagidi/great-generator/tree/main/examples/06-retail-star-schema"><strong>Retail star-schema example</strong><span>Runnable DDL-to-dimensions-and-fact demo with validation and manifest output.</span></a>
-          <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/DETERMINISM.md"><strong>Determinism</strong><span>How seeds, schemas, engines, and sorting affect reproducible generated data.</span></a>
-          <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/GENERATION_MANIFEST.md"><strong>Generation manifest</strong><span>Provenance metadata for generated tables, validation, and advisor context.</span></a>
-          <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/BENCHMARKS.md"><strong>Benchmark methodology</strong><span>Transparent, environment-specific benchmarking guidance.</span></a>
-          <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/advisors.md"><strong>Advisor layer</strong><span>Optional schema planning, column tagging, caching, and offline Ollama usage.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/plans.md"><strong>Plans and tags</strong><span>GenerationPlan, ColumnTags, and RealismReport artifact reference.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CLOUD_DEPLOYMENT.md"><strong>Cloud deployment</strong><span>AWS, Azure, GCP, Databricks, and storage guidance.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CDC.md"><strong>CDC</strong><span>Change data capture style events.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/ANOMALIES.md"><strong>Anomalies</strong><span>Data quality problems for testing tools and pipelines.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/DEMO_GUIDE.md"><strong>Demo guide</strong><span>Speaker-friendly story, examples, and demo flow.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SCHEMA_INPUTS.md"><strong>Schema Inputs</strong><span>Current support matrix, examples, and limitations.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CONTRACTS_AND_DDL.md"><strong>SQL DDL</strong><span>Canonical contracts, parser diagnostics, and DDL examples.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/QUERY_AWARE_GENERATION.md"><strong>Query-Aware Generation</strong><span>Required values, partitions, selectivity, join coverage, and coverage reports.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/API_REFERENCE.md"><strong>API Reference</strong><span>Main public APIs and usage patterns.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/advisors.md"><strong>AI Advisors</strong><span>Optional schema planning, column tagging, caching, and offline Ollama usage.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/plans.md"><strong>Generation Plans</strong><span>`GenerationPlan`, `ColumnTags`, and realism report artifacts.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CDC.md"><strong>CDC</strong><span>Change data capture style event records.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/ANOMALIES.md"><strong>Anomalies</strong><span>Opt-in data problems for quality testing.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SPARK_AND_DELTA.md"><strong>Spark and Delta</strong><span>Cluster usage and lakehouse outputs.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CLOUD_DEPLOYMENT.md"><strong>Cloud Deployment</strong><span>AWS, Azure, GCP, Databricks, and storage guidance.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/RECIPE_AUTHORING.md"><strong>Recipes and CLI</strong><span>Reusable generation parameters and command-line workflows.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/DOMAIN_PACKS.md"><strong>Domain Packs</strong><span>Supported industry domains and table layouts.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/DEMO_GUIDE.md"><strong>Demo Guide</strong><span>Speaker-friendly story, examples, and demo flow.</span></a>
       </div>
     </section>
 
-    <section class="section split" id="author">
+    <section class="section" id="releases">
+      <div class="section-heading">
+        <p class="eyebrow">Release highlights</p>
+        <h2>Recent project direction.</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Version</th><th>Focus</th><th>Highlights</th></tr></thead>
+          <tbody>
+            <tr><td>Unreleased</td><td>SQL DDL ingestion and query-aware generation</td><td>`parse_ddl(...)`, canonical contracts, parser diagnostics, documented ANSI/Spark/Databricks subset, required values, partitions, selectivity, and join coverage.</td></tr>
+            <tr><td>0.1.6</td><td>AI advisor planning layer</td><td>Advisors, `GenerationPlan`, `ColumnTags`, cached advisor calls, manifest metadata, and `plan=` support.</td></tr>
+            <tr><td>0.1.5</td><td>Schema-first docs and Spark writes</td><td>Schema input matrix, Databricks examples, Snowflake writes, Azure SQL writes, and documentation site updates.</td></tr>
+            <tr><td>0.1.1</td><td>Advanced APIs</td><td>Anomaly labels, SCD2 history, recipes, CLI, dimensional models, and Data Vault models.</td></tr>
+            <tr><td>0.1.0</td><td>Initial release</td><td>Domain packs, Pandas/Spark engines, exports, CDC, anomalies, schema generation, and relational generation.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="roadmap">
+      <div class="section-heading">
+        <p class="eyebrow">Roadmap</p>
+        <h2>Planned areas are labeled clearly.</h2>
+      </div>
+      <div class="roadmap-list">
+        <span>Infer query profiles from SQL text</span>
+        <span>JSON Schema support</span>
+        <span>YAML schema profiles</span>
+        <span>Pydantic and dataclass schema adapters</span>
+        <span>Spark-native query-aware generation</span>
+        <span>More Spark and lakehouse examples</span>
+        <span>Quality-tool examples for Great Expectations and Pandera</span>
+        <span>More domain packs and reference values</span>
+      </div>
+    </section>
+
+    <section class="section split author" id="author">
       <div>
-        <p class="eyebrow">Author</p>
+        <p class="eyebrow">Project</p>
         <h2>Created and maintained by Ravi Kiran Pagidi.</h2>
-        <p>
-          Great Generator is an open-source Python library for developers, data engineers, QA teams, analytics engineers, and platform teams that need realistic lower-environment data without production records.
-        </p>
+        <p>Great Generator is MIT licensed and maintained by Ravi Kiran Pagidi.</p>
       </div>
       <div class="link-panel">
-        <a href="https://pypi.org/project/great-generator/">PyPI project</a>
         <a href="https://github.com/ravikiranpagidi/great-generator">GitHub repository</a>
+        <a href="https://pypi.org/project/great-generator/">PyPI package</a>
         <a href="https://github.com/ravikiranpagidi/great-generator/wiki">GitHub Wiki</a>
-        <a href="mailto:ravikiran.pagidi@gmail.com">Contact Ravi</a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/issues">Issues</a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/LICENSE">License</a>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p>Great Generator is MIT licensed. Created and maintained by Ravi Kiran Pagidi.</p>
-    <p class="small">To publish this page, enable GitHub Pages for the repository using the <code>main</code> branch and <code>/docs</code> folder, or use a GitHub Pages workflow.</p>
+    <div class="footer-links">
+      <a href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
+      <a href="https://pypi.org/project/great-generator/">PyPI</a>
+      <a href="https://ravikiranpagidi.github.io/great-generator/">Documentation</a>
+      <a href="https://github.com/ravikiranpagidi/great-generator/wiki">Wiki</a>
+      <a href="https://github.com/ravikiranpagidi/great-generator/issues">Issues</a>
+      <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/LICENSE">License</a>
+    </div>
+    <p>Great Generator is MIT licensed and maintained by Ravi Kiran Pagidi.</p>
+    <p class="small">Synthetic data generation for development, tests, demos, learning, and research. Not a production-data anonymization tool.</p>
   </footer>
 </body>
 </html>
