@@ -93,6 +93,7 @@ The same semantic layer recognizes IDs, email addresses, phone numbers, addresse
 - generate custom relational parent-child tables with valid keys
 - generate dimensional/star-schema examples from SQL DDL contracts
 - save generation manifests for reproducibility and provenance
+- run an optional MCP server for assistant-driven local generation workflows
 - use prebuilt enterprise domain packs
 - simulate CDC records, anomalies, SCD2 history, dimensional models, and Data Vault models
 - export domain datasets to CSV, JSON, Parquet, and Delta
@@ -116,6 +117,7 @@ Online and offline advisors are separate from generation. Anthropic and Ollama a
 
 | Version | Release focus | What changed |
 |---|---|---|
+| Unreleased | Optional MCP server | Added optional `great-generator[mcp]` support, a `great-generator-mcp` entry point, local-file MCP tools, safety controls, docs, examples, and tests. |
 | 0.1.7 | SQL DDL contracts and query-aware generation | Added canonical contracts, `parse_ddl(...)`, optional query-aware required values, partitioning, selectivity, relational join coverage, a runnable retail star-schema example, generation manifest guidance, determinism docs, benchmark methodology, and citation metadata. |
 | 0.1.6 | AI advisor planning layer | Added optional design-time advisors for schema understanding, column tagging, and realism review. Added editable `GenerationPlan` and `ColumnTags` JSON artifacts, cached Anthropic and Ollama advisor calls, offline NoOp defaults, manifest metadata, and deterministic `plan=` support in `generate_from_schema`. |
 | 0.1.5 | Schema-first docs and Spark database writes | Repositioned schema generation as the primary workflow. Added a schema input support matrix, Databricks and PySpark examples for Snowflake and Azure SQL, and documentation site updates. |
@@ -132,6 +134,7 @@ Online and offline advisors are separate from generation. Anthropic and Ollama a
 - [Query-aware generation](docs/QUERY_AWARE_GENERATION.md)
 - [Determinism and reproducibility](docs/DETERMINISM.md)
 - [Generation manifest](docs/GENERATION_MANIFEST.md)
+- [Optional MCP server](docs/MCP_SERVER.md)
 - [Provenance and safety notes](docs/PROVENANCE.md)
 - [Benchmark methodology](docs/BENCHMARKS.md)
 - [Spark and database writes](docs/SPARK_DATABASE_WRITES.md)
@@ -157,6 +160,12 @@ pip install "great-generator[anthropic]"
 pip install "great-generator[ollama]"
 ```
 
+Optional MCP dependency:
+
+```bash
+pip install "great-generator[mcp]"
+```
+
 Install with a hyphen and import with an underscore:
 
 ```python
@@ -164,6 +173,51 @@ import great_generator
 ```
 
 The base package supports Python 3.9 and later and installs Pandas, NumPy, PyArrow, Faker, and SQLGlot for SQL DDL parsing. PySpark and Delta Lake remain optional.
+
+## Optional MCP server
+
+Great Generator includes an optional MCP server so AI assistants can call selected tools such as schema-based generation, relational generation, SQL DDL parsing, query coverage validation, and local file export.
+
+MCP support is optional. The core package does not require MCP dependencies.
+
+```bash
+pip install "great-generator[mcp]"
+```
+
+Start the server:
+
+```bash
+great-generator-mcp
+```
+
+or:
+
+```bash
+python -m great_generator.mcp.server
+```
+
+The MCP server is a wrapper over existing public APIs. It does not introduce a new generation engine. It writes generated datasets to local files and returns row counts, file paths, schema summaries, previews, warnings, and manifest information. It does not send data to production systems and does not overwrite files unless `overwrite=True`.
+
+```mermaid
+flowchart LR
+    A[MCP Client<br/>Claude Desktop, Cursor, VS Code, other clients] --> B[Great Generator MCP Server]
+    B --> C[Safety Layer<br/>path checks, row limits, overwrite protection]
+    C --> D[Tool Registry]
+    D --> E[parse_ddl]
+    D --> F[generate_from_schema]
+    D --> G[generate_relational]
+    D --> H[validate_query_coverage]
+    D --> I[export_dataset]
+    E --> J[Great Generator Core APIs]
+    F --> J
+    G --> J
+    H --> J
+    I --> J
+    J --> K[Local Output Files<br/>CSV, JSONL, Parquet]
+    J --> L[Manifest and Preview]
+```
+
+See [docs/MCP_SERVER.md](docs/MCP_SERVER.md) for client configuration, safety limits, output behavior, example prompts, and troubleshooting.
 
 ## Quick Start: Generate Data from Schema
 

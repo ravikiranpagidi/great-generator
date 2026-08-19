@@ -89,6 +89,7 @@ openai = ["openai>=1.40", "pydantic>=2.7"]
 ollama = ["pydantic>=2.7"]
 llamacpp = ["llama-cpp-python>=0.2.90", "pydantic>=2.7"]
 ai = ["anthropic>=0.39", "pydantic>=2.7"]
+mcp = ["mcp>=1.0.0"]
 ingest = []
 streaming = []
 quality = []
@@ -110,6 +111,7 @@ dev = [
 
 [project.scripts]
 great-generator = "great_generator.cli:main"
+great-generator-mcp = "great_generator.mcp.server:main"
 
 [project.urls]
 Homepage = "https://github.com/ravikiranpagidi/great-generator"

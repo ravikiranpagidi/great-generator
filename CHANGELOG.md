@@ -8,7 +8,7 @@ This project follows semantic versioning once public releases begin.
 
 | Version | Date | Release focus | Main changes |
 |---|---:|---|---|
-| Unreleased | TBD | Future improvements | No unreleased changes yet |
+| Unreleased | TBD | Optional MCP server | Optional `great-generator[mcp]` extra, stdio MCP server, local-file tools, safety controls, docs, examples, and tests |
 | 0.1.7 | 2026-08-15 | SQL DDL contracts and query-aware generation | Canonical contracts, `parse_ddl(...)`, stable contract hashing, structured parser diagnostics, documented ANSI/Spark/Databricks `CREATE TABLE` subset, optional query-aware generation, a runnable retail star-schema example, generation manifests, determinism docs, benchmark methodology, and citation metadata |
 | 0.1.6 | 2026-07-11 | AI advisor planning layer | Optional design-time advisors, editable plans and tags, advisor cache, manifest metadata, and deterministic `plan=` support for schema generation |
 | 0.1.5 | 2026-06-28 | Schema-first docs and Spark database writes | Schema-first README, support matrix, Databricks and PySpark examples for Snowflake and Azure SQL, and documentation site updates |
@@ -20,7 +20,13 @@ This project follows semantic versioning once public releases begin.
 
 ## Unreleased
 
-No unreleased changes yet.
+### Added
+
+- Added an optional MCP server under the existing `great-generator[mcp]` extra.
+- Added CLI entry point: `great-generator-mcp`.
+- Added MCP tools for `generate_from_schema`, `parse_ddl`, `generate_relational`, `validate_query_coverage`, and `export_dataset`.
+- Added path safety, row limits, overwrite protection, local output manifests, JSON-safe responses, and preview-only dataset responses for MCP tools.
+- Added MCP documentation, README updates, wiki update copy, architecture diagrams, ecosystem diagrams, example client configurations, and tests.
 
 ## 0.1.7 - 2026-08-15
 

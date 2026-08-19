@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Great Generator | Schema-first synthetic data for data engineering and AI-ready testing</title>
-  <meta name="description" content="Great Generator creates synthetic non-production datasets from schemas, SQL DDL, relationships, and generation plans for QA, ETL testing, Spark, lakehouse demos, CDC, anomalies, and deterministic advisor-reviewed generation." />
-  <meta name="keywords" content="synthetic data, schema generation, SQL DDL, pandas, pyspark, spark, databricks, delta lake, CDC, anomaly injection, data quality, lakehouse, query-aware generation, test data" />
+  <meta name="description" content="Great Generator creates synthetic non-production datasets from schemas, SQL DDL, relationships, generation plans, and optional MCP tools for QA, ETL testing, Spark, lakehouse demos, CDC, anomalies, and deterministic advisor-reviewed generation." />
+  <meta name="keywords" content="synthetic data, schema generation, SQL DDL, pandas, pyspark, spark, databricks, delta lake, CDC, anomaly injection, data quality, lakehouse, query-aware generation, MCP server, test data" />
   <meta property="og:title" content="Great Generator | Schema-first synthetic data for data engineering" />
   <meta property="og:description" content="Generate realistic synthetic data from schemas, SQL DDL, relationships, and generation plans for testing, Spark, lakehouse demos, CDC, anomalies, and lower environments." />
   <meta property="og:type" content="website" />
@@ -14,7 +14,7 @@
   <meta name="twitter:title" content="Great Generator" />
   <meta name="twitter:description" content="Schema-first synthetic data for QA, ETL testing, Spark, lakehouse demos, and deterministic advisor-reviewed generation." />
   <link rel="canonical" href="https://ravikiranpagidi.github.io/great-generator/" />
-  <link rel="stylesheet" href="assets/site.css?v=20260815-contrast" />
+  <link rel="stylesheet" href="assets/site.css?v=20260818-mcp" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -32,6 +32,7 @@
         <a href="#relational">Relational</a>
         <a href="#spark-delta">Spark &amp; Delta</a>
         <a href="#advisor">AI Advisor</a>
+        <a href="#mcp">MCP</a>
         <a href="#docs">Docs</a>
         <a class="nav-pill" href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
         <a class="nav-pill primary" href="https://pypi.org/project/great-generator/">PyPI</a>
@@ -58,6 +59,7 @@
           <span>SQL DDL</span>
           <span>CDC and anomalies</span>
           <span>Optional AI advisor</span>
+          <span>Optional MCP server</span>
           <span>Deterministic generation</span>
         </div>
       </div>
@@ -103,7 +105,7 @@ df = generate_from_schema(contract, rows=1000, seed=42)</code></pre>
     <section class="section" id="quickstart">
       <div class="section-heading">
         <p class="eyebrow">Install</p>
-        <h2>Simple install. Optional extras when you need Spark, Delta, or advisors.</h2>
+        <h2>Simple install. Optional extras when you need Spark, Delta, advisors, or MCP.</h2>
         <p>Install with a hyphen. Import with an underscore.</p>
       </div>
       <div class="install-grid">
@@ -112,7 +114,8 @@ pip install "great-generator[spark]"
 pip install "great-generator[delta]"
 pip install "great-generator[ai]"
 pip install "great-generator[anthropic]"
-pip install "great-generator[ollama]"</code></pre>
+pip install "great-generator[ollama]"
+pip install "great-generator[mcp]"</code></pre>
         <pre><code>import great_generator
 
 from great_generator import generate_from_schema
@@ -125,9 +128,14 @@ df = generate_from_schema("id int, name string", rows=100)</code></pre>
       <div class="section-heading">
         <p class="eyebrow">What is new</p>
         <h2>The project has grown beyond simple schema samples.</h2>
-        <p>Recent work adds query-aware generation, SQL DDL contracts, advisor artifacts, and stronger launch documentation while keeping the base package lightweight.</p>
+        <p>Recent work adds query-aware generation, SQL DDL contracts, advisor artifacts, optional MCP tools, and stronger launch documentation while keeping the base package lightweight.</p>
       </div>
       <div class="card-grid five">
+        <article>
+          <span class="card-kicker">Optional</span>
+          <h3>MCP server</h3>
+          <p>Let MCP-compatible assistants call selected Great Generator tools for local schema generation, DDL parsing, relational data, query coverage, and export.</p>
+        </article>
         <article>
           <span class="card-kicker">Current</span>
           <h3>Query-aware generation</h3>
@@ -243,6 +251,7 @@ df = generate_from_schema(
         <article><h3>Recipes and CLI</h3><p>Package repeatable generation scenarios as JSON, TOML, or simple YAML recipes and run them from the command line.</p></article>
         <article><h3>Advisor artifacts</h3><p>Create optional `GenerationPlan`, `ColumnTags`, and realism review artifacts before deterministic generation.</p></article>
         <article><h3>Manifest metadata</h3><p>Record generation parameters, tables, validation checks, schema fingerprints, and optional advisor contribution.</p></article>
+        <article><h3>Optional MCP server</h3><p>Expose selected public APIs to local MCP clients with path checks, row limits, overwrite protection, file outputs, manifests, and previews.</p></article>
       </div>
     </section>
 
@@ -367,6 +376,28 @@ spark_df.write.format("delta").mode("overwrite").save("dbfs:/tmp/demo_delta")</c
       </div>
     </section>
 
+    <section class="section split" id="mcp">
+      <div>
+        <p class="eyebrow">Optional MCP server</p>
+        <h2>Let assistants generate local synthetic datasets without returning large data in chat.</h2>
+        <p>Install `great-generator[mcp]` to expose selected Great Generator tools over local stdio MCP. The server wraps existing public APIs, writes generated datasets to local files, and returns summaries, previews, file paths, warnings, and manifest information.</p>
+        <p class="note">The MCP server does not introduce a new generation engine, does not call external APIs by default, does not send data to production systems, and does not overwrite files unless `overwrite=True`.</p>
+      </div>
+      <div class="code-stack">
+        <pre><code>pip install "great-generator[mcp]"
+
+great-generator-mcp</code></pre>
+        <pre><code>{
+  "mcpServers": {
+    "great-generator": {
+      "command": "great-generator-mcp",
+      "args": []
+    }
+  }
+}</code></pre>
+      </div>
+    </section>
+
     <section class="section" id="trust">
       <div class="section-heading">
         <p class="eyebrow">Trust, safety, and determinism</p>
@@ -390,6 +421,7 @@ spark_df.write.format("delta").mode("overwrite").save("dbfs:/tmp/demo_delta")</c
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/QUICKSTART.md"><strong>Quickstart</strong><span>Install, import, generate, inspect, and export.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SCHEMA_INPUTS.md"><strong>Schema Inputs</strong><span>Current support matrix, examples, and limitations.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CONTRACTS_AND_DDL.md"><strong>SQL DDL</strong><span>Canonical contracts, parser diagnostics, and DDL examples.</span></a>
+        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/MCP_SERVER.md"><strong>MCP Server</strong><span>Optional local MCP tools, client configs, safety limits, outputs, and manifests.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/QUERY_AWARE_GENERATION.md"><strong>Query-Aware Generation</strong><span>Required values, partitions, selectivity, join coverage, and coverage reports.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/API_REFERENCE.md"><strong>API Reference</strong><span>Main public APIs and usage patterns.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/advisors.md"><strong>AI Advisors</strong><span>Optional schema planning, column tagging, caching, and offline Ollama usage.</span></a>
@@ -413,6 +445,7 @@ spark_df.write.format("delta").mode("overwrite").save("dbfs:/tmp/demo_delta")</c
         <table>
           <thead><tr><th>Version</th><th>Focus</th><th>Highlights</th></tr></thead>
           <tbody>
+            <tr><td>Unreleased</td><td>Optional MCP server</td><td>`great-generator[mcp]`, `great-generator-mcp`, local-file tools, path safety, row limits, overwrite protection, manifests, examples, and tests.</td></tr>
             <tr><td>0.1.7</td><td>SQL DDL ingestion and query-aware generation</td><td>`parse_ddl(...)`, canonical contracts, parser diagnostics, documented ANSI/Spark/Databricks subset, required values, partitions, selectivity, and join coverage.</td></tr>
             <tr><td>0.1.6</td><td>AI advisor planning layer</td><td>Advisors, `GenerationPlan`, `ColumnTags`, cached advisor calls, manifest metadata, and `plan=` support.</td></tr>
             <tr><td>0.1.5</td><td>Schema-first docs and Spark writes</td><td>Schema input matrix, Databricks examples, Snowflake writes, Azure SQL writes, and documentation site updates.</td></tr>
