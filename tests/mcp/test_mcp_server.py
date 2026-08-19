@@ -27,7 +27,13 @@ def test_tool_descriptions_are_present():
 
 
 def test_create_server_when_mcp_sdk_is_available():
-    pytest.importorskip("mcp")
+    try:
+        from mcp.server.fastmcp import FastMCP  # noqa: F401
+    except ImportError:
+        try:
+            from mcp.server.mcpserver import MCPServer  # noqa: F401
+        except ImportError:
+            pytest.skip("MCP SDK server classes are not installed")
 
     server = create_server()
 
