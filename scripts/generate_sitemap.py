@@ -43,6 +43,8 @@ def discover_pages() -> list[Path]:
             continue
         if path.name in EXCLUDED_FILES:
             continue
+        if path.name.startswith("google") and path.name.endswith(".html"):
+            continue
         pages.append(path)
     return sorted(pages, key=lambda item: _url_for_html(item))
 

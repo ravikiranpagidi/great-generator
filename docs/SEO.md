@@ -12,8 +12,11 @@ The public GitHub Pages root is the `docs/` directory. These files are published
 
 - `docs/sitemap.xml` — XML sitemap for important public HTML pages.
 - `docs/robots.txt` — search crawler policy that allows crawling and points to the sitemap.
+- `docs/googled8bf242e96d63743.html` — Google Search Console HTML verification file.
 - `scripts/generate_sitemap.py` — standard-library sitemap regeneration script.
 - `scripts/submit_indexnow.py` — optional IndexNow submission helper.
+
+Keep search-console verification files in place after verification succeeds so ownership remains valid.
 
 ## How to regenerate the sitemap
 
