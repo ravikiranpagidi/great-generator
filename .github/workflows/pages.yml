@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "docs/**"
+      - "scripts/generate_sitemap.py"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -31,6 +32,9 @@ jobs:
         uses: actions/configure-pages@v5
         with:
           enablement: true
+
+      - name: Generate sitemap
+        run: python scripts/generate_sitemap.py
 
       - name: Upload static documentation
         uses: actions/upload-pages-artifact@v3

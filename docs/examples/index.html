@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Examples | Great Generator synthetic data workflows</title>
+  <meta name="description" content="Explore Great Generator examples for schema-based data, SQL DDL, relational tables, Spark and Delta writes, CDC, anomalies, advisors, and MCP usage." />
+  <link rel="canonical" href="https://ravikiranpagidi.github.io/great-generator/examples/" />
+  <meta property="og:title" content="Examples | Great Generator synthetic data workflows" />
+  <meta property="og:description" content="Explore Great Generator examples for schema-based data, SQL DDL, relational tables, Spark and Delta writes, CDC, anomalies, advisors, and MCP usage." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://ravikiranpagidi.github.io/great-generator/examples/" />
+  <meta property="og:site_name" content="Great Generator" />
+  <meta property="og:image" content="https://ravikiranpagidi.github.io/great-generator/assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Examples | Great Generator synthetic data workflows" />
+  <meta name="twitter:image" content="https://ravikiranpagidi.github.io/great-generator/assets/og.png" />
+  <meta name="twitter:description" content="Explore Great Generator examples for schema-based data, SQL DDL, relational tables, Spark and Delta writes, CDC, anomalies, advisors, and MCP usage." />
+  <link rel="stylesheet" href="../assets/site.css?v=20260822-seo" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="../" aria-label="Great Generator home"><span class="brand-mark">GG</span><span>Great Generator</span></a>
+      <div class="nav-links">
+        <a href="../">Home</a>
+        <a href="../getting-started/">Getting Started</a>
+        <a href="../schema-generation/">Schema</a>
+        <a href="../sql-ddl/">SQL DDL</a>
+        <a href="../relational-generation/">Relational</a>
+        <a href="../spark-delta/">Spark</a>
+        <a href="../mcp-server/">MCP</a>
+        <a href="../#docs">Docs</a>
+        <a class="nav-pill" href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
+        <a class="nav-pill primary" href="https://pypi.org/project/great-generator/">PyPI</a>
+      </div>
+    </nav>
+  </header>
+  <main id="main" class="doc-main">
+    <section class="section doc-hero">
+      <p class="eyebrow">Examples</p>
+      <h1>Examples and demo workflows</h1>
+      <p class="lede">Use these examples as starting points for demos, notebooks, lower-environment tests, and documentation walkthroughs.</p>
+      <p class="safety-callout">Great Generator creates synthetic data. It does not anonymize, mask, de-identify, or transform production records.</p>
+      <div class="hero-actions">
+        <a class="button primary" href="../getting-started/">Getting started</a>
+        <a class="button secondary" href="../api-reference/">API reference</a>
+        <a class="button secondary" href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
+      </div>
+    </section>
+    <section class="section doc-content-grid">
+      
+        <article class="doc-card">
+          <h2>Notebook-friendly</h2>
+          <p>Schema strings and dictionaries are useful for quick Pandas examples in notebooks.</p>
+          <pre><code>df = generate_from_schema(&quot;id int, name string, email string&quot;, rows=100)</code></pre>
+        </article>
+
+        <article class="doc-card">
+          <h2>Spark-friendly</h2>
+          <p>Spark DataFrames can be written by the user's runtime to configured storage or connectors.</p>
+          <pre><code>spark_df.write.mode(&quot;overwrite&quot;).parquet(&quot;/tmp/great_generator/customers&quot;)</code></pre>
+        </article>
+
+        <article class="doc-card">
+          <h2>Assistant-friendly</h2>
+          <p>The optional MCP server lets compatible assistants call selected local tools and return file paths plus previews.</p>
+          
+        </article>
+    </section>
+    <section class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Related documentation</p>
+        <h2>Keep exploring</h2>
+      </div>
+      <div class="doc-grid">
+          <a href="../getting-started/"><strong>Getting started with Great Generator</strong><span>Install Great Generator and create synthetic non-production data from schemas, SQL DDL, and related-table definitions for development and testing.</span></a>
+          <a href="../schema-generation/"><strong>Generate synthetic data from schemas</strong><span>Create synthetic test data from schema strings, dictionaries, Pandas DataFrames, and Spark schemas using semantic field detection.</span></a>
+          <a href="../spark-delta/"><strong>Spark, Databricks, Delta, and lakehouse workflows</strong><span>Use Great Generator in Spark and Databricks notebooks to create synthetic datasets and write to Parquet, Delta, DBFS, ADLS, S3, GCS, or configured connectors.</span></a>
+          <a href="../mcp-server/"><strong>Optional local MCP server</strong><span>Install the optional Great Generator MCP server so compatible AI assistants can call schema generation, DDL parsing, relational generation, coverage validation, and local export tools.</span></a>
+          <a href="https://github.com/ravikiranpagidi/great-generator"><strong>GitHub repository</strong><span>Source code, issues, releases, and project history.</span></a>
+          <a href="https://pypi.org/project/great-generator/"><strong>PyPI package</strong><span>Install Great Generator from Python Package Index.</span></a>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-links">
+      <a href="../">Home</a>
+      <a href="../getting-started/">Getting Started</a>
+      <a href="../api-reference/">API Reference</a>
+      <a href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
+      <a href="https://pypi.org/project/great-generator/">PyPI</a>
+    </div>
+    <p>Great Generator is MIT licensed and maintained by Ravi Kiran Pagidi.</p>
+  </footer>
+</body>
+</html>

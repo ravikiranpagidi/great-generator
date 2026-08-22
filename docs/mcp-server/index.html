@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MCP Server | Use Great Generator from AI assistants</title>
+  <meta name="description" content="Install the optional Great Generator MCP server so compatible AI assistants can call schema generation, DDL parsing, relational generation, coverage validation, and local export tools." />
+  <link rel="canonical" href="https://ravikiranpagidi.github.io/great-generator/mcp-server/" />
+  <meta property="og:title" content="MCP Server | Use Great Generator from AI assistants" />
+  <meta property="og:description" content="Install the optional Great Generator MCP server so compatible AI assistants can call schema generation, DDL parsing, relational generation, coverage validation, and local export tools." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://ravikiranpagidi.github.io/great-generator/mcp-server/" />
+  <meta property="og:site_name" content="Great Generator" />
+  <meta property="og:image" content="https://ravikiranpagidi.github.io/great-generator/assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="MCP Server | Use Great Generator from AI assistants" />
+  <meta name="twitter:image" content="https://ravikiranpagidi.github.io/great-generator/assets/og.png" />
+  <meta name="twitter:description" content="Install the optional Great Generator MCP server so compatible AI assistants can call schema generation, DDL parsing, relational generation, coverage validation, and local export tools." />
+  <link rel="stylesheet" href="../assets/site.css?v=20260822-seo" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="../" aria-label="Great Generator home"><span class="brand-mark">GG</span><span>Great Generator</span></a>
+      <div class="nav-links">
+        <a href="../">Home</a>
+        <a href="../getting-started/">Getting Started</a>
+        <a href="../schema-generation/">Schema</a>
+        <a href="../sql-ddl/">SQL DDL</a>
+        <a href="../relational-generation/">Relational</a>
+        <a href="../spark-delta/">Spark</a>
+        <a href="../mcp-server/">MCP</a>
+        <a href="../#docs">Docs</a>
+        <a class="nav-pill" href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
+        <a class="nav-pill primary" href="https://pypi.org/project/great-generator/">PyPI</a>
+      </div>
+    </nav>
+  </header>
+  <main id="main" class="doc-main">
+    <section class="section doc-hero">
+      <p class="eyebrow">MCP synthetic data server</p>
+      <h1>Optional local MCP server</h1>
+      <p class="lede">The MCP server is a local stdio wrapper over existing public APIs. It does not introduce a separate generation engine.</p>
+      <p class="safety-callout">Great Generator creates synthetic data. It does not anonymize, mask, de-identify, or transform production records.</p>
+      <div class="hero-actions">
+        <a class="button primary" href="../getting-started/">Getting started</a>
+        <a class="button secondary" href="../api-reference/">API reference</a>
+        <a class="button secondary" href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
+      </div>
+    </section>
+    <section class="section doc-content-grid">
+      
+        <article class="doc-card">
+          <h2>Install and start</h2>
+          <p>MCP dependencies are optional and are not part of the base install.</p>
+          <pre><code>pip install &quot;great-generator[mcp]&quot;
+
+great-generator-mcp</code></pre>
+        </article>
+
+        <article class="doc-card">
+          <h2>Output behavior</h2>
+          <p>MCP tools write generated data to local files and return row counts, paths, schema summaries, warnings, previews, and manifest paths instead of returning large datasets in chat.</p>
+          
+        </article>
+
+        <article class="doc-card">
+          <h2>Safety defaults</h2>
+          <p>The server enforces local path checks, row limits, and overwrite protection. It does not write to production systems.</p>
+          
+        </article>
+    </section>
+    <section class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Related documentation</p>
+        <h2>Keep exploring</h2>
+      </div>
+      <div class="doc-grid">
+          <a href="../installation/"><strong>Installation options</strong><span>Install Great Generator for core Pandas workflows, Spark, Delta Lake, optional AI advisors, or the optional local MCP server.</span></a>
+          <a href="../schema-generation/"><strong>Generate synthetic data from schemas</strong><span>Create synthetic test data from schema strings, dictionaries, Pandas DataFrames, and Spark schemas using semantic field detection.</span></a>
+          <a href="../relational-generation/"><strong>Relational synthetic data</strong><span>Generate related synthetic tables with primary-key and foreign-key behavior for joins, warehouse models, tests, demos, and analytics examples.</span></a>
+          <a href="../api-reference/"><strong>API reference overview</strong><span>Review the main Great Generator public APIs for schema generation, SQL DDL parsing, relational generation, CDC, anomalies, advisors, and exports.</span></a>
+          <a href="https://github.com/ravikiranpagidi/great-generator"><strong>GitHub repository</strong><span>Source code, issues, releases, and project history.</span></a>
+          <a href="https://pypi.org/project/great-generator/"><strong>PyPI package</strong><span>Install Great Generator from Python Package Index.</span></a>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-links">
+      <a href="../">Home</a>
+      <a href="../getting-started/">Getting Started</a>
+      <a href="../api-reference/">API Reference</a>
+      <a href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
+      <a href="https://pypi.org/project/great-generator/">PyPI</a>
+    </div>
+    <p>Great Generator is MIT licensed and maintained by Ravi Kiran Pagidi.</p>
+  </footer>
+</body>
+</html>

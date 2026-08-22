@@ -4,17 +4,59 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Great Generator | Schema-first synthetic data for data engineering and AI-ready testing</title>
-  <meta name="description" content="Great Generator creates synthetic non-production datasets from schemas, SQL DDL, relationships, generation plans, and optional MCP tools for QA, ETL testing, Spark, lakehouse demos, CDC, anomalies, and deterministic advisor-reviewed generation." />
+  <meta name="description" content="Great Generator creates synthetic non-production datasets from schemas, SQL DDL, relationships, and generation plans for QA, ETL testing, Spark, lakehouse demos, CDC, anomalies, and deterministic advisor-reviewed generation." />
   <meta name="keywords" content="synthetic data, schema generation, SQL DDL, pandas, pyspark, spark, databricks, delta lake, CDC, anomaly injection, data quality, lakehouse, query-aware generation, MCP server, test data" />
-  <meta property="og:title" content="Great Generator | Schema-first synthetic data for data engineering" />
-  <meta property="og:description" content="Generate realistic synthetic data from schemas, SQL DDL, relationships, and generation plans for testing, Spark, lakehouse demos, CDC, anomalies, and lower environments." />
+  <meta property="og:title" content="Great Generator | Schema-first synthetic data generator" />
+  <meta property="og:description" content="Generate synthetic datasets from schemas, SQL DDL, relationships, and generation plans for data engineering, QA, Spark, lakehouse, CDC, anomalies, and AI-ready testing." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://ravikiranpagidi.github.io/great-generator/" />
+  <meta property="og:site_name" content="Great Generator" />
+  <meta property="og:image" content="https://ravikiranpagidi.github.io/great-generator/assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Great Generator" />
-  <meta name="twitter:description" content="Schema-first synthetic data for QA, ETL testing, Spark, lakehouse demos, and deterministic advisor-reviewed generation." />
+  <meta name="twitter:title" content="Great Generator | Schema-first synthetic data generator" />
+  <meta name="twitter:image" content="https://ravikiranpagidi.github.io/great-generator/assets/og.png" />
+  <meta name="twitter:description" content="Create synthetic test datasets from schemas, SQL DDL, relationships, and generation plans for data engineering, Spark, lakehouse, and AI-ready workflows." />
   <link rel="canonical" href="https://ravikiranpagidi.github.io/great-generator/" />
-  <link rel="stylesheet" href="assets/site.css?v=20260818-mcp" />
+  <link rel="stylesheet" href="assets/site.css?v=20260822-seo" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareSourceCode",
+        "name": "Great Generator",
+        "description": "Schema-first synthetic data generation library for data engineering, QA, Spark, lakehouse, CDC, anomalies, and AI-ready testing workflows.",
+        "codeRepository": "https://github.com/ravikiranpagidi/great-generator",
+        "programmingLanguage": "Python",
+        "license": "https://opensource.org/licenses/MIT",
+        "runtimePlatform": "Python",
+        "author": {
+          "@type": "Person",
+          "name": "Ravi Kiran Pagidi"
+        },
+        "sameAs": [
+          "https://pypi.org/project/great-generator/",
+          "https://github.com/ravikiranpagidi/great-generator"
+        ]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Great Generator",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "OS Independent",
+        "description": "Python package for synthetic non-production datasets from schemas, SQL DDL, relationships, and generation plans.",
+        "downloadUrl": "https://pypi.org/project/great-generator/",
+        "softwareVersion": "0.1.7",
+        "author": {
+          "@type": "Person",
+          "name": "Ravi Kiran Pagidi"
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -26,13 +68,14 @@
       </a>
       <div class="nav-links">
         <a href="#top">Home</a>
-        <a href="#quickstart">Quickstart</a>
-        <a href="#schema-inputs">Schema Inputs</a>
-        <a href="#sql-ddl">SQL DDL</a>
-        <a href="#relational">Relational</a>
-        <a href="#spark-delta">Spark &amp; Delta</a>
-        <a href="#advisor">AI Advisor</a>
-        <a href="#mcp">MCP</a>
+        <a href="getting-started/">Getting Started</a>
+        <a href="schema-generation/">Schema</a>
+        <a href="sql-ddl/">SQL DDL</a>
+        <a href="relational-generation/">Relational</a>
+        <a href="spark-delta/">Spark &amp; Delta</a>
+        <a href="query-aware-generation/">Query-aware</a>
+        <a href="ai-advisor/">AI Advisor</a>
+        <a href="mcp-server/">MCP</a>
         <a href="#docs">Docs</a>
         <a class="nav-pill" href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
         <a class="nav-pill primary" href="https://pypi.org/project/great-generator/">PyPI</a>
@@ -48,7 +91,7 @@
         <p class="lede">Great Generator helps data teams create realistic non-production datasets for development, QA, ETL testing, Spark pipelines, lakehouse demos, CDC, anomalies, relational models, and deterministic advisor-reviewed generation.</p>
         <p class="safety-callout">Great Generator creates synthetic data. It does not anonymize, mask, de-identify, or transform production records.</p>
         <div class="hero-actions">
-          <a class="button primary" href="#quickstart">Get started</a>
+          <a class="button primary" href="getting-started/">Get started</a>
           <a class="button secondary" href="https://github.com/ravikiranpagidi/great-generator">View GitHub</a>
           <a class="button secondary" href="#docs">Read docs</a>
           <a class="button secondary" href="https://pypi.org/project/great-generator/">Install from PyPI</a>
@@ -255,6 +298,35 @@ df = generate_from_schema(
       </div>
     </section>
 
+    <section class="section split" id="audience">
+      <div>
+        <p class="eyebrow">Who this is for</p>
+        <h2>Built for teams that need useful data without production records.</h2>
+        <p>Great Generator is designed for data engineers, QA engineers, analytics engineers, platform teams, Spark users, and developers who need realistic non-production datasets without using production records.</p>
+      </div>
+      <div class="link-panel">
+        <a href="schema-generation/">Generate data from schema</a>
+        <a href="sql-ddl/">Generate from SQL DDL contracts</a>
+        <a href="relational-generation/">Create relational test data</a>
+        <a href="spark-delta/">Use Spark and Delta workflows</a>
+      </div>
+    </section>
+
+    <section class="section" id="common-use-cases">
+      <div class="section-heading">
+        <p class="eyebrow">Common use cases</p>
+        <h2>Practical synthetic data for engineering, analytics, demos, and lower environments.</h2>
+      </div>
+      <div class="trust-grid">
+        <article><h3>Schema-based test data</h3><p>Generate test data from table schemas, DataFrame contracts, and SQL DDL definitions.</p></article>
+        <article><h3>Relational workflows</h3><p>Create related data for joins, warehouse models, parent-child tests, and query examples.</p></article>
+        <article><h3>CDC and anomalies</h3><p>Build CDC-style events and controlled dirty data for data quality validation.</p></article>
+        <article><h3>Spark and lakehouse demos</h3><p>Create Spark and Delta examples for notebooks, ETL tests, and lakehouse documentation.</p></article>
+        <article><h3>Query coverage</h3><p>Generate data that exercises filters, partitions, selectivity targets, and joins.</p></article>
+        <article><h3>Plan review</h3><p>Review generation plans before producing deterministic synthetic datasets.</p></article>
+      </div>
+    </section>
+
     <section class="section" id="schema-inputs">
       <div class="section-heading">
         <p class="eyebrow">Schema inputs</p>
@@ -418,17 +490,20 @@ great-generator-mcp</code></pre>
         <h2>Guides for quick starts, implementation, demos, and releases.</h2>
       </div>
       <div class="doc-grid">
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/QUICKSTART.md"><strong>Quickstart</strong><span>Install, import, generate, inspect, and export.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SCHEMA_INPUTS.md"><strong>Schema Inputs</strong><span>Current support matrix, examples, and limitations.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CONTRACTS_AND_DDL.md"><strong>SQL DDL</strong><span>Canonical contracts, parser diagnostics, and DDL examples.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/MCP_SERVER.md"><strong>MCP Server</strong><span>Optional local MCP tools, client configs, safety limits, outputs, and manifests.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/QUERY_AWARE_GENERATION.md"><strong>Query-Aware Generation</strong><span>Required values, partitions, selectivity, join coverage, and coverage reports.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/API_REFERENCE.md"><strong>API Reference</strong><span>Main public APIs and usage patterns.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/advisors.md"><strong>AI Advisors</strong><span>Optional schema planning, column tagging, caching, and offline Ollama usage.</span></a>
+        <a href="getting-started/"><strong>Quickstart</strong><span>Install, import, generate, inspect, and export.</span></a>
+        <a href="installation/"><strong>Installation</strong><span>Core package, Spark, Delta, advisor, and MCP extras.</span></a>
+        <a href="schema-generation/"><strong>Schema Inputs</strong><span>Current support matrix, examples, and limitations.</span></a>
+        <a href="sql-ddl/"><strong>SQL DDL</strong><span>Canonical contracts, parser diagnostics, and DDL examples.</span></a>
+        <a href="mcp-server/"><strong>MCP Server</strong><span>Optional local MCP tools, client configs, safety limits, outputs, and manifests.</span></a>
+        <a href="query-aware-generation/"><strong>Query-Aware Generation</strong><span>Required values, partitions, selectivity, join coverage, and coverage reports.</span></a>
+        <a href="api-reference/"><strong>API Reference</strong><span>Main public APIs and usage patterns.</span></a>
+        <a href="ai-advisor/"><strong>AI Advisors</strong><span>Optional schema planning, column tagging, caching, and offline Ollama usage.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/plans.md"><strong>Generation Plans</strong><span>`GenerationPlan`, `ColumnTags`, and realism report artifacts.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CDC.md"><strong>CDC</strong><span>Change data capture style event records.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/ANOMALIES.md"><strong>Anomalies</strong><span>Opt-in data problems for quality testing.</span></a>
-        <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SPARK_AND_DELTA.md"><strong>Spark and Delta</strong><span>Cluster usage and lakehouse outputs.</span></a>
+        <a href="cdc/"><strong>CDC</strong><span>Change data capture style event records.</span></a>
+        <a href="anomalies/"><strong>Anomalies</strong><span>Opt-in data problems for quality testing.</span></a>
+        <a href="spark-delta/"><strong>Spark and Delta</strong><span>Cluster usage and lakehouse outputs.</span></a>
+        <a href="examples/"><strong>Examples</strong><span>Notebook, Spark, assistant, and demo workflow starters.</span></a>
+        <a href="roadmap/"><strong>Roadmap</strong><span>Planned schema adapters, Spark-native work, and contribution areas.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/CLOUD_DEPLOYMENT.md"><strong>Cloud Deployment</strong><span>AWS, Azure, GCP, Databricks, and storage guidance.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/RECIPE_AUTHORING.md"><strong>Recipes and CLI</strong><span>Reusable generation parameters and command-line workflows.</span></a>
         <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/DOMAIN_PACKS.md"><strong>Domain Packs</strong><span>Supported industry domains and table layouts.</span></a>
@@ -496,6 +571,9 @@ great-generator-mcp</code></pre>
       <a href="https://ravikiranpagidi.github.io/great-generator/">Documentation</a>
       <a href="https://github.com/ravikiranpagidi/great-generator/wiki">Wiki</a>
       <a href="https://github.com/ravikiranpagidi/great-generator/issues">Issues</a>
+      <a href="sitemap.xml">Sitemap</a>
+      <a href="robots.txt">Robots.txt</a>
+      <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/docs/SEO.md">SEO maintenance</a>
       <a href="https://github.com/ravikiranpagidi/great-generator/blob/main/LICENSE">License</a>
     </div>
     <p>Great Generator is MIT licensed and maintained by Ravi Kiran Pagidi.</p>

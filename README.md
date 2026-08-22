@@ -117,7 +117,7 @@ Online and offline advisors are separate from generation. Anthropic and Ollama a
 
 | Version | Release focus | What changed |
 |---|---|---|
-| Unreleased | Optional MCP server | Added optional `great-generator[mcp]` support, a `great-generator-mcp` entry point, local-file MCP tools, safety controls, docs, examples, and tests. |
+| Unreleased | Optional MCP server and website search discovery | Added optional `great-generator[mcp]` support, a `great-generator-mcp` entry point, local-file MCP tools, safety controls, docs, examples, tests, GitHub Pages sitemap, robots.txt, SEO metadata, and sitemap maintenance docs. |
 | 0.1.7 | SQL DDL contracts and query-aware generation | Added canonical contracts, `parse_ddl(...)`, optional query-aware required values, partitioning, selectivity, relational join coverage, a runnable retail star-schema example, generation manifest guidance, determinism docs, benchmark methodology, and citation metadata. |
 | 0.1.6 | AI advisor planning layer | Added optional design-time advisors for schema understanding, column tagging, and realism review. Added editable `GenerationPlan` and `ColumnTags` JSON artifacts, cached Anthropic and Ollama advisor calls, offline NoOp defaults, manifest metadata, and deterministic `plan=` support in `generate_from_schema`. |
 | 0.1.5 | Schema-first docs and Spark database writes | Repositioned schema generation as the primary workflow. Added a schema input support matrix, Databricks and PySpark examples for Snowflake and Azure SQL, and documentation site updates. |
@@ -135,9 +135,19 @@ Online and offline advisors are separate from generation. Anthropic and Ollama a
 - [Determinism and reproducibility](docs/DETERMINISM.md)
 - [Generation manifest](docs/GENERATION_MANIFEST.md)
 - [Optional MCP server](docs/MCP_SERVER.md)
+- [Website search discovery and SEO maintenance](docs/SEO.md)
 - [Provenance and safety notes](docs/PROVENANCE.md)
 - [Benchmark methodology](docs/BENCHMARKS.md)
 - [Spark and database writes](docs/SPARK_DATABASE_WRITES.md)
+
+## Website and search discovery
+
+The GitHub Pages site includes a sitemap and robots.txt for search discovery.
+
+- Sitemap: `https://ravikiranpagidi.github.io/great-generator/sitemap.xml`
+- Robots: `https://ravikiranpagidi.github.io/great-generator/robots.txt`
+
+See [`docs/SEO.md`](docs/SEO.md) for the release checklist and sitemap maintenance steps.
 
 ## Installation
 

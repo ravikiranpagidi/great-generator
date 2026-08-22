@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SQL DDL Ingestion | Generate synthetic data from CREATE TABLE statements</title>
+  <meta name="description" content="Parse SQL CREATE TABLE statements into schema contracts and generate synthetic data for ANSI, Spark, and Databricks-style table definitions." />
+  <link rel="canonical" href="https://ravikiranpagidi.github.io/great-generator/sql-ddl/" />
+  <meta property="og:title" content="SQL DDL Ingestion | Generate synthetic data from CREATE TABLE statements" />
+  <meta property="og:description" content="Parse SQL CREATE TABLE statements into schema contracts and generate synthetic data for ANSI, Spark, and Databricks-style table definitions." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://ravikiranpagidi.github.io/great-generator/sql-ddl/" />
+  <meta property="og:site_name" content="Great Generator" />
+  <meta property="og:image" content="https://ravikiranpagidi.github.io/great-generator/assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SQL DDL Ingestion | Generate synthetic data from CREATE TABLE statements" />
+  <meta name="twitter:image" content="https://ravikiranpagidi.github.io/great-generator/assets/og.png" />
+  <meta name="twitter:description" content="Parse SQL CREATE TABLE statements into schema contracts and generate synthetic data for ANSI, Spark, and Databricks-style table definitions." />
+  <link rel="stylesheet" href="../assets/site.css?v=20260822-seo" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav" aria-label="Main navigation">
+      <a class="brand" href="../" aria-label="Great Generator home"><span class="brand-mark">GG</span><span>Great Generator</span></a>
+      <div class="nav-links">
+        <a href="../">Home</a>
+        <a href="../getting-started/">Getting Started</a>
+        <a href="../schema-generation/">Schema</a>
+        <a href="../sql-ddl/">SQL DDL</a>
+        <a href="../relational-generation/">Relational</a>
+        <a href="../spark-delta/">Spark</a>
+        <a href="../mcp-server/">MCP</a>
+        <a href="../#docs">Docs</a>
+        <a class="nav-pill" href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
+        <a class="nav-pill primary" href="https://pypi.org/project/great-generator/">PyPI</a>
+      </div>
+    </nav>
+  </header>
+  <main id="main" class="doc-main">
+    <section class="section doc-hero">
+      <p class="eyebrow">SQL DDL</p>
+      <h1>SQL DDL synthetic data workflows</h1>
+      <p class="lede">Use DDL ingestion when the source of truth is a table contract rather than a Python dictionary.</p>
+      <p class="safety-callout">Great Generator creates synthetic data. It does not anonymize, mask, de-identify, or transform production records.</p>
+      <div class="hero-actions">
+        <a class="button primary" href="../getting-started/">Getting started</a>
+        <a class="button secondary" href="../api-reference/">API reference</a>
+        <a class="button secondary" href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
+      </div>
+    </section>
+    <section class="section doc-content-grid">
+      
+        <article class="doc-card">
+          <h2>Parse a CREATE TABLE statement</h2>
+          <p>The parser extracts table names, columns, types, and supported constraints for documented SQL dialects.</p>
+          <pre><code>from great_generator import parse_ddl
+
+contract = parse_ddl(ddl, dialect=&quot;databricks&quot;)
+print(contract)</code></pre>
+        </article>
+
+        <article class="doc-card">
+          <h2>Generate from the contract</h2>
+          <p>The parsed contract can be used as generation input so examples stay close to real database or lakehouse definitions.</p>
+          <pre><code>from great_generator import generate_from_schema
+
+df = generate_from_schema(contract, rows=1000)</code></pre>
+        </article>
+
+        <article class="doc-card">
+          <h2>Good fit</h2>
+          <p>DDL ingestion is useful for contract testing, table onboarding, documentation examples, and lower-environment dataset creation.</p>
+          
+        </article>
+    </section>
+    <section class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Related documentation</p>
+        <h2>Keep exploring</h2>
+      </div>
+      <div class="doc-grid">
+          <a href="../schema-generation/"><strong>Generate synthetic data from schemas</strong><span>Create synthetic test data from schema strings, dictionaries, Pandas DataFrames, and Spark schemas using semantic field detection.</span></a>
+          <a href="../query-aware-generation/"><strong>Query-aware synthetic data</strong><span>Generate synthetic data with required values, partition coverage, selectivity targets, and join coverage for SQL and data engineering tests.</span></a>
+          <a href="../spark-delta/"><strong>Spark, Databricks, Delta, and lakehouse workflows</strong><span>Use Great Generator in Spark and Databricks notebooks to create synthetic datasets and write to Parquet, Delta, DBFS, ADLS, S3, GCS, or configured connectors.</span></a>
+          <a href="../api-reference/"><strong>API reference overview</strong><span>Review the main Great Generator public APIs for schema generation, SQL DDL parsing, relational generation, CDC, anomalies, advisors, and exports.</span></a>
+          <a href="https://github.com/ravikiranpagidi/great-generator"><strong>GitHub repository</strong><span>Source code, issues, releases, and project history.</span></a>
+          <a href="https://pypi.org/project/great-generator/"><strong>PyPI package</strong><span>Install Great Generator from Python Package Index.</span></a>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-links">
+      <a href="../">Home</a>
+      <a href="../getting-started/">Getting Started</a>
+      <a href="../api-reference/">API Reference</a>
+      <a href="https://github.com/ravikiranpagidi/great-generator">GitHub</a>
+      <a href="https://pypi.org/project/great-generator/">PyPI</a>
+    </div>
+    <p>Great Generator is MIT licensed and maintained by Ravi Kiran Pagidi.</p>
+  </footer>
+</body>
+</html>
